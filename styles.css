@@ -26,7 +26,7 @@ body {
 
 
 .container {
-    max-width: 800px; /* Limit the width of the main content */
+    max-width: 200px; /* Limit the width of the main content */
     margin: 50px auto; /* Center the container horizontally, add vertical margin */
     padding: 20px;
     background-color: #ffffff; /* White background for the container */
