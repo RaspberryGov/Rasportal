@@ -14,8 +14,8 @@ body {
 }
 
 .page-header img {
-    width: 500px; /* Adjust this value as needed */
-    height: 500px; /* Adjust this value as needed to match thumbnail proportions */
+    width: 200px; /* Adjust this value as needed */
+    height: 200px; /* Adjust this value as needed to match thumbnail proportions */
     object-fit: contain; /* Ensures the image fits within the dimensions without cropping */
 }
     display: block; /* Remove extra space below inline images */
