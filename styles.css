@@ -56,6 +56,23 @@ body {
     color: #0078d7; /* Change link color on hover (e.g., to blue) */
 }
 
+/* styles.css */
+
+.page-header {
+    background-color: #f0f0f0; /* Example background color */
+    padding: 20px; /* Example padding */
+    text-align: center; /* Example alignment */
+}
+
+.page-header img {
+    max-width: 100%; /* Make the image responsive */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Remove extra space below inline images */
+    margin: 0 auto; /* Center the image horizontally */
+}
+
+/* Your existing styles for container, thumbnail-row, thumbnail, etc. */
+
 /* Mobile Responsiveness (Optional) */
 @media (max-width: 600px) {
     .thumbnail-row {
