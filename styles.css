@@ -7,91 +7,74 @@ body {
 
 /* styles.css */
 
+/* Define the custom font */
+@font-face {
+    font-family: 'Blackout 2AM'; /* Give it a name you'll use in your CSS */
+    src: url('fonts/BlackoutTwoAM.ttf') format('truetype'); /* Adjust the path and format based on your font file */
+    /* You might need to include other formats for better browser compatibility (e.g., .woff, .woff2) */
+    /* src: url('fonts/BlackoutTwoAM.woff2') format('woff2'),
+           url('fonts/BlackoutTwoAM.woff') format('woff'),
+           url('fonts/BlackoutTwoAM.ttf') format('truetype'); */
+    font-weight: normal; /* Or bold, depending on the font file */
+    font-style: normal;  /* Or italic, if applicable */
+}
+
 .page-header {
     background-color: #f0f0f0; /* Example background color */
     padding: 20px; /* Example padding */
     text-align: center; /* Example alignment */
 }
 
+.page-header h1 {
+    font-family: 'Blackout 2AM', sans-serif; /* Apply the custom font */
+    font-size: 2em; /* Adjust the size as needed */
+    color: #333; /* Example text color */
+    margin: 0; /* Remove default heading margin */
+}
+
+/* Add or modify this rule to style the header image */
 .page-header img {
-    width: 150px; /* Adjust this value as needed */
-    height: 150px; /* Adjust this value as needed to match thumbnail proportions */
-    object-fit: contain; /* Ensures the image fits within the dimensions without cropping */
+    max-width: 150px; /* Adjust this value to your desired maximum width (in pixels) */
+    height: auto; /* This will maintain the image's aspect ratio */
+    display: block; /* Helps with layout and margin control */
+    margin: 0 auto 10px; /* Centers the image horizontally and adds bottom spacing */
 }
-    display: block; /* Remove extra space below inline images */
-    margin: 0 auto; /* Center the image horizontally */
-}
-
-/* Your existing styles for container, thumbnail-row, thumbnail, etc. */
-
 
 .container {
-    max-width: 100px; /* Limit the width of the main content */
-    margin: 50px auto; /* Center the container horizontally, add vertical margin */
+    max-width: 800px;
+    margin: 20px auto;
     padding: 20px;
-    background-color: #ffffff; /* White background for the container */
-    border-radius: 8px; /* Rounded corners for the container */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .thumbnail-row {
-    display: flex; /* Use flexbox for horizontal layout */
-    justify-content: center; /* Center thumbnails horizontally */
-    gap: 20px; /* Space between thumbnails */
-    margin-top: 20px; /* Add space above the thumbnail row */
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    justify-content: center; /* Center the thumbnails horizontally */
 }
 
 .thumbnail {
+    flex: 0 0 auto; /* Don't grow or shrink, base size on content */
     text-align: center;
-    /* Removed fixed width, adjust as needed.  Flexbox will manage sizing */
-    /* width: 200px;  */
-}
-
-.thumbnail img {
-    width: 150px; /* Fixed image size */
-    height: 150px;
-    border-radius: 5px; /* Rounded corners for images */
-    object-fit: cover; /* Ensure images fill the box without distortion */
-    border: 1px solid #ddd; /* Add a border */
-    transition: transform 0.2s ease-in-out; /* Smooth transition on hover */
-}
-
-.thumbnail img:hover {
-    transform: scale(1.1); /* Enlarge on hover */
-}
-
-.thumbnail h3 {
-    margin-top: 10px; /* Space between image and title */
-    font-size: 1.2em;
-    color: #333;
 }
 
 .thumbnail a {
-    text-decoration: none; /* Remove underline from links */
-    color: #333; /* Default link color */
-    display: block; /* Make the entire thumbnail clickable */
+    text-decoration: none;
+    color: #333;
 }
 
-.thumbnail a:hover {
-    color: #0078d7; /* Change link color on hover (e.g., to blue) */
+.thumbnail img {
+    width: 100px; /* Example thumbnail width */
+    height: 100px; /* Example thumbnail height */
+    object-fit: cover; /* Crop to fit dimensions */
+    border-radius: 5px;
+    margin-bottom: 5px;
 }
 
-
-/* Mobile Responsiveness (Optional) */
-@media (max-width: 600px) {
-    .thumbnail-row {
-        flex-direction: column; /* Stack thumbnails vertically on small screens */
-        align-items: center; /* Center items when stacked */
-    }
-    .container {
-        padding: 10px; /* Adjust padding for small screens */
-    }
-    .thumbnail {
-       width: 90%; /* Make thumbnails take up most of the width on small screens */
-       max-width: 300px; /* But don't let them get too wide. */
-    }
-    .thumbnail img{
-        width: 100%; /* Make images fill their container */
-        height: auto; /* Maintain aspect ratio */
-    }
+.thumbnail h3 {
+    margin-top: 0;
+    font-size: 1em;
 }
