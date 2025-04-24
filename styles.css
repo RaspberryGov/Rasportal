@@ -34,7 +34,7 @@ body {
 
 /* Add or modify this rule to style the header image */
 .page-header img {
-    max-width: 50px; /* Adjust this value to your desired maximum width (in pixels) */
+    max-width: 100px; /* Adjust this value to your desired maximum width (in pixels) */
     height: auto; /* This will maintain the image's aspect ratio */
     display: block; /* Helps with layout and margin control */
     margin: 0 auto 10px; /* Centers the image horizontally and adds bottom spacing */
