@@ -1,0 +1,76 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0; /* Light grey background */
+}
+
+.container {
+    max-width: 800px; /* Limit the width of the main content */
+    margin: 50px auto; /* Center the container horizontally, add vertical margin */
+    padding: 20px;
+    background-color: #ffffff; /* White background for the container */
+    border-radius: 8px; /* Rounded corners for the container */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.thumbnail-row {
+    display: flex; /* Use flexbox for horizontal layout */
+    justify-content: center; /* Center thumbnails horizontally */
+    gap: 20px; /* Space between thumbnails */
+    margin-top: 20px; /* Add space above the thumbnail row */
+}
+
+.thumbnail {
+    text-align: center;
+    /* Removed fixed width, adjust as needed.  Flexbox will manage sizing */
+    /* width: 200px;  */
+}
+
+.thumbnail img {
+    width: 150px; /* Fixed image size */
+    height: 150px;
+    border-radius: 5px; /* Rounded corners for images */
+    object-fit: cover; /* Ensure images fill the box without distortion */
+    border: 1px solid #ddd; /* Add a border */
+    transition: transform 0.2s ease-in-out; /* Smooth transition on hover */
+}
+
+.thumbnail img:hover {
+    transform: scale(1.1); /* Enlarge on hover */
+}
+
+.thumbnail h3 {
+    margin-top: 10px; /* Space between image and title */
+    font-size: 1.2em;
+    color: #333;
+}
+
+.thumbnail a {
+    text-decoration: none; /* Remove underline from links */
+    color: #333; /* Default link color */
+    display: block; /* Make the entire thumbnail clickable */
+}
+
+.thumbnail a:hover {
+    color: #0078d7; /* Change link color on hover (e.g., to blue) */
+}
+
+/* Mobile Responsiveness (Optional) */
+@media (max-width: 600px) {
+    .thumbnail-row {
+        flex-direction: column; /* Stack thumbnails vertically on small screens */
+        align-items: center; /* Center items when stacked */
+    }
+    .container {
+        padding: 10px; /* Adjust padding for small screens */
+    }
+    .thumbnail {
+       width: 90%; /* Make thumbnails take up most of the width on small screens */
+       max-width: 300px; /* But don't let them get too wide. */
+    }
+    .thumbnail img{
+        width: 100%; /* Make images fill their container */
+        height: auto; /* Maintain aspect ratio */
+    }
+}
