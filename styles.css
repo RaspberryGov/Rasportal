@@ -5,6 +5,26 @@ body {
     background-color: #f0f0f0; /* Light grey background */
 }
 
+/* styles.css */
+
+.page-header {
+    background-color: #f0f0f0; /* Example background color */
+    padding: 20px; /* Example padding */
+    text-align: center; /* Example alignment */
+}
+
+.page-header img {
+    width: 150px; /* Adjust this value as needed */
+    height: 100px; /* Adjust this value as needed to match thumbnail proportions */
+    object-fit: contain; /* Ensures the image fits within the dimensions without cropping */
+}
+    display: block; /* Remove extra space below inline images */
+    margin: 0 auto; /* Center the image horizontally */
+}
+
+/* Your existing styles for container, thumbnail-row, thumbnail, etc. */
+
+
 .container {
     max-width: 800px; /* Limit the width of the main content */
     margin: 50px auto; /* Center the container horizontally, add vertical margin */
@@ -56,24 +76,6 @@ body {
     color: #0078d7; /* Change link color on hover (e.g., to blue) */
 }
 
-/* styles.css */
-
-.page-header {
-    background-color: #f0f0f0; /* Example background color */
-    padding: 20px; /* Example padding */
-    text-align: center; /* Example alignment */
-}
-
-.page-header img {
-    width: 150px; /* Adjust this value as needed */
-    height: 100px; /* Adjust this value as needed to match thumbnail proportions */
-    object-fit: contain; /* Ensures the image fits within the dimensions without cropping */
-}
-    display: block; /* Remove extra space below inline images */
-    margin: 0 auto; /* Center the image horizontally */
-}
-
-/* Your existing styles for container, thumbnail-row, thumbnail, etc. */
 
 /* Mobile Responsiveness (Optional) */
 @media (max-width: 600px) {
