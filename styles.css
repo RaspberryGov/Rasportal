@@ -10,7 +10,7 @@ body {
 /* Define the custom font */
 @font-face {
     font-family: 'Blackout 2AM'; /* Give it a name you'll use in your CSS */
-    src: url('fonts/BlackoutTwoAM.ttf') format('truetype'); /* Adjust the path and format based on your font file */
+    src: url('fonts/Blackout-2am.ttf') format('truetype'); /* Adjust the path and format based on your font file */
     /* You might need to include other formats for better browser compatibility (e.g., .woff, .woff2) */
     /* src: url('fonts/BlackoutTwoAM.woff2') format('woff2'),
            url('fonts/BlackoutTwoAM.woff') format('woff'),
