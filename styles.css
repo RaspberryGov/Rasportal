@@ -32,6 +32,7 @@ body {
     font-weight: bold;
     display: flex;        /* Add this */
     align-items: center;  /* Add this */
+    justify-content: center; /* Added to center the content horizontally */
 }
 
 
