@@ -21,6 +21,7 @@ body {
     background-color: #f0f0f0; /* Example background color */
     padding: 20px; /* Example padding */
     text-align: center; /* Example alignment */
+    justify-content: center; /* Added to center the content horizontally */
 }
 
 .page-header h3 {
