@@ -43,7 +43,6 @@ body {
 .container {
     max-width: 300px;
     margin: 5px auto;
-    padding-top: 20px;  /* Set top padding to 20px */
     padding: 20px;
     background-color: #fff;
     border-radius: 8px;
