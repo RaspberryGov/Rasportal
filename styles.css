@@ -23,7 +23,7 @@ body {
     text-align: center; /* Example alignment */
 }
 
-.page-header h1 {
+.page-header h3 {
     font-family: 'Blackout Midnight 2AM', serif;  /* Apply the custom font */
     /* Keep other existing styles for the header */
     margin: 0;
