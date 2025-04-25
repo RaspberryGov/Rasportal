@@ -27,9 +27,11 @@ body {
     font-family: 'Blackout Midnight 2AM', serif;  /* Apply the custom font */
     /* Keep other existing styles for the header */
     margin: 0;
-    font-size: 1.5em;
+    font-size: 1.0em;
     line-height: 1;
     font-weight: bold;
+    display: flex;        /* Add this */
+    align-items: center;  /* Add this */
 }
 
 
