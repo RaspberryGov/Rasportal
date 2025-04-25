@@ -11,9 +11,10 @@ body {
 @font-face {
     font-family: 'Blackout Midnight 2AM';
     src: url('./fonts/Blackout-2am.ttf') format('truetype');
-    font-weight: normal;  /* Or specify a weight if needed */
-    font-style: normal;  /* Or specify a style if needed */
+    font-weight: normal; /* Or specify a weight if needed */
+    font-style: normal; /* Or specify a style if needed */
 }
+
 
 
 .page-header {
