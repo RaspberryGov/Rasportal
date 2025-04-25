@@ -25,7 +25,7 @@ body {
     text-align: center; /* Example alignment */
 }
 
-.page-header h1 {
+.page-header h2 {
     font-family: 'Blackout 2AM', sans-serif; /* Apply the custom font */
     font-size: 2em; /* Adjust the size as needed */
     color: #333; /* Example text color */
