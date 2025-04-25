@@ -9,15 +9,12 @@ body {
 
 /* Define the custom font */
 @font-face {
-    font-family: 'Blackout 2AM'; /* Give it a name you'll use in your CSS */
-    src: url('./fonts/Blackout-2am.ttf') format('truetype'); /* Adjust the path and format based on your font file */
-    /* You might need to include other formats for better browser compatibility (e.g., .woff, .woff2) */
-    /* src: url('fonts/BlackoutTwoAM.woff2') format('woff2'),
-           url('fonts/BlackoutTwoAM.woff') format('woff'),
-           url('fonts/BlackoutTwoAM.ttf') format('truetype'); */
-    font-weight: normal; /* Or bold, depending on the font file */
-    font-style: normal;  /* Or italic, if applicable */
+    font-family: 'Blackout Midnight 2AM';
+    src: url('./fonts/Blackout-2AM.ttf') format('truetype');
+    font-weight: normal;  /* Or specify a weight if needed */
+    font-style: normal;  /* Or specify a style if needed */
 }
+
 
 .page-header {
     background-color: #f0f0f0; /* Example background color */
@@ -25,12 +22,15 @@ body {
     text-align: center; /* Example alignment */
 }
 
-.page-header h2 {
-    font-family: 'Blackout 2AM', sans-serif; /* Apply the custom font */
-    font-size: 2em; /* Adjust the size as needed */
-    color: #333; /* Example text color */
-    margin: 0; /* Remove default heading margin */
+.page-header h1 {
+    font-family: 'Blackout Midnight 2AM', serif;  /* Apply the custom font */
+    /* Keep other existing styles for the header */
+    margin: 0;
+    font-size: 2.5em;
+    line-height: 1;
+    font-weight: bold;
 }
+
 
 /* Add or modify this rule to style the header image */
 .page-header img {
