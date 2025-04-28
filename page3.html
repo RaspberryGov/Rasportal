@@ -229,7 +229,6 @@
                 } else {
                     trc20BalanceSpan.textContent = "N/A";
                     tokenNameSpan.textContent = "N/A";
-                    tokenSymbolSpan.textContent = "N/A";
                 }
                 await getStakedInfo();
 
@@ -238,7 +237,6 @@
                 trxBalanceSpan.textContent = 'N/A';
                 trc20BalanceSpan.textContent = 'N/A';
                 tokenNameSpan.textContent = "N/A";
-                tokenSymbolSpan.textContent = "N/A";
             }
         }
 
@@ -326,6 +324,7 @@
         // Initialize when the page loads
         document.addEventListener('DOMContentLoaded', async () => {
             await initializeTronWeb();
+            await connectWallet(); // Call connectWallet here to ensure balances are fetched on page load
         });
     </script>
 </body>
