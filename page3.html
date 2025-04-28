@@ -47,10 +47,24 @@
         </div>
     </header>
 
-    <main class="container">
-        <h2>Page 3 Content</h2>
-        <p>This is the content of Page 3.</p>
-    </main>
+<main class="container">
+    <h2>Stake/Unstake Raspberry Dollars</h2>
+    <div class="staking-container">
+        <div>
+            <label for="stakeAmount">Amount to Stake:</label>
+            <input type="number" id="stakeAmount" placeholder="Enter amount">
+            <button id="stakeButton">Stake</button>
+        </div>
+        <div>
+            <label for="unstakeAmount">Amount to Unstake:</label>
+            <input type="number" id="unstakeAmount" placeholder="Enter amount">
+            <button id="unstakeButton">Unstake</button>
+        </div>
+        <p>APY Rate: 15%</p>
+        <div id="stakingMessage"></div>
+    </div>
+</main>
+
 
     <script>
         const connectWalletBtn = document.getElementById('connectWalletBtn');
@@ -157,23 +171,6 @@
         }
     </script>
 
-    <main class="container">
-    <h2>Stake/Unstake Raspberry Dollars</h2>
-    <div class="staking-container">
-        <div>
-            <label for="stakeAmount">Amount to Stake:</label>
-            <input type="number" id="stakeAmount" placeholder="Enter amount">
-            <button id="stakeButton">Stake</button>
-        </div>
-        <div>
-            <label for="unstakeAmount">Amount to Unstake:</label>
-            <input type="number" id="unstakeAmount" placeholder="Enter amount">
-            <button id="unstakeButton">Unstake</button>
-        </div>
-        <p>APY Rate: 15%</p>
-        <div id="stakingMessage"></div>
-    </div>
-</main>
 
 </body>
 </html>
