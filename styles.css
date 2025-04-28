@@ -72,8 +72,8 @@ body {
 }
 
 .thumbnail img {
-    width: 100%; /* Example thumbnail width */
-    height: 100%; /* Example thumbnail height */
+    width: 80%; /* Example thumbnail width */
+    height: 80%; /* Example thumbnail height */
     object-fit: cover; /* Crop to fit dimensions */
      justify-content: space-between;  /* Space images evenly */
   align-items: center;       /* Vertically center items if needed */
