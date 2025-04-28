@@ -3,13 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raspberry Republic Info</title>
-    <link rel="stylesheet" href="styles.css"> </head>
+    <title>Page 3</title>
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
+    <link rel="stylesheet" href="./styles.css"> <style>
+        #connectWalletBtn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #walletInfo {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        #walletInfo p{
+          margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
 <body>
-    <div class="container">
-        <h1>Welcome to The Raspberry Portal</h1>
-        <p>You can access all things within The Republic of Raspberry.</p>
-        <a href="index.html">Back to Home</a>
-    </div>
+    <header class="page-header">
+        <div class="container">
+            <h1 class="header-title">
+                Raspberry Portal
+                <a href="page3.html">
+                    <img src="images/info.png" alt="Question Mark" class="header-icon">
+                </a>
+            </h1>
+             <button id="connectWalletBtn">Connect Wallet</button>
+            <div id="walletInfo">
+                <p>Address: <span id="walletAddress"></span></p>
+                <p>TRX Balance: <span id="trxBalance"></span></p>
+                <p>TRC20 Balance: <span id="trc20Balance"></span></p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Page 3 Content</h2>
+        <p>This is the content of Page 3.</p>
+    </main>
+
+    <script>
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const walletInfoDiv = document.getElementById('walletInfo');
+        const walletAddressSpan = document.getElementById('walletAddress');
+        const trxBalanceSpan = document.getElementById('trxBalance');
+        const trc20BalanceSpan = document.getElementById('trc20Balance');
+        const TRC20_TOKEN_ADDRESS = "your_trc20_token_address"; // Replace with your TRC20 token address.  Example: "TR7NHqjeKQxGTCi9p4Jj9qzUQXj6n5xXwgw"
+
+        let tronWeb;
+
+        async function initializeTronWeb() {
+            if (window.tronWeb) {
+                tronWeb = window.tronWeb;
+            } else {
+                //Try to use the TronLink injected provider
+                if (window.tronLink && window.tronLink.ready) {
+                    tronWeb = window.tronWeb;
+                }
+                else{
+                    // Fallback to a default HTTP provider (for development only, NOT recommended for production)
+                    tronWeb = new TronWeb({
+                        fullNode: 'https://api.trongrid.io',  // Or another full node
+                        solidityNode: 'https://api.trongrid.io',  // Or another solidity node
+                        eventServer: 'https://api.trongrid.io' // Or a event server.
+                    });
+                }
+            }
+        }
+
+
+
+        connectWalletBtn.addEventListener('click', async () => {
+            await connectWallet();
+        });
+
+        async function connectWallet() {
+            try {
+                await initializeTronWeb();
+                if (!tronWeb.defaultAddress) {
+                    alert('Please install TronLink and connect to a Tron account!');
+                    return;
+                }
+
+                if (tronWeb && tronWeb.defaultAddress) {
+                    walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
+                    await getBalances();
+                    walletInfoDiv.style.display = 'block';
+                    connectWalletBtn.style.display = 'none';
+
+                } else {
+                    alert("Wallet connection failed! Is TronLink installed and unlocked?");
+                }
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet. See console for details.');
+            }
+        }
+
+        async function getBalances() {
+            try {
+                // Get TRX balance
+                const trxBalance = await tronWeb.trx.getBalance(tronWeb.defaultAddress.base58);
+                trxBalanceSpan.textContent = (trxBalance / 1000000).toFixed(2) + ' TRX'; // Convert from SUN to TRX
+
+                // Get TRC20 balance (replace with your token address)
+                if(TRC20_TOKEN_ADDRESS){
+                  try{
+                    const tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
+                    const trc20Balance = await tokenContract.balanceOf(tronWeb.defaultAddress.base58).call();
+                    const decimals = await tokenContract.decimals().call(); // Get the number of decimals
+                    const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
+                    trc20BalanceSpan.textContent = balance.toFixed(2) + ' TRC20';
+                  }
+                  catch(e){
+                    console.log("Error fetching TRC20 balance", e);
+                    trc20BalanceSpan.textContent = "N/A";
+                  }
+
+                }
+                else{
+                    trc20BalanceSpan.textContent = "N/A";
+                }
+
+
+            } catch (error) {
+                console.error('Failed to get balances:', error);
+                trxBalanceSpan.textContent = 'N/A';
+                trc20BalanceSpan.textContent = 'N/A';
+            }
+        }
+    </script>
 </body>
 </html>
