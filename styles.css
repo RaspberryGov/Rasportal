@@ -72,8 +72,8 @@ body {
 }
 
 .thumbnail img {
-    width: 75px; /* Example thumbnail width */
-    height: 75px; /* Example thumbnail height */
+    width: 150px; /* Example thumbnail width */
+    height: 150px; /* Example thumbnail height */
     object-fit: cover; /* Crop to fit dimensions */
     border-radius: 5px;
     margin-bottom: 5px;
