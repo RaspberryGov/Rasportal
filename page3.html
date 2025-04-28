@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page 3</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
-    <link rel="stylesheet" href="./styles.css"> <style>
+    <link rel="stylesheet" href="./styles.css">
+    <style>
         #connectWalletBtn {
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -39,7 +40,9 @@
             <div id="walletInfo">
                 <p>Address: <span id="walletAddress"></span></p>
                 <p>TRX Balance: <span id="trxBalance"></span></p>
-                <p>TRC20 Balance: <span id="trc20Balance"></span></p>
+                <p>Token Balance: <span id="trc20Balance"></span></p>
+                <p>Token Name: <span id="tokenName"></span></p>
+                <p>Token Symbol: <span id="tokenSymbol"></span></p>
             </div>
         </div>
     </header>
@@ -55,6 +58,8 @@
         const walletAddressSpan = document.getElementById('walletAddress');
         const trxBalanceSpan = document.getElementById('trxBalance');
         const trc20BalanceSpan = document.getElementById('trc20Balance');
+        const tokenNameSpan = document.getElementById('tokenName');
+        const tokenSymbolSpan = document.getElementById('tokenSymbol');
         const TRC20_TOKEN_ADDRESS = "TNp9BX9NMjsmWPZugw13VisP1oVJT2pMDv"; // Replace with your TRC20 token address.  Example: "TR7NHqjeKQxGTCi9p4Jj9qzUQXj6n5xXwgw"
 
         let tronWeb;
@@ -119,17 +124,26 @@
                     const tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
                     const trc20Balance = await tokenContract.balanceOf(tronWeb.defaultAddress.base58).call();
                     const decimals = await tokenContract.decimals().call(); // Get the number of decimals
+                    const name = await tokenContract.name().call();  // Get the token name
+                    const symbol = await tokenContract.symbol().call(); // Get the token symbol
+
                     const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
-                    trc20BalanceSpan.textContent = balance.toFixed(2) + ' TRC20';
+                    trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
+                    tokenNameSpan.textContent = name;
+                    tokenSymbolSpan.textContent = symbol;
                   }
                   catch(e){
-                    console.log("Error fetching TRC20 balance", e);
+                    console.log("Error fetching TRC20 balance/metadata", e);
                     trc20BalanceSpan.textContent = "N/A";
+                    tokenNameSpan.textContent = "N/A";
+                    tokenSymbolSpan.textContent = "N/A";
                   }
 
                 }
                 else{
                     trc20BalanceSpan.textContent = "N/A";
+                    tokenNameSpan.textContent = "N/A";
+                    tokenSymbolSpan.textContent = "N/A";
                 }
 
 
@@ -137,6 +151,8 @@
                 console.error('Failed to get balances:', error);
                 trxBalanceSpan.textContent = 'N/A';
                 trc20BalanceSpan.textContent = 'N/A';
+                tokenNameSpan.textContent = "N/A";
+                tokenSymbolSpan.textContent = "N/A";
             }
         }
     </script>
