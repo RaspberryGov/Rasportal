@@ -46,7 +46,7 @@ body {
 }
 
 .container {
-    max-width: 300px;
+    max-width: 325px;
     margin: 5px auto;
     padding: 20px;
     background-color: #fff;
@@ -72,8 +72,8 @@ body {
 }
 
 .thumbnail img {
-    width: 80%; /* Example thumbnail width */
-    height: 80%; /* Example thumbnail height */
+    width: 100%; /* Example thumbnail width */
+    height: 100%; /* Example thumbnail height */
     object-fit: cover; /* Crop to fit dimensions */
      justify-content: space-between;  /* Space images evenly */
   align-items: center;       /* Vertically center items if needed */
