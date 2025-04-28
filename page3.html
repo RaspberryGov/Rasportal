@@ -83,7 +83,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                RAS Portal
+                Raspberry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -244,7 +244,7 @@
             if (!stakingContract) return;
             try {
                 const stakedAmount = await stakingContract.getStakingBalance(accountAddress).call();  // Changed to getStakingBalance
-                const earnedAmount = await stakingContract.earnedAmounts(accountAddress).call();
+                const earnedAmount = await stakingContract.calculateEarnedTokens(accountAddress).call(); //changed to calculateEarnedTokens
                 const decimals = await tokenContract.decimals().call(); // Use decimals from token contract.
 
                 totalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2) + " RPD";
@@ -272,7 +272,7 @@
                 const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
                 await tronWeb.trx.getTransactionInfo(approveTx); //wait for transaction to be confirmed.
 
-                const tx = await stakingContract.stake(amountToSend).send();
+                const tx = await stakingContract.stake(amountToSend).send({callValue: amountToSend}); // Pass amountToSend as callValue
                 stakingMessage.textContent = `Staking transaction submitted.  Transaction ID: ${tx}`;
                 stakeAmountInput.value = ''; // Clear input
                 await tronWeb.trx.getTransactionInfo(tx);
