@@ -60,7 +60,7 @@
         const trc20BalanceSpan = document.getElementById('trc20Balance');
         const tokenNameSpan = document.getElementById('tokenName');
         const tokenSymbolSpan = document.getElementById('tokenSymbol');
-        const TRC20_TOKEN_ADDRESS = "TNp9BX9NMjsmWPZugw13VisP1oVJT2pMDv"; // Replace with your TRC20 token address.  Example: "TR7NHqjeKQxGTCi9p4Jj9qzUQXj6n5xXwgw"
+        const TRC20_TOKEN_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace with your TRC20 token address.  Example: "TR7NHqjeKQxGTCi9p4Jj9qzUQXj6n5xXwgw"
 
         let tronWeb;
 
@@ -75,9 +75,9 @@
                 else{
                     // Fallback to a default HTTP provider (for development only, NOT recommended for production)
                     tronWeb = new TronWeb({
-                        fullNode: 'https://api.trongrid.io',  // Or another full node
-                        solidityNode: 'https://api.trongrid.io',  // Or another solidity node
-                        eventServer: 'https://api.trongrid.io' // Or a event server.
+                        fullNode: 'https://nile.trongrid.io',  // Nile Testnet
+                        solidityNode: 'https://nile.trongrid.io',  // Nile Testnet
+                        eventServer: 'https://nile.trongrid.io' // Nile Testnet
                     });
                 }
             }
