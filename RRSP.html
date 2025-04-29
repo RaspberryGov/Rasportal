@@ -40,6 +40,7 @@
             display: flex;
             justify-content: space-around;
             margin-bottom: 20px;
+            margin-top: 10px; /* Reduced margin-top from 20px to 10px */
         }
         .staking-container div {
             width: 45%;
@@ -51,7 +52,7 @@
             align-items: flex-start;
         }
         .staking-container h3 {
-            margin-top: 0.5rem;
+            margin-top: 0.2rem; /* Reduced margin-top from 0.5rem to 0.2rem */
             margin-bottom: 1rem;
         }
 
@@ -104,10 +105,9 @@
 <body>
     <header class="page-header">
         <div class="container">
-            <h3 class="header-title">
-                Raspberry Portal
+            <h3 class="header-title" style="margin-bottom: 10px;"> Raspberry Portal
             </h3>
-             <button id="connectWalletBtn">Connect Wallet</button>
+            <button id="connectWalletBtn">Connect Wallet</button>
             <div id="walletInfo">
                 <p>Address: <span id="walletAddress"></span></p>
                 <p>TRX Balance: <span id="trxBalance"></span></p>
@@ -115,7 +115,7 @@
                 <p>Token Name: <span id="tokenName"></span></p>
                 <p>Token Symbol: <span id="tokenSymbol"></span></p>
             </div>
-      <a href="index.html">Back to Home</a>
+        <a href="index.html">Back to Home</a>
         </div>
     </header>
 
