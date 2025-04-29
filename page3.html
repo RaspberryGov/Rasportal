@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 3</title>
+    <title>RRSP</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -83,7 +83,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspberry Portal
+                Ras Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -138,7 +138,7 @@
         const unstakeAmountInput = document.getElementById('unstakeAmount');
         const stakingMessage = document.getElementById('stakingMessage');
         const totalStakedSpan = document.getElementById('totalStaked');
-        const totalEarnedSpan = document.getElementById('totalEarned');
+        const totalEarnedSpan = document.getElementById('totalEarnedSpan');
 
         let tronWeb;
         let tokenContract;
@@ -266,20 +266,19 @@
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
 
-                // Approve the staking contract to spend the tokens.
+                // Approve the staking contract to spend the tokens.  This is crucial.
                 const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
-                await tronWeb.trx.getTransactionInfo(approveTx); //wait for transaction to be confirmed.
+                await tronWeb.trx.getTransactionInfo(approveTx); // Wait for approval to be confirmed.
 
+                // Execute the stake transaction
                 const tx = await stakingContract.stake(amountToSend).send({
-                    callValue: amountToSend, //  Pass the token amount in callValue
                     feeLimit: 100_000_000,
-                    shouldPollResponse: false // Add this line
+                    shouldPollResponse: false
                 });
 
-                stakingMessage.textContent = `Staking transaction submitted.  Transaction ID: ${tx}`;
+                stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${tx}`;
                 stakeAmountInput.value = ''; // Clear input
-                 // Wait for the transaction to be confirmed (optional, but recommended)
-                await tronWeb.trx.getTransactionInfo(tx);
+                await tronWeb.trx.getTransactionInfo(tx);  //wait for stake transaction
                 await getBalances();
 
             } catch (error) {
