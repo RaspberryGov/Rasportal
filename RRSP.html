@@ -23,10 +23,11 @@
             border-radius: 5px;
             margin-top: 10px;
             margin-bottom: 20px;
+
         }
-        #walletInfo p {
-            margin-bottom: 0.2rem;
-            font-size: 0.9em;
+        #walletInfo p{
+          margin-bottom: 0.2rem; /* Reduced spacing between paragraphs */
+          font-size: 0.9em; /* Reduced font size */
         }
 
         .staking-container {
@@ -34,19 +35,12 @@
             justify-content: space-around;
             margin-bottom: 20px;
         }
-        .deposit-container {
+        .staking-container div {
             width: 45%;
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        .earnings-container {
-            width: 45%;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
         .staking-container h3 {
             margin-top: 0;
             margin-bottom: 1rem;
@@ -72,7 +66,7 @@
             cursor: pointer;
             margin-top: 10px;
         }
-        .staking-container button:hover {
+         .staking-container button:hover {
             background-color: #367c39;
         }
 
@@ -90,12 +84,12 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspb Portal
+                Raspberry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
             </h1>
-            <button id="connectWalletBtn">Connect Wallet</button>
+             <button id="connectWalletBtn">Connect Wallet</button>
             <div id="walletInfo">
                 <p>Address: <span id="walletAddress"></span></p>
                 <p>TRX Balance: <span id="trxBalance"></span></p>
@@ -109,19 +103,19 @@
     <main class="container">
         <h2>Stake/Unstake Raspberry Dollars</h2>
         <div class="staking-container">
-            <div class="deposit-container">
+            <div>
                 <h3>Stake</h3>
                 <label for="stakeAmount">Amount to Stake:</label>
                 <input type="number" id="stakeAmount" placeholder="Enter amount">
                 <button id="stakeButton">Deposit</button>  <p>Total Deposited: <span id="totalStaked">0</span> RBD</p>
+                <p>Total Earned: <span id="totalEarned">0</span> RPD</p>
             </div>
-            <div class="earnings-container">
-                <h3>Unstake/Withdraw</h3>
+            <div>
+                <h3>Unstake</h3>
                 <label for="unstakeAmount">Amount to Unstake:</label>
                 <input type="number" id="unstakeAmount" placeholder="Enter amount">
                 <button id="unstakeButton">Unstake</button>
                 <button id="withdrawButton">Withdraw</button>
-                <p>Total Earned: <span id="totalEarned">0</span> RPD</p>
             </div>
         </div>
         <p>APY Rate: 15%</p>
@@ -145,7 +139,7 @@
         const unstakeAmountInput = document.getElementById('unstakeAmount');
         const stakingMessage = document.getElementById('stakingMessage');
         const totalStakedSpan = document.getElementById('totalStaked');
-        const totalEarnedSpan = document.getElementById('totalEarned');
+        const totalEarnedSpan = document.getElementById('totalEarnedSpan');
 
         let tronWeb;
         let tokenContract;
@@ -222,6 +216,7 @@
                         const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
                         trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
                         tokenNameSpan.textContent = name;
+                        tokenSymbolSpan.textContent = symbol;
                     } catch (e) {
                         console.error("Error fetching TRC20 balance/metadata", e);
                         trc20BalanceSpan.textContent = "N/A";
@@ -272,26 +267,25 @@
 
                 // Approve the staking contract to spend the tokens.
                 const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
-                console.log("Approval Transaction:", approveTx);
+                console.log("Approval Transaction:", approveTx);  // Debugging
                 if (!approveTx) {
                     throw new Error("Token approval transaction failed.");
                 }
-                await tronWeb.trx.getTransactionInfo(approveTx); // Wait for approval.
+                await tronWeb.trx.getTransactionInfo(approveTx); // Wait for approval to be confirmed.
 
 
                 // Execute the stake transaction
-                const stakeTx = await stakingContract.stake(amountToSend).send({   // Changed this line
+                const stakeTx = await stakingContract.stake(amountToSend).send({
                     feeLimit: 100_000_000,
                     shouldPollResponse: false
                 });
-                console.log("Stake Transaction:", stakeTx);
+                console.log("Stake Transaction:", stakeTx); // Debugging
 
                 if (!stakeTx) {
-                    throw new Error("Staking transaction failed.");
+                  throw new Error("Staking transaction failed.");
                 }
-
                 stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${stakeTx}`;
-                stakeAmountInput.value = '';
+                stakeAmountInput.value = ''; // Clear input
                 await tronWeb.trx.getTransactionInfo(stakeTx);
                 await getBalances();
 
@@ -351,4 +345,4 @@
         });
     </script>
 </body>
-</html>
+</html
