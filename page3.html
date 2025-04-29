@@ -83,7 +83,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Rasp Portal
+                Raspberry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -271,7 +271,7 @@
                 await tronWeb.trx.getTransactionInfo(approveTx); //wait for transaction to be confirmed.
 
                 const tx = await stakingContract.stake(amountToSend).send({
-                    callValue: 0, // Important:  callValue should be 0 for TRC-20 stake functions
+                    callValue: amountToSend, //  Pass the token amount in callValue
                     feeLimit: 100_000_000,
                     shouldPollResponse: false // Add this line
                 });
