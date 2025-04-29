@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RRSP</title>
+    <title>Page 3</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -100,14 +100,14 @@
     </header>
 
     <main class="container">
-        <h2>RRSP</h2>
+        <h2>Stake/Unstake Raspberry Dollars</h2>
         <div class="staking-container">
             <div>
-                <h3>Deposit</h3>
-                <label for="stakeAmount">Amount to deposit:</label>
+                <h3>Stake</h3>
+                <label for="stakeAmount">Amount to Stake:</label>
                 <input type="number" id="stakeAmount" placeholder="Enter amount">
                 <button id="stakeButton">Deposit</button>  <p>Total Deposited: <span id="totalStaked">0</span> RBD</p>
-                <p>Total Earned: <span id="totalEarned">0</span> RBD</p>
+                <p>Total Earned: <span id="totalEarned">0</span> RPD</p>
             </div>
             <div>
                 <h3>Unstake</h3>
@@ -223,7 +223,6 @@
                         console.error("Error fetching TRC20 balance/metadata", e);
                         trc20BalanceSpan.textContent = "N/A";
                         tokenNameSpan.textContent = "N/A";
-                        tokenSymbolSpan.textContent = "N/A";
                     }
                 } else {
                     trc20BalanceSpan.textContent = "N/A";
@@ -271,9 +270,15 @@
                 const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
                 await tronWeb.trx.getTransactionInfo(approveTx); //wait for transaction to be confirmed.
 
-                const tx = await stakingContract.stake(amountToSend).send({callValue: 0, feeLimit: 100_000_000}); // Pass amountToSend as callValue, and a feeLimit
+                const tx = await stakingContract.stake(amountToSend).send({
+                    callValue: 0, // Important:  callValue should be 0 for TRC-20 stake functions
+                    feeLimit: 100_000_000,
+                    shouldPollResponse: false // Add this line
+                });
+
                 stakingMessage.textContent = `Staking transaction submitted.  Transaction ID: ${tx}`;
                 stakeAmountInput.value = ''; // Clear input
+                 // Wait for the transaction to be confirmed (optional, but recommended)
                 await tronWeb.trx.getTransactionInfo(tx);
                 await getBalances();
 
@@ -292,7 +297,7 @@
             try {
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
-                const tx = await stakingContract.unstake(amountToSend).send({feeLimit: 100_000_000});
+                const tx = await stakingContract.unstake(amountToSend).send({feeLimit: 100_000_000, shouldPollResponse: false});
                 stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
                 unstakeAmountInput.value = '';
                 await tronWeb.trx.getTransactionInfo(tx);
@@ -305,7 +310,7 @@
 
         withdrawButton.addEventListener('click', async () => {
             try {
-                const tx = await stakingContract.withdrawEarned().send({feeLimit: 100_000_000});
+                const tx = await stakingContract.withdrawEarned().send({feeLimit: 100_000_000, shouldPollResponse: false});
                 stakingMessage.textContent = `Withdraw transaction submitted. Transaction ID: ${tx}`;
                 await tronWeb.trx.getTransactionInfo(tx);
                 await getBalances();
