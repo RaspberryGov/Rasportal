@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 3</title>
+    <title>RRSP</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -26,7 +26,8 @@
 
         }
         #walletInfo p{
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.2rem; /* Reduced spacing between paragraphs */
+          font-size: 0.9em; /* Reduced font size */
         }
 
         .staking-container {
@@ -83,7 +84,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspberry Portal
+                RAS Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -103,17 +104,17 @@
         <h2>Stake/Unstake Raspberry Dollars</h2>
         <div class="staking-container">
             <div>
-                <h3>Stake</h3>
-                <label for="stakeAmount">Amount to Stake:</label>
+                <h3>Deposit</h3>
+                <label for="stakeAmount">Amount to deposit:</label>
                 <input type="number" id="stakeAmount" placeholder="Enter amount">
                 <button id="stakeButton">Deposit</button>  <p>Total Deposited: <span id="totalStaked">0</span> RBD</p>
-                <p>Total Earned: <span id="totalEarned">0</span> RPD</p>
+                <p>Total Earned: <span id="totalEarned">0</span> RBD</p>
             </div>
             <div>
-                <h3>Unstake</h3>
-                <label for="unstakeAmount">Amount to Unstake:</label>
+                <h3>End Earning</h3>
+                <label for="unstakeAmount">Amount to withdraw:</label>
                 <input type="number" id="unstakeAmount" placeholder="Enter amount">
-                <button id="unstakeButton">Unstake</button>
+                <button id="unstakeButton">End Earning</button>
                 <button id="withdrawButton">Withdraw</button>
             </div>
         </div>
