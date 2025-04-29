@@ -90,7 +90,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspberry Portal
+                Raspb Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -222,7 +222,6 @@
                         const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
                         trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
                         tokenNameSpan.textContent = name;
-                        tokenSymbolSpan.textContent = symbol;
                     } catch (e) {
                         console.error("Error fetching TRC20 balance/metadata", e);
                         trc20BalanceSpan.textContent = "N/A";
@@ -273,25 +272,26 @@
 
                 // Approve the staking contract to spend the tokens.
                 const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
-                console.log("Approval Transaction:", approveTx);  // Debugging
+                console.log("Approval Transaction:", approveTx);
                 if (!approveTx) {
                     throw new Error("Token approval transaction failed.");
                 }
-                await tronWeb.trx.getTransactionInfo(approveTx); // Wait for approval to be confirmed.
+                await tronWeb.trx.getTransactionInfo(approveTx); // Wait for approval.
 
 
                 // Execute the stake transaction
-                const stakeTx = await stakingContract.stake(amountToSend).send({
+                const stakeTx = await stakingContract.stake(amountToSend).send({   // Changed this line
                     feeLimit: 100_000_000,
                     shouldPollResponse: false
                 });
-                console.log("Stake Transaction:", stakeTx); // Debugging
+                console.log("Stake Transaction:", stakeTx);
 
                 if (!stakeTx) {
-                  throw new Error("Staking transaction failed.");
+                    throw new Error("Staking transaction failed.");
                 }
+
                 stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${stakeTx}`;
-                stakeAmountInput.value = ''; // Clear input
+                stakeAmountInput.value = '';
                 await tronWeb.trx.getTransactionInfo(stakeTx);
                 await getBalances();
 
