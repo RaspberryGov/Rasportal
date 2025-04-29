@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page 3</title>
-    <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
         #connectWalletBtn {
@@ -130,8 +129,6 @@
         const trc20BalanceSpan = document.getElementById('trc20Balance');
         const tokenNameSpan = document.getElementById('tokenName');
         const tokenSymbolSpan = document.getElementById('tokenSymbol');
-        const TRC20_TOKEN_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx";  // Replace with your TRC-20 token address.
-        const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace with your staking contract address
         const stakeButton = document.getElementById('stakeButton');
         const unstakeButton = document.getElementById('unstakeButton');
         const withdrawButton = document.getElementById('withdrawButton');
@@ -141,50 +138,19 @@
         const totalStakedSpan = document.getElementById('totalStaked');
         const totalEarnedSpan = document.getElementById('totalEarned');
 
+        // Removed TronWeb and contract related variables
         let tronWeb;
         let tokenContract;
         let stakingContract;
         let accountAddress;
 
         async function initializeTronWeb() {
-            if (window.tronWeb) {
-                tronWeb = window.tronWeb;
-            } else {
-                //Try to use the TronLink injected provider
-                if (window.tronLink && window.tronLink.ready) {
-                    tronWeb = window.tronWeb;
-                }
-                else{
-                    // Fallback to a default HTTP provider (for development only, NOT recommended for production)
-                    tronWeb = new TronWeb({
-                        fullNode: 'https://nile.trongrid.io',  // Nile Testnet
-                        solidityNode: 'https://nile.trongrid.io',  // Nile Testnet
-                        eventServer: 'https://nile.trongrid.io' // Nile Testnet
-                    });
-                }
-            }
+           //Removed all tronWeb code
         }
 
         async function connectWallet() {
             try {
-                await initializeTronWeb();
-                if (!tronWeb.defaultAddress) {
-                    alert('Please install TronLink and connect to a Tron account!');
-                    return;
-                }
-                accountAddress = tronWeb.defaultAddress.base58;
-
-
-                if (tronWeb && tronWeb.defaultAddress) {
-                    walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
-                    await getBalances();
-                    walletInfoDiv.style.display = 'block';
-                    connectWalletBtn.style.display = 'none';
-                    await initializeContracts();
-
-                } else {
-                    alert("Wallet connection failed! Is TronLink installed and unlocked?");
-                }
+               //Removed all tronWeb code
             } catch (error) {
                 console.error('Failed to connect wallet:', error);
                 alert('Failed to connect wallet. See console for details.');
@@ -192,46 +158,17 @@
         }
 
         async function initializeContracts() {
-            try {
-                tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
-                stakingContract = await tronWeb.contract().at(STAKING_CONTRACT_ADDRESS);
-            } catch (error) {
-                console.error("Failed to initialize contracts:", error);
-                alert("Failed to initialize contracts.  Check console for details.");
-            }
+            //Removed contract initialization
         }
 
 
         async function getBalances() {
             try {
-                // Get TRX balance
-                const trxBalance = await tronWeb.trx.getBalance(accountAddress);
-                trxBalanceSpan.textContent = (trxBalance / 1000000).toFixed(2) + ' TRX'; // Convert from SUN to TRX
-
-                // Get TRC20 balance
-                if (TRC20_TOKEN_ADDRESS) {
-                    try {
-                        const tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
-                        const trc20Balance = await tokenContract.balanceOf(accountAddress).call();
-                        const decimals = await tokenContract.decimals().call();
-                        const name = await tokenContract.name().call();
-                        const symbol = await tokenContract.symbol().call();
-                        const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
-                        trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
-                        tokenNameSpan.textContent = name;
-                        tokenSymbolSpan.textContent = symbol;
-                    } catch (e) {
-                        console.error("Error fetching TRC20 balance/metadata", e);
-                        trc20BalanceSpan.textContent = "N/A";
-                        tokenNameSpan.textContent = "N/A";
-                        tokenSymbolSpan.textContent = "N/A";
-                    }
-                } else {
-                    trc20BalanceSpan.textContent = "N/A";
-                    tokenNameSpan.textContent = "N/A";
-                }
-                await getStakedInfo();
-
+                //Removed all balance calls
+                walletAddressSpan.textContent = 'N/A';
+                trxBalanceSpan.textContent = 'N/A';
+                trc20BalanceSpan.textContent = 'N/A';
+                tokenNameSpan.textContent = 'N/A';
             } catch (error) {
                 console.error('Failed to get balances:', error);
                 trxBalanceSpan.textContent = 'N/A';
@@ -241,19 +178,9 @@
         }
 
         async function getStakedInfo() {
-            if (!stakingContract) return;
-            try {
-                const stakedAmount = await stakingContract.getStakingBalance(accountAddress).call();  // Changed to getStakingBalance
-                const earnedAmount = await stakingContract.calculateEarnedTokens(accountAddress).call(); //changed to calculateEarnedTokens
-                const decimals = await tokenContract.decimals().call(); // Use decimals from token contract.
-
-                totalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2) + " RPD";
-                totalEarnedSpan.textContent = (earnedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2)  + " RPD";
-            } catch (error) {
-                console.error("Error fetching staked info:", error);
-                totalStakedSpan.textContent = "N/A";
-                totalEarnedSpan.textContent = "N/A";
-            }
+            //Removed smart contract calls
+            totalStakedSpan.textContent = "0";
+            totalEarnedSpan.textContent = "0";
         }
 
 
@@ -265,18 +192,9 @@
             }
 
             try {
-                const decimals = await tokenContract.decimals().call();
-                const amountToSend = amount * Math.pow(10, decimals);
-
-                // Approve the staking contract to spend the tokens.
-                const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
-                await tronWeb.trx.getTransactionInfo(approveTx); //wait for transaction to be confirmed.
-
-                const tx = await stakingContract.stake(amountToSend).send({callValue: amountToSend}); // Pass amountToSend as callValue
-                stakingMessage.textContent = `Staking transaction submitted.  Transaction ID: ${tx}`;
+               //Removed all blockchain interaction
+                stakingMessage.textContent = `Staking of ${amount}  submitted.`;
                 stakeAmountInput.value = ''; // Clear input
-                await tronWeb.trx.getTransactionInfo(tx);
-                await getBalances();
 
             } catch (error) {
                 console.error('Stake failed:', error);
@@ -291,13 +209,10 @@
                 return;
             }
             try {
-                const decimals = await tokenContract.decimals().call();
-                const amountToSend = amount * Math.pow(10, decimals);
-                const tx = await stakingContract.unstake(amountToSend).send();
-                stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
+                //Removed blockchain interaction
+                stakingMessage.textContent = `Unstaking of ${amount}  submitted.`;
                 unstakeAmountInput.value = '';
-                await tronWeb.trx.getTransactionInfo(tx);
-                await getBalances();
+
             } catch (error) {
                 console.error('Unstake failed:', error);
                 stakingMessage.textContent = "Unstake failed: " + error.message;
@@ -306,10 +221,9 @@
 
         withdrawButton.addEventListener('click', async () => {
             try {
-                const tx = await stakingContract.withdrawEarned().send();
-                stakingMessage.textContent = `Withdraw transaction submitted. Transaction ID: ${tx}`;
-                await tronWeb.trx.getTransactionInfo(tx);
-                await getBalances();
+                //Removed blockchain interaction
+                stakingMessage.textContent = `Withdraw transaction submitted.`;
+
             } catch (error) {
                 console.error('Withdraw failed:', error);
                 stakingMessage.textContent = "Withdraw failed: " + error.message;
