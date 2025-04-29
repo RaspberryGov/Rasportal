@@ -83,7 +83,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspberry Portal
+                Rasp Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -100,15 +100,14 @@
     </header>
 
     <main class="container">
-        <h2>Raspberry Republic Savings Plan</h2>
+        <h2>Stake/Unstake Raspberry Dollars</h2>
         <div class="staking-container">
             <div>
-                <h3>Deposit</h3>
-                <label for="stakeAmount">Amount to deposit:</label>
+                <h3>Stake</h3>
+                <label for="stakeAmount">Amount to Stake:</label>
                 <input type="number" id="stakeAmount" placeholder="Enter amount">
-                <button id="stakeButton">DEPOSIT</button>
-                <p>Total Deposited: <span id="totalStaked">0</span></p>
-                <p>Total Earned: <span id="totalEarned">0</span></p>
+                <button id="stakeButton">Deposit</button>  <p>Total Deposited: <span id="totalStaked">0</span> RBD</p>
+                <p>Total Earned: <span id="totalEarned">0</span> RPD</p>
             </div>
             <div>
                 <h3>Unstake</h3>
@@ -132,7 +131,7 @@
         const tokenSymbolSpan = document.getElementById('tokenSymbol');
         const TRC20_TOKEN_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx";  // Replace with your TRC-20 token address.
         const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace with your staking contract address
-        const stakeButton = document.getElementById('stakeButton');
+        const stakeButton = document.getElementById('stakeButton');  // Keep stakeButton
         const unstakeButton = document.getElementById('unstakeButton');
         const withdrawButton = document.getElementById('withdrawButton');
         const stakeAmountInput = document.getElementById('stakeAmount');
@@ -247,7 +246,7 @@
                 const earnedAmount = await stakingContract.calculateEarnedTokens(accountAddress).call(); //changed to calculateEarnedTokens
                 const decimals = await tokenContract.decimals().call(); // Use decimals from token contract.
 
-                totalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2) + " RPD";
+                totalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2) + " RBD"; // Changed to RBD
                 totalEarnedSpan.textContent = (earnedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2)  + " RPD";
             } catch (error) {
                 console.error("Error fetching staked info:", error);
@@ -257,7 +256,7 @@
         }
 
 
-        stakeButton.addEventListener('click', async () => {
+        stakeButton.addEventListener('click', async () => {  // Corrected event listener
             const amount = parseFloat(stakeAmountInput.value);
             if (isNaN(amount) || amount <= 0) {
                 stakingMessage.textContent = "Invalid stake amount.";
