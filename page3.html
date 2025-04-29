@@ -83,7 +83,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Rasp Portal
+                Raspberry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -271,7 +271,7 @@
                 const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
                 await tronWeb.trx.getTransactionInfo(approveTx); //wait for transaction to be confirmed.
 
-                const tx = await stakingContract.stake(amountToSend).send({callValue: amountToSend}); // Pass amountToSend as callValue
+                const tx = await stakingContract.stake(amountToSend).send({callValue: 0, feeLimit: 100_000_000}); // Pass amountToSend as callValue, and a feeLimit
                 stakingMessage.textContent = `Staking transaction submitted.  Transaction ID: ${tx}`;
                 stakeAmountInput.value = ''; // Clear input
                 await tronWeb.trx.getTransactionInfo(tx);
@@ -292,7 +292,7 @@
             try {
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
-                const tx = await stakingContract.unstake(amountToSend).send();
+                const tx = await stakingContract.unstake(amountToSend).send({feeLimit: 100_000_000});
                 stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
                 unstakeAmountInput.value = '';
                 await tronWeb.trx.getTransactionInfo(tx);
@@ -305,7 +305,7 @@
 
         withdrawButton.addEventListener('click', async () => {
             try {
-                const tx = await stakingContract.withdrawEarned().send();
+                const tx = await stakingContract.withdrawEarned().send({feeLimit: 100_000_000});
                 stakingMessage.textContent = `Withdraw transaction submitted. Transaction ID: ${tx}`;
                 await tronWeb.trx.getTransactionInfo(tx);
                 await getBalances();
