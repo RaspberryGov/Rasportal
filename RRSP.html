@@ -124,7 +124,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Conntribute to RRSP
+                Contribute to RRSP
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -332,17 +332,19 @@
 
         queryBalanceBtn.addEventListener('click', async () => {
             try {
-                const stakingBalances = await stakingContract.GetStakingBalances(accountAddress).call();
-                const earnedTokens = await stakingContract.calculateEarnedTokens(accountAddress).call();
+                // IMPORTANT:  Replace these with the *actual* function names from your smart contract
+                const totalStaked = await stakingContract.getStakingBalance(accountAddress).call();  //  <--- Changed to getStakingBalance
+                const totalEarned = await stakingContract.calculateEarnedTokens(accountAddress).call();
 
-                console.log("Staking Balances:", stakingBalances);
-                console.log("Earned Tokens:", earnedTokens);
+                console.log("Total Deposited:", totalStaked);
+                console.log("Total Earned:", totalEarned);
 
-                const totalStaked = stakingBalances.toNumber() / Math.pow(10, tokenDecimals);  // Use the stored tokenDecimals
-                const totalEarned = earnedTokens.toNumber() / Math.pow(10, tokenDecimals);    // Use the stored tokenDecimals
+                const stakedAmount = totalStaked.toNumber() / Math.pow(10, tokenDecimals);
+                const earnedAmount = totalEarned.toNumber() / Math.pow(10, tokenDecimals);
 
-                unstakeTotalStakedSpan.textContent = totalStaked.toFixed(2) + ' RBD';
-                unstakeTotalEarnedSpan.textContent = totalEarned.toFixed(2) + ' RBD';
+
+                unstakeTotalStakedSpan.textContent = stakedAmount.toFixed(2) + ' RBD';
+                unstakeTotalEarnedSpan.textContent = earnedAmount.toFixed(2) + ' RBD';
                 stakingMessage.textContent = "Balances updated!";
 
             } catch (error) {
