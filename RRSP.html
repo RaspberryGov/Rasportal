@@ -85,7 +85,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Ras Portal
+                Raspberry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -316,8 +316,8 @@
             try {
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
-                //  Corrected order: accountAddress first, then amountToSend
-                const stakeTx = await stakingContract.stake(accountAddress, amountToSend).send({
+
+                const stakeTx = await stakingContract.stake(amountToSend).send({
                         feeLimit: 100_000_000,
                         shouldPollResponse: false
                     });
@@ -416,3 +416,4 @@
     </script>
 </body>
 </html>
+
