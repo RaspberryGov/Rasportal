@@ -85,7 +85,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspberry Portal
+                Rpberry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -317,14 +317,13 @@
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
                 const stakeTx = await stakingContract.stake(amountToSend).send({ // Use amountToSend here
-                        feeLimit: 500_000_000,
+                        feeLimit: 100_000_000,
                         shouldPollResponse: false
                     });
                 console.log("Stake Transaction:", stakeTx);
                 stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${stakeTx}`;
                 stakeAmountInput.value = ''; // Clear input
-
-                let stakeTxInfo = await tronWeb.trx.getTransactionInfo(stakeTx);
+                 let stakeTxInfo = await tronWeb.trx.getTransactionInfo(stakeTx);
                 console.log("Stake Transaction Info:", stakeTxInfo);
 
                 if (stakeTxInfo.result !== 'SUCCESS') {
@@ -349,7 +348,7 @@
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
                 const tx = await stakingContract.unstake(amountToSend).send({
-                    feeLimit: 500_000_000,
+                    feeLimit: 100_000_000,
                     shouldPollResponse: false
                 });
                 stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
@@ -378,7 +377,7 @@
         withdrawButton.addEventListener('click', async () => {
             try {
                 const tx = await stakingContract.withdrawEarned().send({
-                    feeLimit: 500_000_000,
+                    feeLimit: 100_000_000,
                     shouldPollResponse: false
                 });
                 stakingMessage.textContent = `Withdraw transaction submitted. Transaction ID: ${tx}`;
