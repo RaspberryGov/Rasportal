@@ -156,8 +156,6 @@
             </div>
             <div>
                 <h3>Unstake</h3>
-                <label for="unstakeAmount">Amount to Unstake:</label>
-                <input type="number" id="unstakeAmount" placeholder="Enter amount">
                 <button id="withdrawButton">Withdraw</button>
             </div>
         </div>
@@ -177,10 +175,10 @@
         const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace your staking contract address
         const depositButton = document.getElementById('depositButton');
         const stakeButton = document.getElementById('stakeButton');
-        const unstakeButton = document.getElementById('unstakeButton');  // unused, but keep for now
+        const unstakeButton = document.getElementById('unstakeButton');
         const withdrawButton = document.getElementById('withdrawButton');
         const stakeAmountInput = document.getElementById('stakeAmount');
-        const unstakeAmountInput = document.getElementById('unstakeAmount');
+        const unstakeAmountInput = document.getElementById('unstakeAmount'); // No longer used, but can be kept if needed later
         const stakingMessage = document.getElementById('stakingMessage');
         const totalStakedSpan = document.getElementById('totalStaked');
         const totalEarnedSpan = document.getElementById('totalEarned');
@@ -281,10 +279,10 @@
             }
         }
 
-        async function getStakingBalances() { // Corrected function name
+        async function getStakingBalances() {
             if (!stakingContract) return;
             try {
-                const stakedAmount = await stakingContract.getStakingBalance(accountAddress).call(); //changed from getStakingBalances to getStakingBalance
+                const stakedAmount = await stakingContract.getStakingBalance(accountAddress).call();
                 const earnedAmount = await stakingContract.calculateEarnedTokens(accountAddress).call();
                 const decimals = await tokenContract.decimals().call();
 
@@ -357,9 +355,7 @@
                 return;
             }
             try {
-                //const decimals = await tokenContract.decimals().call();  // Removed this line
-                //const amountToSend = amount * Math.pow(10, decimals);  // Removed this line
-                const amountToSend = amount; // Changed to use the raw amount
+                const amountToSend = amount;
 
                 const stakeTx = await stakingContract.stake(amountToSend).send({
                         feeLimit: 100_000_000,
@@ -374,7 +370,7 @@
                 if (stakeTxInfo.result !== 'SUCCESS') {
                     console.error("Staking Transaction was not successful", stakeTxInfo);
                     stakingMessage.textContent = "Staking Transaction was not successful.  Check console for details.";
-                    return; // IMPORTANT: Return after failed stake
+                    return;
                 }
                 await getBalances();
             } catch (error) {
@@ -384,19 +380,12 @@
         });
 
         withdrawButton.addEventListener('click', async () => {
-            const amount = parseFloat(unstakeAmountInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                stakingMessage.textContent = "Invalid unstake amount.";
-                return;
-            }
             try {
-                const decimals = await tokenContract.decimals().call();
-                const amountToSend = amount * Math.pow(10, decimals);
-                const tx = await stakingContract.unstake(amountToSend).send({  // Changed to unstake
+                const tx = await stakingContract.unstake().send({
                     feeLimit: 100_000_000,
                     shouldPollResponse: false
                 });
-                stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`; // Changed message
+                stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
                 unstakeAmountInput.value = '';
                  let txInfo;
                 try{
@@ -414,14 +403,14 @@
                 }
                 await getBalances();
             } catch (error) {
-                console.error('Unstake failed:', error);  // Changed to Unstake
-                stakingMessage.textContent = "Unstake failed: " + error.message; // Changed to Unstake
+                console.error('Unstake failed:', error);
+                stakingMessage.textContent = "Unstake failed: " + error.message;
             }
         });
 
-        queryBalanceBtn.addEventListener('click', async () => { // New event listener for the button
+        queryBalanceBtn.addEventListener('click', async () => {
             try {
-                await getStakingBalances(); // Call the function to update the display
+                await getStakingBalances();
             } catch (error) {
                 console.error("Failed to query staking balance:", error);
                 stakingMessage.textContent = "Failed to query staking balance: " + error.message;
@@ -436,7 +425,7 @@
         // Initialize when the page loads
         document.addEventListener('DOMContentLoaded', async () => {
             await initializeTronWeb();
-            await connectWallet(); // Call connectWallet here to ensure balances are fetched on page load
+            await connectWallet();
         });
     </script>
 </body>
