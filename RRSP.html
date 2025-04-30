@@ -266,27 +266,72 @@
                 console.log(`Attempting to stake ${amount} RBD (${amountToSend} in smallest units)`); //debugging
 
                 // Approve the staking contract to spend the tokens.
-                const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
-                console.log("Approval Transaction:", approveTx);  // Debugging
+                let approveTx;
+                try{
+                    approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
+                    console.log("Approval Transaction:", approveTx);  // Debugging
+                } catch(approveError){
+                    console.error("Approval Transaction Error:", approveError);
+                    stakingMessage.textContent = "Approval Transaction Failed: " + approveError.message;
+                    return;
+                }
+
+
                 if (!approveTx) {
                     throw new Error("Token approval transaction failed.");
                 }
-                await tronWeb.trx.getTransactionInfo(approveTx); // Wait for approval to be confirmed.
+                let approveTxInfo;
+                try {
+                  approveTxInfo = await tronWeb.trx.getTransactionInfo(approveTx);
+                  console.log("Approval Transaction Info:", approveTxInfo);
+                } catch(error){
+                    console.error("Error getting Approval Transaction Info", error);
+                    stakingMessage.textContent = "Error getting Approval Transaction Info: " + error.message;
+                    return;
+                }
+
+
+                if (approveTxInfo.result !== 'SUCCESS') {
+                    console.error("Approval Transaction was not successful", approveTxInfo);
+                    stakingMessage.textContent = "Approval Transaction was not successful.  Check console for details.";
+                    return;
+                }
 
 
                 // Execute the stake transaction
-                const stakeTx = await stakingContract.stake(amountToSend).send({
-                    feeLimit: 100_000_000,
-                    shouldPollResponse: false
-                });
-                console.log("Stake Transaction:", stakeTx); // Debugging
+                let stakeTx;
+                try{
+                    stakeTx = await stakingContract.stake(amountToSend).send({
+                        feeLimit: 100_000_000,
+                        shouldPollResponse: false
+                    });
+                    console.log("Stake Transaction:", stakeTx); // Debugging
+                } catch(stakeError){
+                    console.error("Stake Transaction Error:", stakeError);
+                    stakingMessage.textContent = "Staking Transaction Failed: " + stakeError.message;
+                    return;
+                }
+
 
                 if (!stakeTx) {
                   throw new Error("Staking transaction failed.");
                 }
                 stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${stakeTx}`;
                 stakeAmountInput.value = ''; // Clear input
-                await tronWeb.trx.getTransactionInfo(stakeTx);
+                let stakeTxInfo;
+                try{
+                    stakeTxInfo = await tronWeb.trx.getTransactionInfo(stakeTx);
+                    console.log("Stake Transaction Info:", stakeTxInfo);
+                 } catch(error){
+                    console.error("Error getting Stake Transaction Info", error);
+                    stakingMessage.textContent = "Error getting Stake Transaction Info: " + error.message;
+                    return;
+                }
+                if (stakeTxInfo.result !== 'SUCCESS') {
+                    console.error("Staking Transaction was not successful", stakeTxInfo);
+                    stakingMessage.textContent = "Staking Transaction was not successful.  Check console for details.";
+                    return;
+                }
                 await getBalances();
 
             } catch (error) {
@@ -310,7 +355,20 @@
                 });
                 stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
                 unstakeAmountInput.value = '';
-                await tronWeb.trx.getTransactionInfo(tx);
+                 let txInfo;
+                try{
+                    txInfo = await tronWeb.trx.getTransactionInfo(tx);
+                    console.log("Unstake Transaction Info:", txInfo);
+                 } catch(error){
+                    console.error("Error getting Unstake Transaction Info", error);
+                    stakingMessage.textContent = "Error getting Unstake Transaction Info: " + error.message;
+                    return;
+                }
+                if (txInfo.result !== 'SUCCESS') {
+                    console.error("Unstaking Transaction was not successful", txInfo);
+                    stakingMessage.textContent = "Unstaking Transaction was not successful.  Check console for details.";
+                    return;
+                }
                 await getBalances();
             } catch (error) {
                 console.error('Unstake failed:', error);
@@ -325,7 +383,20 @@
                     shouldPollResponse: false
                 });
                 stakingMessage.textContent = `Withdraw transaction submitted. Transaction ID: ${tx}`;
-                await tronWeb.trx.getTransactionInfo(tx);
+                 let txInfo;
+                try{
+                    txInfo = await tronWeb.trx.getTransactionInfo(tx);
+                    console.log("Withdraw Transaction Info:", txInfo);
+                 } catch(error){
+                    console.error("Error getting Withdraw Transaction Info", error);
+                    stakingMessage.textContent = "Error getting Withdraw Transaction Info: " + error.message;
+                    return;
+                }
+                if (txInfo.result !== 'SUCCESS') {
+                    console.error("Withdraw Transaction was not successful", txInfo);
+                    stakingMessage.textContent = "Withdraw Transaction was not successful.  Check console for details.";
+                    return;
+                }
                 await getBalances();
             } catch (error) {
                 console.error('Withdraw failed:', error);
@@ -345,4 +416,4 @@
         });
     </script>
 </body>
-</html
+</html>
