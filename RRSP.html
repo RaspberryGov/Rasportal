@@ -116,6 +116,27 @@
 
         .header-title {
             font-family: 'Blackout 2AM', sans-serif;
+            display: inline-flex; /* Use inline-flex for better alignment */
+            align-items: center; /* Vertically center items */
+        }
+
+        #backToHomeBtn {
+            padding: 5px 10px; /* Reduced padding */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px; /* Added margin to move it away from the image */
+            font-size: 0.8em; /* Smaller font size */
+        }
+        #backToHomeBtn:hover {
+            background-color: #367c39;
+        }
+
+        .header-icon {
+            margin-right: 5px; /* Reduced margin */
+            height: 24px; /* explicitly set height */
         }
 
     </style>
@@ -128,6 +149,7 @@
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
+                <button id="backToHomeBtn">Home</button>
             </h1>
              <button id="connectWalletBtn">Connect Wallet</button>
             <div id="walletInfo">
@@ -187,6 +209,7 @@
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
         const allowButton = document.getElementById('allowButton');
         const withdrawButton = document.getElementById('withdrawButton'); // Get the withdraw button
+        const backToHomeBtn = document.getElementById('backToHomeBtn');
 
         let tronWeb;
         let tokenContract;
@@ -367,9 +390,12 @@
             }
         });
 
-
         connectWalletBtn.addEventListener('click', async () => {
             await connectWallet();
+        });
+
+        backToHomeBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
         });
 
         // Initialize when the page loads
