@@ -30,6 +30,20 @@
           font-size: 0.9em; /* Reduced font size */
         }
 
+        .info-container { /* New container style */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center items horizontally */
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .info-container p {
+            margin-bottom: 0.5rem;
+        }
+
         .staking-container {
             display: flex;
             justify-content: space-around;
@@ -79,13 +93,26 @@
             background-color: #f9f9f9;
             word-wrap: break-word;
         }
+        #queryBalanceBtn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px; /* Added margin to separate buttons */
+        }
+        #queryBalanceBtn:hover {
+            background-color: #367c39;
+        }
     </style>
 </head>
 <body>
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Ras Portal
+                Raspberry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -103,6 +130,12 @@
 
     <main class="container">
         <h2>Stake/Unstake Raspberry Dollars</h2>
+
+        <div class="info-container">  <button id="queryBalanceBtn">Query Balance</button>
+            <p>Total Deposited: <span id="totalStaked">0</span> RBD</p>
+            <p>Total Earned: <span id="totalEarned">0</span> RPD</p>
+        </div>
+
         <div class="staking-container">
             <div>
                 <h3>Stake</h3>
@@ -141,6 +174,7 @@
         const stakingMessage = document.getElementById('stakingMessage');
         const totalStakedSpan = document.getElementById('totalStaked');
         const totalEarnedSpan = document.getElementById('totalEarned');
+        const queryBalanceBtn = document.getElementById('queryBalanceBtn'); // Get the new button
 
         let tronWeb;
         let tokenContract;
@@ -400,6 +434,15 @@
             } catch (error) {
                 console.error('Withdraw failed:', error);
                 stakingMessage.textContent = "Withdraw failed: " + error.message;
+            }
+        });
+
+        queryBalanceBtn.addEventListener('click', async () => { // New event listener for the button
+            try {
+                await getStakingBalances(); // Call the function to update the display
+            } catch (error) {
+                console.error("Failed to query staking balance:", error);
+                stakingMessage.textContent = "Failed to query staking balance: " + error.message;
             }
         });
 
