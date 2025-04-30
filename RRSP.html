@@ -132,7 +132,7 @@
         const tokenNameSpan = document.getElementById('tokenName');
         const tokenSymbolSpan = document.getElementById('tokenSymbol');
         const TRC20_TOKEN_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx";  // Replace with your TRC-20 token address.
-        const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace with your staking contract address
+        const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace your staking contract address
         const depositButton = document.getElementById('depositButton');
         const stakeButton = document.getElementById('stakeButton');
         const unstakeButton = document.getElementById('unstakeButton');
@@ -228,7 +228,7 @@
                     trc20BalanceSpan.textContent = "N/A";
                     tokenNameSpan.textContent = "N/A";
                 }
-                await getStakedInfo();
+                await getStakingBalances();
 
             } catch (error) {
                 console.error('Failed to get balances:', error);
@@ -238,10 +238,10 @@
             }
         }
 
-        async function getStakedInfo() {
+        async function getStakingBalances() { // Corrected function name
             if (!stakingContract) return;
             try {
-                const stakedAmount = await stakingContract.getStakingBalance(accountAddress).call();
+                const stakedAmount = await stakingContract.getStakingBalance(accountAddress).call(); //changed from getStakingBalances to getStakingBalance
                 const earnedAmount = await stakingContract.calculateEarnedTokens(accountAddress).call();
                 const decimals = await tokenContract.decimals().call();
 
