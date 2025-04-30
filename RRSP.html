@@ -7,6 +7,13 @@
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
+        @font-face {
+            font-family: 'Blackout 2AM';
+            src: url('./fonts/Blackout-2am.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         #connectWalletBtn {
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -106,13 +113,18 @@
         #queryBalanceBtn:hover {
             background-color: #367c39;
         }
+
+        .header-title {
+            font-family: 'Blackout 2AM', sans-serif;
+        }
+
     </style>
 </head>
 <body>
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspberry Portal
+                Contribute to RRSP
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -129,7 +141,6 @@
     </header>
 
     <main class="container">
-        <h2>Contribute to RRSP</h2>
 
         <div class="info-container">  <button id="queryBalanceBtn">Query Balance</button>
             <p>Total Deposited: <span id="totalStaked">0.00</span> RBD</p>
@@ -139,7 +150,6 @@
         <div class="staking-container">
             <div>
                 <h3>Deposit to RRSP</h3>
-                <p>APY Rate: 15%</p>
                 <label for="stakeAmount">Amount to deposit:</label>
                 <input type="number" id="stakeAmount" placeholder="Enter amount">
                 <button id="depositButton">Allow</button>  <button id="stakeButton">Deposit</button>
@@ -148,7 +158,6 @@
                 <h3>Unstake</h3>
                 <label for="unstakeAmount">Amount to Unstake:</label>
                 <input type="number" id="unstakeAmount" placeholder="Enter amount">
-                <button id="unstakeButton">Unstake</button>
                 <button id="withdrawButton">Withdraw</button>
             </div>
         </div>
@@ -168,7 +177,7 @@
         const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace your staking contract address
         const depositButton = document.getElementById('depositButton');
         const stakeButton = document.getElementById('stakeButton');
-        const unstakeButton = document.getElementById('unstakeButton');
+        const unstakeButton = document.getElementById('unstakeButton');  // unused, but keep for now
         const withdrawButton = document.getElementById('withdrawButton');
         const stakeAmountInput = document.getElementById('stakeAmount');
         const unstakeAmountInput = document.getElementById('unstakeAmount');
@@ -374,7 +383,7 @@
             }
         });
 
-        unstakeButton.addEventListener('click', async () => {
+        withdrawButton.addEventListener('click', async () => {
             const amount = parseFloat(unstakeAmountInput.value);
             if (isNaN(amount) || amount <= 0) {
                 stakingMessage.textContent = "Invalid unstake amount.";
@@ -383,11 +392,11 @@
             try {
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
-                const tx = await stakingContract.unstake(amountToSend).send({
+                const tx = await stakingContract.unstake(amountToSend).send({  // Changed to unstake
                     feeLimit: 100_000_000,
                     shouldPollResponse: false
                 });
-                stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
+                stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`; // Changed message
                 unstakeAmountInput.value = '';
                  let txInfo;
                 try{
@@ -405,36 +414,8 @@
                 }
                 await getBalances();
             } catch (error) {
-                console.error('Unstake failed:', error);
-                stakingMessage.textContent = "Unstake failed: " + error.message;
-            }
-        });
-
-        withdrawButton.addEventListener('click', async () => {
-            try {
-                const tx = await stakingContract.withdrawEarned().send({
-                    feeLimit: 100_000_000,
-                    shouldPollResponse: false
-                });
-                stakingMessage.textContent = `Withdraw transaction submitted. Transaction ID: ${tx}`;
-                 let txInfo;
-                try{
-                    txInfo = await tronWeb.trx.getTransactionInfo(tx);
-                    console.log("Withdraw Transaction Info:", txInfo);
-                 } catch(error){
-                    console.error("Error getting Withdraw Transaction Info", error);
-                    stakingMessage.textContent = "Error getting Withdraw Transaction Info: " + error.message;
-                    return;
-                }
-                if (txInfo.result !== 'SUCCESS') {
-                    console.error("Withdraw Transaction was not successful", txInfo);
-                    stakingMessage.textContent = "Withdraw Transaction was not successful.  Check console for details.";
-                    return;
-                }
-                await getBalances();
-            } catch (error) {
-                console.error('Withdraw failed:', error);
-                stakingMessage.textContent = "Withdraw failed: " + error.message;
+                console.error('Unstake failed:', error);  // Changed to Unstake
+                stakingMessage.textContent = "Unstake failed: " + error.message; // Changed to Unstake
             }
         });
 
