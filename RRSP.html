@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width-width, initial-scale=1.0">
     <title>RRSP</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
@@ -134,6 +134,8 @@
                 <p>Address: <span id="walletAddress"></span></p>
                 <p>TRX Balance: <span id="trxBalance"></span></p>
                 <p>Token Balance: <span id="trc20Balance"></span></p>
+                <p>Token Name: <span id="tokenName"></span></p>
+                <p>Token Symbol: <span id="tokenSymbol"></span></p>
             </div>
         </div>
     </header>
@@ -149,7 +151,8 @@
                 <p>APY Rate: 15%</p>
                 <label for="stakeAmount">Amount to deposit:</label>
                 <input type="number" id="stakeAmount" placeholder="Enter amount">
-                <button id="stakeButton">Deposit</button>
+                <button id="allowButton">Allow</button>
+                <button id="stakeButton" disabled>Deposit</button>
             </div>
             <div>
                 <h3>Unstake</h3>
@@ -175,20 +178,20 @@
         const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace your staking contract address
         const stakeButton = document.getElementById('stakeButton');
         const unstakeButton = document.getElementById('unstakeButton');
-        const withdrawButton = document.getElementById('withdrawButton');
         const stakeAmountInput = document.getElementById('stakeAmount');
-        const unstakeAmountInput = document.getElementById('unstakeAmount'); // No longer used, but can be kept if needed later
         const stakingMessage = document.getElementById('stakingMessage');
         const totalStakedSpan = document.getElementById('totalStaked');
         const totalEarnedSpan = document.getElementById('totalEarned');
         const queryBalanceBtn = document.getElementById('queryBalanceBtn'); // Get the new button
         const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');  // new span elements.
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
+        const allowButton = document.getElementById('allowButton');
 
         let tronWeb;
         let tokenContract;
         let stakingContract;
         let accountAddress;
+        let allowanceApproved = false;
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -259,12 +262,16 @@
                         const symbol = await tokenContract.symbol().call();
                         const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
                         trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
+                        tokenNameSpan.textContent = name;
+                        tokenSymbolSpan.textContent = symbol;
                     } catch (e) {
                         console.error("Error fetching TRC20 balance/metadata", e);
                         trc20BalanceSpan.textContent = "N/A";
+                        tokenNameSpan.textContent = "N/A";
                     }
                 } else {
                     trc20BalanceSpan.textContent = "N/A";
+                    tokenNameSpan.textContent = "N/A";
                 }
                 await getStakingBalances();
 
@@ -272,6 +279,8 @@
                 console.error('Failed to get balances:', error);
                 trxBalanceSpan.textContent = 'N/A';
                 trc20BalanceSpan.textContent = 'N/A';
+                tokenNameSpan.textContent = "N/A";
+                tokenSymbolSpan.textContent = "N/A";
             }
         }
 
@@ -296,9 +305,32 @@
             }
         }
 
+        allowButton.addEventListener('click', async () => {
+            const amount = parseFloat(stakeAmountInput.value);
+             if (isNaN(amount) || amount <= 0) {
+                stakingMessage.textContent = "Invalid amount.";
+                return;
+            }
+            try {
+                const decimals = await tokenContract.decimals().call();
+                const amountToSend = amount * Math.pow(10, decimals);
+                const tx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
+                console.log("Approval Transaction:", tx);
+                stakingMessage.textContent = "Token approval successful!";
+                allowanceApproved = true;
+                stakeButton.disabled = false;
+            } catch (error) {
+                console.error('Approval failed:', error);
+                stakingMessage.textContent = "Approval failed: " + error.message;
+            }
+        });
 
 
         stakeButton.addEventListener('click', async () => {
+            if (!allowanceApproved) {
+                 stakingMessage.textContent = "Please approve the token allowance first.";
+                return;
+            }
             const amount = parseFloat(stakeAmountInput.value);
              if (isNaN(amount) || amount <= 0) {
                 stakingMessage.textContent = "Invalid stake amount.";
@@ -307,38 +339,6 @@
             try {
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
-
-                // First, approve the staking contract to spend the tokens.
-                let approveTx;
-                try {
-                    approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
-                    console.log("Approval Transaction:", approveTx);
-                } catch (approveError) {
-                    console.error("Approval Transaction Error:", approveError);
-                    stakingMessage.textContent = "Approval Transaction Failed: " + approveError.message;
-                    return;
-                }
-
-                if (!approveTx) {
-                    throw new Error("Token approval transaction failed.");
-                }
-
-                let approveTxInfo;
-                try {
-                    approveTxInfo = await tronWeb.trx.getTransactionInfo(approveTx);
-                    console.log("Approval Transaction Info:", approveTxInfo);
-                } catch (error) {
-                    console.error("Error getting Approval Transaction Info", error);
-                    stakingMessage.textContent = "Error getting Approval Transaction Info: " + error.message;
-                    return;
-                }
-
-                if (approveTxInfo.result !== 'SUCCESS') {
-                    console.error("Approval Transaction was not successful", approveTxInfo);
-                    stakingMessage.textContent = "Approval Transaction was not successful.  Check console for details.  You must approve before staking.";
-                    return;
-                }
-                // Now, stake the tokens.
                 const stakeTx = await stakingContract.stake(amountToSend).send({
                         feeLimit: 100_000_000,
                         shouldPollResponse: false
@@ -346,14 +346,8 @@
                 console.log("Stake Transaction:", stakeTx);
                 stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${stakeTx}`;
                 stakeAmountInput.value = ''; // Clear input
-                 let stakeTxInfo = await tronWeb.trx.getTransactionInfo(stakeTx);
-                console.log("Stake Transaction Info:", stakeTxInfo);
-
-                if (stakeTxInfo.result !== 'SUCCESS') {
-                    console.error("Staking Transaction was not successful", stakeTxInfo);
-                    stakingMessage.textContent = "Staking Transaction was not successful.  Check console for details.";
-                    return;
-                }
+                allowanceApproved = false;
+                stakeButton.disabled = true;
                 await getBalances();
             } catch (error) {
                 console.error('Stake failed:', error);
@@ -368,21 +362,6 @@
                     shouldPollResponse: false
                 });
                 stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
-                unstakeAmountInput.value = '';
-                 let txInfo;
-                try{
-                    txInfo = await tronWeb.trx.getTransactionInfo(tx);
-                    console.log("Unstake Transaction Info:", txInfo);
-                 } catch(error){
-                    console.error("Error getting Unstake Transaction Info", error);
-                    stakingMessage.textContent = "Error getting Unstake Transaction Info: " + error.message;
-                    return;
-                }
-                if (txInfo.result !== 'SUCCESS') {
-                    console.error("Unstaking Transaction was not successful", txInfo);
-                    stakingMessage.textContent = "Unstaking Transaction was not successful.  Check console for details.";
-                    return;
-                }
                 await getBalances();
             } catch (error) {
                 console.error('Unstake failed:', error);
