@@ -84,7 +84,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspberry Portal
+                Raspbry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -298,41 +298,34 @@
                 }
 
 
-                // Execute the stake transaction
-                let stakeTx;
-                try{
-                    stakeTx = await stakingContract.stake(amountToSend).send({ // Use amountToSend here
+                // Execute the stake transaction *after* approval is confirmed
+                try {
+                    const stakeTx = await stakingContract.stake(amountToSend).send({
                         feeLimit: 100_000_000,
                         shouldPollResponse: false
                     });
-                    console.log("Stake Transaction:", stakeTx); // Debugging
-                } catch(stakeError){
-                    console.error("Stake Transaction Error:", stakeError);
-                    stakingMessage.textContent = "Staking Transaction Failed: " + stakeError.message;
-                    return;
-                }
+                    console.log("Stake Transaction:", stakeTx);
+                    stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${stakeTx}`;
+                    stakeAmountInput.value = ''; // Clear input
 
-
-                if (!stakeTx) {
-                  throw new Error("Staking transaction failed.");
-                }
-                stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${stakeTx}`;
-                stakeAmountInput.value = ''; // Clear input
-                let stakeTxInfo;
-                try{
-                    stakeTxInfo = await tronWeb.trx.getTransactionInfo(stakeTx);
+                    // Get stake transaction info
+                    let stakeTxInfo = await tronWeb.trx.getTransactionInfo(stakeTx);
                     console.log("Stake Transaction Info:", stakeTxInfo);
-                 } catch(error){
-                    console.error("Error getting Stake Transaction Info", error);
-                    stakingMessage.textContent = "Error getting Stake Transaction Info: " + error.message;
-                    return;
+
+                    if (stakeTxInfo.result !== 'SUCCESS') {
+                        console.error("Staking Transaction was not successful", stakeTxInfo);
+                        stakingMessage.textContent = "Staking Transaction was not successful. Check console for details.";
+                        return; // IMPORTANT: Return after failed stake
+                    }
+
+                    await getBalances(); // Update balances after successful stake
+
+                } catch (stakeError) {
+                    console.error('Stake failed:', stakeError);
+                    stakingMessage.textContent = "Stake failed: " + stakeError.message;
                 }
-                if (stakeTxInfo.result !== 'SUCCESS') {
-                    console.error("Staking Transaction was not successful", stakeTxInfo);
-                    stakingMessage.textContent = "Staking Transaction was not successful.  Check console for details.";
-                    return;
-                }
-                await getBalances();
+
+
 
             } catch (error) {
                 console.error('Stake failed:', error);
