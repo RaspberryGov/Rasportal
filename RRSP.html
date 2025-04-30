@@ -317,7 +317,7 @@
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
                 const stakeTx = await stakingContract.stake(amountToSend).send({ // Use amountToSend here
-                        feeLimit: 100_000_000,
+                        feeLimit: 500_000_000,
                         shouldPollResponse: false
                     });
                 console.log("Stake Transaction:", stakeTx);
@@ -349,7 +349,7 @@
                 const decimals = await tokenContract.decimals().call();
                 const amountToSend = amount * Math.pow(10, decimals);
                 const tx = await stakingContract.unstake(amountToSend).send({
-                    feeLimit: 100_000_000,
+                    feeLimit: 500_000_000,
                     shouldPollResponse: false
                 });
                 stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
@@ -378,7 +378,7 @@
         withdrawButton.addEventListener('click', async () => {
             try {
                 const tx = await stakingContract.withdrawEarned().send({
-                    feeLimit: 100_000_000,
+                    feeLimit: 500_000_000,
                     shouldPollResponse: false
                 });
                 stakingMessage.textContent = `Withdraw transaction submitted. Transaction ID: ${tx}`;
