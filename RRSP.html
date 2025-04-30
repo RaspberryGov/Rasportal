@@ -226,7 +226,7 @@
                     await getBalances();
                     walletInfoDiv.style.display = 'block';
                     connectWalletBtn.style.display = 'none';
-                    await initializeContracts();
+                    await initializeContracts(); // Await contract initialization here
                 } else {
                     alert("Wallet connection failed! Is TronLink installed and unlocked?");
                 }
@@ -243,6 +243,7 @@
             } catch (error) {
                 console.error("Failed to initialize contracts:", error);
                 alert("Failed to initialize contracts.  Check console for details.");
+                throw error; // Re-throw the error to prevent further execution
             }
         }
 
@@ -284,15 +285,16 @@
         }
 
         async function getStakingBalances() {
-            if (!stakingContract) return;
+            if (!stakingContract) {
+                console.warn("Staking contract not initialized.");
+                return;
+            }
             try {
                 const stakedAmount = await stakingContract.getStakingBalance(accountAddress).call();
                 const earnedAmount = await stakingContract.calculateEarnedTokens(accountAddress).call();
                 const decimals = await tokenContract.decimals().call();
 
                 totalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2);
-
-
                 unstakeTotalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2);
                 unstakeTotalEarnedSpan.textContent = (earnedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2);
 
@@ -385,7 +387,12 @@
         // Initialize when the page loads
         document.addEventListener('DOMContentLoaded', async () => {
             await initializeTronWeb();
-            await connectWallet();
+            try {
+                await connectWallet(); // Await wallet connection
+            } catch (error) {
+                 console.error("Initialization error", error);
+                 alert("Failed to initialize. Check console for errors.");
+            }
         });
     </script>
 </body>
