@@ -124,7 +124,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Contribute to RRSP
+                Contribute to RRSP!!
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -182,8 +182,8 @@
         const stakingMessage = document.getElementById('stakingMessage');
         const totalStakedSpan = document.getElementById('totalStaked');
         const totalEarnedSpan = document.getElementById('totalEarned');
-        const queryBalanceBtn = document.getElementById('queryBalanceBtn'); // Get the new button
-        const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');  // new span elements.
+        const queryBalanceBtn = document.getElementById('queryBalanceBtn');
+        const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
         const allowButton = document.getElementById('allowButton');
 
@@ -192,6 +192,7 @@
         let stakingContract;
         let accountAddress;
         let allowanceApproved = false;
+        let tokenDecimals; // To store the token's decimal value
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -226,7 +227,7 @@
                     await getBalances();
                     walletInfoDiv.style.display = 'block';
                     connectWalletBtn.style.display = 'none';
-                    await initializeContracts(); // Await contract initialization here
+                    await initializeContracts(); // Initialize contracts
                 } else {
                     alert("Wallet connection failed! Is TronLink installed and unlocked?");
                 }
@@ -240,6 +241,7 @@
             try {
                 tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
                 stakingContract = await tronWeb.contract().at(STAKING_CONTRACT_ADDRESS);
+                tokenDecimals = await tokenContract.decimals().call(); // Get decimals here
             } catch (error) {
                 console.error("Failed to initialize contracts:", error);
                 alert("Failed to initialize contracts.  Check console for details.");
@@ -274,7 +276,7 @@
                     trc20BalanceSpan.textContent = "N/A";
                     tokenNameSpan.textContent = "N/A";
                 }
-                await getStakingBalances();
+
 
             } catch (error) {
                 console.error('Failed to get balances:', error);
@@ -284,27 +286,7 @@
             }
         }
 
-        async function getStakingBalances() {
-            if (!stakingContract) {
-                console.warn("Staking contract not initialized.");
-                return;
-            }
-            try {
-                const stakedAmount = await stakingContract.getStakingBalance(accountAddress).call();
-                const earnedAmount = await stakingContract.calculateEarnedTokens(accountAddress).call();
-                const decimals = await tokenContract.decimals().call();
 
-                totalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2);
-                unstakeTotalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2);
-                unstakeTotalEarnedSpan.textContent = (earnedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2);
-
-            } catch (error) {
-                console.error("Error fetching staked info:", error);
-                totalStakedSpan.textContent = "N/A";
-                unstakeTotalStakedSpan.textContent = "N/A";
-                unstakeTotalEarnedSpan.textContent = "N/A";
-            }
-        }
 
         allowButton.addEventListener('click', async () => {
             const amount = parseFloat(stakeAmountInput.value);
@@ -313,8 +295,7 @@
                 return;
             }
             try {
-                const decimals = await tokenContract.decimals().call();
-                const amountToSend = amount * Math.pow(10, decimals);
+                const amountToSend = amount * Math.pow(10, tokenDecimals);
                 const tx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
                 console.log("Approval Transaction:", tx);
                 stakingMessage.textContent = "Token approval successful!";
@@ -323,59 +304,6 @@
             } catch (error) {
                 console.error('Approval failed:', error);
                 stakingMessage.textContent = "Approval failed: " + error.message;
-            }
-        });
-
-
-        stakeButton.addEventListener('click', async () => {
-            if (!allowanceApproved) {
-                 stakingMessage.textContent = "Please approve the token allowance first.";
-                return;
-            }
-            const amount = parseFloat(stakeAmountInput.value);
-             if (isNaN(amount) || amount <= 0) {
-                stakingMessage.textContent = "Invalid stake amount.";
-                return;
-            }
-            try {
-                const decimals = await tokenContract.decimals().call();
-                const amountToSend = amount * Math.pow(10, decimals);
-                const stakeTx = await stakingContract.stake(amountToSend).send({
-                        feeLimit: 100_000_000,
-                        shouldPollResponse: false
-                    });
-                console.log("Stake Transaction:", stakeTx);
-                stakingMessage.textContent = `Staking transaction submitted. Transaction ID: ${stakeTx}`;
-                stakeAmountInput.value = ''; // Clear input
-                allowanceApproved = false;
-                stakeButton.disabled = true;
-                await getBalances();
-            } catch (error) {
-                console.error('Stake failed:', error);
-                stakingMessage.textContent = "Stake failed: " + error.message;
-            }
-        });
-
-        withdrawButton.addEventListener('click', async () => {
-            try {
-                const tx = await stakingContract.unstake().send({
-                    feeLimit: 100_000_000,
-                    shouldPollResponse: false
-                });
-                stakingMessage.textContent = `Unstaking transaction submitted. Transaction ID: ${tx}`;
-                await getBalances();
-            } catch (error) {
-                console.error('Unstake failed:', error);
-                stakingMessage.textContent = "Unstake failed: " + error.message;
-            }
-        });
-
-        queryBalanceBtn.addEventListener('click', async () => {
-            try {
-                await getStakingBalances();
-            } catch (error) {
-                console.error("Failed to query staking balance:", error);
-                stakingMessage.textContent = "Failed to query staking balance: " + error.message;
             }
         });
 
