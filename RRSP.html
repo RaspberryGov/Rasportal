@@ -124,7 +124,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Contribute to RRSP bro
+                Conntribute to RRSP
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -319,7 +319,7 @@
             }
 
             try {
-                // We are now passing the amount directly, without multiplying by decimals
+                console.log("Attempting to stake amount:", amount); // Add this line
                 const tx = await stakingContract.stake(amount).send();
                 console.log("Staking Transaction:", tx);
                 stakingMessage.textContent = `Staking successful! Transaction ID: ${tx}`;
@@ -327,6 +327,27 @@
             } catch (error) {
                 console.error('Staking failed:', error);
                 stakingMessage.textContent = "Staking failed: " + error.message;
+            }
+        });
+
+        queryBalanceBtn.addEventListener('click', async () => {
+            try {
+                const stakingBalances = await stakingContract.GetStakingBalances(accountAddress).call();
+                const earnedTokens = await stakingContract.calculateEarnedTokens(accountAddress).call();
+
+                console.log("Staking Balances:", stakingBalances);
+                console.log("Earned Tokens:", earnedTokens);
+
+                const totalStaked = stakingBalances.toNumber() / Math.pow(10, tokenDecimals);  // Use the stored tokenDecimals
+                const totalEarned = earnedTokens.toNumber() / Math.pow(10, tokenDecimals);    // Use the stored tokenDecimals
+
+                unstakeTotalStakedSpan.textContent = totalStaked.toFixed(2) + ' RBD';
+                unstakeTotalEarnedSpan.textContent = totalEarned.toFixed(2) + ' RBD';
+                stakingMessage.textContent = "Balances updated!";
+
+            } catch (error) {
+                console.error("Failed to query staking balance:", error);
+                stakingMessage.textContent = "Failed to query balance: " + error.message;
             }
         });
 
