@@ -85,7 +85,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspberry Portal
+                Rasprry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -314,8 +314,9 @@
                 return;
             }
             try {
-                const decimals = await tokenContract.decimals().call();
-                const amountToSend = amount * Math.pow(10, decimals);
+                //const decimals = await tokenContract.decimals().call();  // Removed this line
+                //const amountToSend = amount * Math.pow(10, decimals);  // Removed this line
+                const amountToSend = amount; // Changed to use the raw amount
 
                 const stakeTx = await stakingContract.stake(amountToSend).send({
                         feeLimit: 100_000_000,
@@ -416,4 +417,3 @@
     </script>
 </body>
 </html>
-
