@@ -155,7 +155,7 @@
                 <button id="stakeButton" disabled>Deposit</button>
             </div>
             <div>
-                <h3>Unstake</h3>
+                <h3>RRSP Portfolio</h3>
                 <button id="queryBalanceBtn">Query Balance</button>
                 <p>Total Deposited: <span id="unstakeTotalStaked">0.00</span> RBD</p>
                 <p>Total Earned: <span id="unstakeTotalEarned">0.00</span> RBD</p>
@@ -186,6 +186,7 @@
         const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
         const allowButton = document.getElementById('allowButton');
+        const withdrawButton = document.getElementById('withdrawButton'); // Get the withdraw button
 
         let tronWeb;
         let tokenContract;
@@ -333,7 +334,7 @@
         queryBalanceBtn.addEventListener('click', async () => {
             try {
                 // IMPORTANT:  Replace these with the *actual* function names from your smart contract
-                const totalStaked = await stakingContract.getStakingBalance(accountAddress).call();  //  <--- Changed to getStakingBalance
+                const totalStaked = await stakingContract.getStakingBalance(accountAddress).call();
                 const totalEarned = await stakingContract.calculateEarnedTokens(accountAddress).call();
 
                 console.log("Total Deposited:", totalStaked);
@@ -350,6 +351,19 @@
             } catch (error) {
                 console.error("Failed to query staking balance:", error);
                 stakingMessage.textContent = "Failed to query balance: " + error.message;
+            }
+        });
+
+        withdrawButton.addEventListener('click', async () => {
+            try {
+                const tx = await stakingContract.unstake().send(); // Call the unstake function
+                console.log("Unstake Transaction:", tx);
+                stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
+                // Optionally, you might want to refresh the balances after a successful unstake
+                await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances
+            } catch (error) {
+                console.error("Unstaking failed:", error);
+                stakingMessage.textContent = "Unstaking failed: " + error.message;
             }
         });
 
