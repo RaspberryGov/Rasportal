@@ -124,7 +124,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Contribute to RRSP!!
+                Contribute to RRSP bro
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -304,6 +304,29 @@
             } catch (error) {
                 console.error('Approval failed:', error);
                 stakingMessage.textContent = "Approval failed: " + error.message;
+            }
+        });
+
+        stakeButton.addEventListener('click', async () => {
+            const amount = parseFloat(stakeAmountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                stakingMessage.textContent = "Invalid amount.";
+                return;
+            }
+            if (!allowanceApproved) {
+                stakingMessage.textContent = "Please approve the token allowance first.";
+                return;
+            }
+
+            try {
+                // We are now passing the amount directly, without multiplying by decimals
+                const tx = await stakingContract.stake(amount).send();
+                console.log("Staking Transaction:", tx);
+                stakingMessage.textContent = `Staking successful! Transaction ID: ${tx}`;
+                stakeAmountInput.value = ''; // Clear input after successful stake
+            } catch (error) {
+                console.error('Staking failed:', error);
+                stakingMessage.textContent = "Staking failed: " + error.message;
             }
         });
 
