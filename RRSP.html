@@ -132,8 +132,8 @@
         <h2>Stake/Unstake Raspberry Dollars</h2>
 
         <div class="info-container">  <button id="queryBalanceBtn">Query Balance</button>
-            <p>Total Deposited: <span id="totalStaked">0</span> RBD</p>
-            <p>Total Earned: <span id="totalEarned">0</span> RPD</p>
+            <p>Total Deposited: <span id="totalStaked">0.00</span> RBD</p>
+            <p>Total Earned: <span id="totalEarned">0.00</span> RBD</p>
         </div>
 
         <div class="staking-container">
@@ -278,8 +278,8 @@
                 const earnedAmount = await stakingContract.calculateEarnedTokens(accountAddress).call();
                 const decimals = await tokenContract.decimals().call();
 
-                totalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2) + " RBD";
-                totalEarnedSpan.textContent = (earnedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2) + " RPD";
+                totalStakedSpan.textContent = (stakedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2);
+                totalEarnedSpan.textContent = (earnedAmount.toNumber() / Math.pow(10, decimals)).toFixed(2);
             } catch (error) {
                 console.error("Error fetching staked info:", error);
                 totalStakedSpan.textContent = "N/A";
