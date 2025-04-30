@@ -84,7 +84,7 @@
     <header class="page-header">
         <div class="container">
             <h1 class="header-title">
-                Raspbey Portal
+                Raspberry Portal
                 <a href="page3.html">
                     <img src="images/info.png" alt="Question Mark" class="header-icon">
                 </a>
@@ -301,7 +301,7 @@
                 // Execute the stake transaction
                 let stakeTx;
                 try{
-                    stakeTx = await stakingContract.stake(amountToSend).send({
+                    stakeTx = await stakingContract.stake(amountToSend).send({ // Use amountToSend here
                         feeLimit: 100_000_000,
                         shouldPollResponse: false
                     });
