@@ -2,16 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width-width, initial-scale=1.0">
-    <title>RRSP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RasTV</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
-    <link rel="stylesheet" href="./styles.css">
     <style>
         @font-face {
             font-family: 'Blackout 2AM';
             src: url('./fonts/Blackout-2am.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
+        }
+
+        body {
+            display: flex; /* Enable flexbox for the body */
+            flex-direction: column; /* Stack items vertically */
+            align-items: center; /* Center items horizontally */
+            justify-content: flex-start; /* Align items to the start of the container */
+            min-height: 100vh; /* Ensure the body takes up at least the full viewport height */
+            margin: 0; /* Remove default body margin */
+            padding: 0;
+            box-sizing: border-box;
         }
 
         #connectWalletBtn {
@@ -88,7 +99,7 @@
             margin-top: 10px;
             margin-right: 10px; /* Added margin to separate buttons */
         }
-         .staking-container button:hover {
+        .staking-container button:hover {
             background-color: #367c39;
         }
 
@@ -114,7 +125,7 @@
             background-color: #367c39;
         }
 
-        .header-title {
+        .info-container {
             font-family: 'Blackout 2AM', sans-serif;
             display: inline-flex; /* Use inline-flex for better alignment */
             align-items: center; /* Vertically center items */
@@ -139,276 +150,103 @@
             height: 24px; /* explicitly set height */
         }
 
+        #connectWalletButton {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #balanceDisplay {
+            font-size: 16px;
+            color: #000;
+            margin-top: 10px;
+        }
+
+        main.staking-container {
+            flex: 1; /* Allow the main content to take up available space */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center items horizontally within the main container */
+            justify-content: center; /* Center items vertically within the main container */
+            width: 100%; /* Ensure main container takes full width */
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+
     </style>
 </head>
 <body>
-    <header class="page-header">
-        <div class="container">
-            <h1 class="header-title">
-                Contribute to RRSP
-                <a href="page3.html">
-                    <img src="images/info.png" alt="Question Mark" class="header-icon">
-                </a>
-                
-            </h1>
-             <button id="connectWalletBtn">Connect Wallet</button>
-            <div id="walletInfo">
-                <p>Address: <span id="walletAddress"></span></p>
-                <p>TRX Balance: <span id="trxBalance"></span></p>
-                <p>Token Balance: <span id="trc20Balance"></span></p>
-                <p>Token Name: <span id="tokenName"></span></p>
-                <p>Token Symbol: <span id="tokenSymbol"></span></p>
-            </div>
+    <header class="info-container">
+        <h1>RasTV</h1>
+        <button id="connectWalletButton">Connect Wallet</button>
+        <div id="balanceDisplay" style="display:none;">
+            <p>TRX Balance: <span id="trxBalance"></span></p>
         </div>
     </header>
-
-    <main class="container">
-
-        <div class="info-container">
-<a href="index.html">Back to Home</a>
-        </div>
-
-        <div class="staking-container">
-            <div>
-                <h3>Deposit to RRSP</h3>
-                <p>APY Rate: 15%</p>
-                <label for="stakeAmount">Amount to deposit:</label>
-                <input type="number" id="stakeAmount" placeholder="Enter amount">
-                <button id="allowButton">Allow</button>
-                <button id="stakeButton" disabled>Deposit</button>
-            </div>
-            <div>
-                <h3>RRSP Portfolio</h3>
-                <button id="queryBalanceBtn">Query Balance</button>
-                <p>Total Deposited: <span id="unstakeTotalStaked">0.00</span> RBD</p>
-                <p>Total Earned: <span id="unstakeTotalEarned">0.00</span> RBD</p>
-                <button id="withdrawButton">Withdraw</button>
-            </div>
-        </div>
-
-        <div id="stakingMessage"></div>
+    <main class="staking-container">
+        <p>Stay tuned for the release of <b>RasTV!</b></p>
+        <a href="index.html">Back to Home</a>
     </main>
-
     <script>
-        const connectWalletBtn = document.getElementById('connectWalletBtn');
-        const walletInfoDiv = document.getElementById('walletInfo');
-        const walletAddressSpan = document.getElementById('walletAddress');
-        const trxBalanceSpan = document.getElementById('trxBalance');
-        const trc20BalanceSpan = document.getElementById('trc20Balance');
-        const tokenNameSpan = document.getElementById('tokenName');
-        const tokenSymbolSpan = document.getElementById('tokenSymbol');
-        const TRC20_TOKEN_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx";  // Replace with your TRC-20 token address.
-        const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace your staking contract address
-        const stakeButton = document.getElementById('stakeButton');
-        const unstakeButton = document.getElementById('unstakeButton');
-        const stakeAmountInput = document.getElementById('stakeAmount');
-        const stakingMessage = document.getElementById('stakingMessage');
-        const totalStakedSpan = document.getElementById('totalStaked');
-        const totalEarnedSpan = document.getElementById('totalEarned');
-        const queryBalanceBtn = document.getElementById('queryBalanceBtn');
-        const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');
-        const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
-        const allowButton = document.getElementById('allowButton');
-        const withdrawButton = document.getElementById('withdrawButton'); // Get the withdraw button
-        const backToHomeBtn = document.getElementById('backToHomeBtn');
+        const connectWalletButton = document.getElementById("connectWalletButton");
+        const balanceDisplay = document.getElementById("balanceDisplay");
+        const trxBalanceDisplay = document.getElementById("trxBalance");
 
-        let tronWeb;
-        let tokenContract;
-        let stakingContract;
-        let accountAddress;
-        let allowanceApproved = false;
-        let tokenDecimals; // To store the token's decimal value
-
-        async function initializeTronWeb() {
-            if (window.tronWeb) {
-                tronWeb = window.tronWeb;
+        connectWalletButton.addEventListener("click", async () => {
+            if (window.tronWeb && window.tronWeb.defaultAddress) {
+                try {
+                    const address = window.tronWeb.defaultAddress.base58;
+                    console.log("Wallet Connected:", address);
+                    connectWalletButton.textContent = "Wallet Connected";
+                    await getTrxBalance(address);
+                } catch (error) {
+                    console.error("Error connecting wallet or getting balance:", error);
+                    alert("Failed to connect wallet.  Ensure TronLink or a compatible wallet is installed and unlocked.");
+                    connectWalletButton.textContent = "Connect Wallet"; // Reset button text
+                    balanceDisplay.style.display = 'none';
+                }
             } else {
-                //Try to use the TronLink injected provider
-                if (window.tronLink && window.tronLink.ready) {
-                    tronWeb = window.tronWeb;
-                }
-                else {
-                    // Fallback to a default HTTP provider (for development only, NOT recommended for production)
-                    tronWeb = new TronWeb({
-                        fullNode: 'https://nile.trongrid.io',  // Nile Testnet
-                        solidityNode: 'https://nile.trongrid.io',  // Nile Testnet
-                        eventServer: 'https://nile.trongrid.io' // Nile Testnet
-                    });
-                }
+                alert("Please install TronLink or a compatible Tron wallet.");
+            }
+        });
+
+        async function getTrxBalance(address) {
+            try {
+                const balanceInSun = await window.tronWeb.trx.getBalance(address);
+                const balanceInTRX = balanceInSun / 1000000; // Convert Sun to TRX
+                console.log("TRX Balance:", balanceInTRX);
+                trxBalanceDisplay.textContent = balanceInTRX.toFixed(2) + " TRX";
+                balanceDisplay.style.display = 'block'; // Show the balance display
+            } catch (error) {
+                console.error("Error fetching TRX balance:", error);
+                trxBalanceDisplay.textContent = "Error";
+                balanceDisplay.style.display = 'none';
             }
         }
 
-        async function connectWallet() {
-            try {
-                await initializeTronWeb();
-                if (!tronWeb.defaultAddress) {
-                    alert('Please install TronLink and connect to a Tron account!');
-                    return;
+        // Check if TronWeb is initialized and the wallet is connected on page load
+        const checkTronWeb = setInterval(() => {
+            if (window.tronWeb) {
+                clearInterval(checkTronWeb); // Clear the interval once tronWeb is available
+
+                if (window.tronWeb.defaultAddress) {
+                    // Wallet is already connected
+                    const address = window.tronWeb.defaultAddress.base58;
+                    connectWalletButton.textContent = "Wallet Connected";
+                    getTrxBalance(address); // Get and display balance immediately
                 }
-                accountAddress = tronWeb.defaultAddress.base58;
-
-                if (tronWeb && tronWeb.defaultAddress) {
-                    walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
-                    await getBalances();
-                    walletInfoDiv.style.display = 'block';
-                    connectWalletBtn.style.display = 'none';
-                    await initializeContracts(); // Initialize contracts
-                } else {
-                    alert("Wallet connection failed! Is TronLink installed and unlocked?");
-                }
-            } catch (error) {
-                console.error('Failed to connect wallet:', error);
-                alert('Failed to connect wallet. See console for details.');
+                //  else {
+                //     //  connectWalletButton.textContent = "Connect Wallet"; // keep the button text
+                // }
             }
-        }
-
-        async function initializeContracts() {
-            try {
-                tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
-                stakingContract = await tronWeb.contract().at(STAKING_CONTRACT_ADDRESS);
-                tokenDecimals = await tokenContract.decimals().call(); // Get decimals here
-            } catch (error) {
-                console.error("Failed to initialize contracts:", error);
-                alert("Failed to initialize contracts.  Check console for details.");
-                throw error; // Re-throw the error to prevent further execution
-            }
-        }
-
-        async function getBalances() {
-            try {
-                // Get TRX balance
-                const trxBalance = await tronWeb.trx.getBalance(accountAddress);
-                trxBalanceSpan.textContent = (trxBalance / 1000000).toFixed(2) + ' TRX'; // Convert from SUN to TRX
-
-                // Get TRC20 balance
-                if (TRC20_TOKEN_ADDRESS) {
-                    try {
-                        const tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
-                        const trc20Balance = await tokenContract.balanceOf(accountAddress).call();
-                        const decimals = await tokenContract.decimals().call();
-                        const name = await tokenContract.name().call();
-                        const symbol = await tokenContract.symbol().call();
-                        const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
-                        trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
-                        tokenNameSpan.textContent = name;
-                        tokenSymbolSpan.textContent = symbol;
-                    } catch (e) {
-                        console.error("Error fetching TRC20 balance/metadata", e);
-                        trc20BalanceSpan.textContent = "N/A";
-                        tokenNameSpan.textContent = "N/A";
-                    }
-                } else {
-                    trc20BalanceSpan.textContent = "N/A";
-                    tokenNameSpan.textContent = "N/A";
-                }
-
-
-            } catch (error) {
-                console.error('Failed to get balances:', error);
-                trxBalanceSpan.textContent = 'N/A';
-                trc20BalanceSpan.textContent = 'N/A';
-                tokenNameSpan.textContent = "N/A";
-            }
-        }
-
-
-
-        allowButton.addEventListener('click', async () => {
-            const amount = parseFloat(stakeAmountInput.value);
-             if (isNaN(amount) || amount <= 0) {
-                stakingMessage.textContent = "Invalid amount.";
-                return;
-            }
-            try {
-                const amountToSend = amount * Math.pow(10, tokenDecimals);
-                const tx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
-                console.log("Approval Transaction:", tx);
-                stakingMessage.textContent = "Token approval successful!";
-                allowanceApproved = true;
-                stakeButton.disabled = false;
-            } catch (error) {
-                console.error('Approval failed:', error);
-                stakingMessage.textContent = "Approval failed: " + error.message;
-            }
-        });
-
-        stakeButton.addEventListener('click', async () => {
-            const amount = parseFloat(stakeAmountInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                stakingMessage.textContent = "Invalid amount.";
-                return;
-            }
-            if (!allowanceApproved) {
-                stakingMessage.textContent = "Please approve the token allowance first.";
-                return;
-            }
-
-            try {
-                console.log("Attempting to stake amount:", amount); // Add this line
-                const tx = await stakingContract.stake(amount).send();
-                console.log("Staking Transaction:", tx);
-                stakingMessage.textContent = `Staking successful! Transaction ID: ${tx}`;
-                stakeAmountInput.value = ''; // Clear input after successful stake
-            } catch (error) {
-                console.error('Staking failed:', error);
-                stakingMessage.textContent = "Staking failed: " + error.message;
-            }
-        });
-
-        queryBalanceBtn.addEventListener('click', async () => {
-            try {
-                // IMPORTANT:  Replace these with the *actual* function names from your smart contract
-                const totalStaked = await stakingContract.getStakingBalance(accountAddress).call();
-                const totalEarned = await stakingContract.calculateEarnedTokens(accountAddress).call();
-
-                console.log("Total Deposited:", totalStaked);
-                console.log("Total Earned:", totalEarned);
-
-                const stakedAmount = totalStaked.toNumber() / Math.pow(10, tokenDecimals);
-                const earnedAmount = totalEarned.toNumber() / Math.pow(10, tokenDecimals);
-
-
-                unstakeTotalStakedSpan.textContent = stakedAmount.toFixed(2) + ' RBD';
-                unstakeTotalEarnedSpan.textContent = earnedAmount.toFixed(2) + ' RBD';
-                stakingMessage.textContent = "Balances updated!";
-
-            } catch (error) {
-                console.error("Failed to query staking balance:", error);
-                stakingMessage.textContent = "Failed to query balance: " + error.message;
-            }
-        });
-
-        withdrawButton.addEventListener('click', async () => {
-            try {
-                const tx = await stakingContract.unstake().send(); // Call the unstake function
-                console.log("Unstake Transaction:", tx);
-                stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
-                // Optionally, you might want to refresh the balances after a successful unstake
-                await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances
-            } catch (error) {
-                console.error("Unstaking failed:", error);
-                stakingMessage.textContent = "Unstaking failed: " + error.message;
-            }
-        });
-
-        connectWalletBtn.addEventListener('click', async () => {
-            await connectWallet();
-        });
-
-        backToHomeBtn.addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
-
-        // Initialize when the page loads
-        document.addEventListener('DOMContentLoaded', async () => {
-            await initializeTronWeb();
-            try {
-                await connectWallet(); // Await wallet connection
-            } catch (error) {
-                 console.error("Initialization error", error);
-                 alert("Failed to initialize. Check console for errors.");
-            }
-        });
+        }, 100);
     </script>
 </body>
 </html>
