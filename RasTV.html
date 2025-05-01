@@ -77,7 +77,7 @@
     <div id="loading-overlay">Loading...</div>
     <div class="container">
         <h1>RasTV</h1>
-        <p>Stay tuned for the release of <b>RasTV! Ps. You will need Raspberry Dollars!</b></p>
+        <p>Stay tuned for the release of <b>RasTV!</b></p>
         <a href="index.html">Back to Home</a>
     </div>
     <div id="token-check-popup" class="popup hidden">
@@ -87,62 +87,92 @@
 
     <script type="text/babel">
 
-        const tokenContractAddress = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace with the actual token contract address
+        const tokenContractAddress = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Corrected contract address
         const requiredTokenBalance = 1000;
         let tronWeb;
 
         async function connectWalletAndCheckBalance() {
             const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.style.display = 'flex'; // Show loading overlay
+
             try {
                 if (!window.tronWeb) {
                     alert("TronLink or another Tron wallet is required to use this site.");
+                    loadingOverlay.style.display = 'none';
                     return;
                 }
 
                 tronWeb = window.tronWeb;
 
-
                 if (!tronWeb.ready) {
-                    await new Promise(resolve => {
-                        const checkTronWeb = () => {
-                            if (tronWeb.ready) {
-                                resolve();
-                            } else {
-                                setTimeout(checkTronWeb, 100);
-                            }
-                        };
-                        checkTronWeb();
-                    });
+                    try {
+                         await new Promise(resolve => {
+                            const checkTronWeb = () => {
+                                if (tronWeb.ready) {
+                                    resolve();
+                                } else {
+                                    setTimeout(checkTronWeb, 100);
+                                }
+                            };
+                            checkTronWeb();
+                        });
+                    } catch(e){
+                        console.error("Error waiting for tronWeb.ready", e);
+                        alert("Error initializing TronWeb.  Please ensure your wallet is properly connected.");
+                        loadingOverlay.style.display = 'none';
+                        return;
+                    }
                 }
 
-                loadingOverlay.style.display = 'flex'; // Show loading overlay
+                // **Configuration for Nile Testnet**
+                if (tronWeb.fullUrl.includes('shasta')) {
+                    console.warn("Wallet is connected to Shasta Testnet.  RasTV is intended for the Nile Testnet.");
+                    // You might want to display a message to the user, or automatically switch if possible.
+                } else if (!tronWeb.fullUrl.includes('nile')) {
+                    tronWeb.setFullNode('https://nile.trongrid.io');
+                    tronWeb.setSolidityNode('https://nile.trongrid.io');
+                    tronWeb.setEventServer('https://nile.trongrid.io');  // Corrected event server URL
+                    console.log("TronWeb configured for Nile Testnet.");
+                } else {
+                    console.log("TronWeb is already configured for Nile Testnet.");
+                }
+
 
                 const address = await tronWeb.trx.getAccount();
                 if (!address || !address.address) {
                     alert("No Tron account found. Please ensure your wallet is unlocked and selected an account.");
+                    loadingOverlay.style.display = 'none';
                     return;
                 }
                 const userAddress = address.address;
                 console.log("User Address:", userAddress);
 
                 // Get the token balance
-                const tokenContract = await tronWeb.contract().at(tokenContractAddress);
-                const balance = await tokenContract.balanceOf(userAddress).call();
-                const tokenBalance = balance.toNumber(); // Convert BigNumber to number
-                console.log("Token Balance:", tokenBalance);
+                try{
+                    const tokenContract = await tronWeb.contract().at(tokenContractAddress); // Use the corrected address
+                    const balance = await tokenContract.balanceOf(userAddress).call();
+                    const tokenBalance = balance.toNumber(); // Convert BigNumber to number
+                    console.log("Token Balance:", tokenBalance);
 
-                if (tokenBalance >= requiredTokenBalance) {
-                    document.querySelector('.container').style.display = 'block'; // Show content
-                    loadingOverlay.style.display = 'none'; // Hide loading overlay
-                    console.log("Access granted!");
-                } else {
-                    loadingOverlay.style.display = 'none'; // Hide loading overlay
-                    document.getElementById('token-check-popup').style.display = 'block';
-                    console.log("Insufficient token balance");
+                    if (tokenBalance >= requiredTokenBalance) {
+                        document.querySelector('.container').style.display = 'block'; // Show content
+                        loadingOverlay.style.display = 'none'; // Hide loading overlay
+                        console.log("Access granted!");
+                    } else {
+                        loadingOverlay.style.display = 'none'; // Hide loading overlay
+                        document.getElementById('token-check-popup').style.display = 'block';
+                        console.log("Insufficient token balance");
+                    }
+                } catch(err){
+                    console.error("Error getting token balance", err);
+                    alert("Failed to retrieve token balance.  Please check your connection and try again.");
+                    loadingOverlay.style.display = 'none';
                 }
+
+
             } catch (error) {
                 console.error("Error:", error);
-                loadingOverlay.style.display = 'none'; // Hide loading overlay on error
+                loadingOverlay.style.display = 'none'; // Hide loading overlay on error.  Important!
                 alert("An error occurred: " + error.message);
             }
         }
@@ -155,6 +185,9 @@
             popupCloseButton.addEventListener('click', () => {
                 document.getElementById('token-check-popup').style.display = 'none';
             });
+
+            // Attempt to connect and check balance on page load
+            connectWalletAndCheckBalance();
         });
     </script>
 </body>
