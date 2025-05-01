@@ -265,7 +265,7 @@
                     connectWalletBtn.style.display = 'none';
                     await initializeContracts(); // Initialize contracts
                     // Check token balance before showing staking container
-                    if (trc20BalanceNum >= 1000000) {  // Use the stored balance
+                    if (trc20BalanceNum >= 1000) {  // Use the stored balance
                         stakingContainer.style.display = 'flex'; // Show the staking container
                         insufficientBalanceMessage.style.display = 'none';
                     } else {
