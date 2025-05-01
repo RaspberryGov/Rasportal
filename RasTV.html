@@ -1,435 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width-width, initial-scale=1.0">
-    <title>RRSP</title>
-    <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
-    <link rel="stylesheet" href="./styles.css">
-    <style>
-        @font-face {
-            font-family: 'Blackout 2AM';
-            src: url('./fonts/Blackout-2am.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-width, initial-scale=1.0">
+    <title>RRSP</title>
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        @font-face {
+            font-family: 'Blackout 2AM';
+            src: url('./fonts/Blackout-2am.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
 
-        #connectWalletBtn {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        #walletInfo {
-            display: none;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-top: 10px;
-            margin-bottom: 20px;
+        #connectWalletBtn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #walletInfo {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
 
-        }
-        #walletInfo p{
-            margin-bottom: 0.2rem; /* Reduced spacing between paragraphs */
-            font-size: 0.9em; /* Reduced font size */
-        }
+        }
+        #walletInfo p{
+            margin-bottom: 0.2rem; /* Reduced spacing between paragraphs */
+            font-size: 0.9em; /* Reduced font size */
+        }
 
-        .info-container { /* New container style */
-            display: flex;
-            flex-direction: column; /* Stack elements vertically */
-            align-items: center; /* Center items horizontally */
-            margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .info-container p {
-            margin-bottom: 0.5rem;
-        }
+        .info-container { /* New container style */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center items horizontally */
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .info-container p {
+            margin-bottom: 0.5rem;
+        }
 
-        .staking-container {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .staking-container div {
-            width: 45%;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .staking-container h3 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
+        .staking-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .staking-container div {
+            width: 45%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .staking-container h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
 
-        .staking-container label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .staking-container input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .staking-container button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            margin-right: 10px; /* Added margin to separate buttons */
-        }
-        .staking-container button:hover {
-            background-color: #367c39;
-        }
+        .staking-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .staking-container input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .staking-container button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px; /* Added margin to separate buttons */
+        }
+        .staking-container button:hover {
+            background-color: #367c39;
+        }
 
-        #stakingMessage {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            word-wrap: break-word;
-        }
-        #queryBalanceBtn {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            margin-right: 10px; /* Added margin to separate buttons */
-        }
-        #queryBalanceBtn:hover {
-            background-color: #367c39;
-        }
+        #stakingMessage {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            word-wrap: break-word;
+        }
+        #queryBalanceBtn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px; /* Added margin to separate buttons */
+        }
+        #queryBalanceBtn:hover {
+            background-color: #367c39;
+        }
 
-        .header-title {
-            font-family: 'Blackout 2AM', sans-serif;
-            display: inline-flex; /* Use inline-flex for better alignment */
-            align-items: center; /* Vertically center items */
-        }
+        .header-title {
+            font-family: 'Blackout 2AM', sans-serif;
+            display: inline-flex; /* Use inline-flex for better alignment */
+            align-items: center; /* Vertically center items */
+        }
 
-        #backToHomeBtn {
-            padding: 5px 10px; /* Reduced padding */
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px; /* Added margin to move it away from the image */
-            font-size: 0.8em; /* Smaller font size */
-        }
-        #backToHomeBtn:hover {
-            background-color: #367c39;
-        }
+        #backToHomeBtn {
+            padding: 5px 10px; /* Reduced padding */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px; /* Added margin to move it away from the image */
+            font-size: 0.8em; /* Smaller font size */
+        }
+        #backToHomeBtn:hover {
+            background-color: #367c39;
+        }
 
-        .header-icon {
-            margin-right: 5px; /* Reduced margin */
-            height: 24px; /* explicitly set height */
-        }
+        .header-icon {
+            margin-right: 5px; /* Reduced margin */
+            height: 24px; /* explicitly set height */
+        }
 
-        #insufficientBalanceMessage {  /* New style for the message */
-            color: red;
-            margin-top: 20px;
-            text-align: center;
-            font-size: 1.2em;
-            display: none; /* Initially hidden */
-        }
+        #insufficientBalanceMessage {  /* New style for the message */
+            color: red;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            display: none; /* Initially hidden */
+        }
 
-    </style>
+    </style>
 </head>
 <body>
-    <header class="page-header">
-        <div class="container">
-            <h1 class="header-title">
-                Contribute to RRSP
-                <a href="page3.html">
-                    <img src="images/info.png" alt="Question Mark" class="header-icon">
-                </a>
-            </h1>
-            <button id="connectWalletBtn">Connect Wallet</button>
-            <div id="walletInfo">
-                <p>Address: <span id="walletAddress"></span></p>
-                <p>TRX Balance: <span id="trxBalance"></span></p>
-                <p>Token Balance: <span id="trc20Balance"></span></p>
-                <p>Token Name: <span id="tokenName"></span></p>
-                <p>Token Symbol: <span id="tokenSymbol"></span></p>
-            </div>
-        </div>
-    </header>
+    <header class="page-header">
+        <div class="container">
+            <h1 class="header-title">
+                Contribute to RRSP
+                <a href="page3.html">
+                    <img src="images/info.png" alt="Question Mark" class="header-icon">
+                </a>
+            </h1>
+            <button id="connectWalletBtn">Connect Wallet</button>
+            <div id="walletInfo">
+                <p>Address: <span id="walletAddress"></span></p>
+                <p>TRX Balance: <span id="trxBalance"></span></p>
+                <p>Token Balance: <span id="trc20Balance"></span></p>
+                <p>Token Name: <span id="tokenName"></span></p>
+                <p>Token Symbol: <span id="tokenSymbol"></span></p>
+            </div>
+        </div>
+    </header>
 
-    <main class="container">
+    <main class="container">
 
-        <div class="info-container">
+        <div class="info-container">
 <a href="index.html">Back to Home</a>
-        </div>
-        <div id="insufficientBalanceMessage">
-             Please acquire more tokens to access
-        </div>
-        <div id="stakingContainer" class="staking-container" style="display: none;">  <div>
-                <h3>Deposit to RRSP</h3>
-                <p>APY Rate: 15%</p>
-                <label for="stakeAmount">Amount to deposit:</label>
-                <input type="number" id="stakeAmount" placeholder="Enter amount">
-                <button id="allowButton">Allow</button>
-                <button id="stakeButton" disabled>Deposit</button>
-            </div>
-            <div>
-                <h3>RRSP Portfolio</h3>
-                <button id="queryBalanceBtn">Query Balance</button>
-                <p>Total Deposited: <span id="unstakeTotalStaked">0.00</span> RBD</p>
-                <p>Total Earned: <span id="unstakeTotalEarned">0.00</span> RBD</p>
-                <button id="withdrawButton">Withdraw</button>
-            </div>
-        </div>
+        </div>
+        <div id="insufficientBalanceMessage">
+             Please acquire more tokens to access
+        </div>
+        <div id="stakingContainer" class="staking-container" style="display: none;">
+            <iframe
+                src="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                width="100%"
+                height="315"
+                allowFullScreen
+                title="Embedded Video"
+                style="border:none; border-radius: 10px;"
+            >
+            </iframe>
+        </div>
 
-        <div id="stakingMessage"></div>
-    </main>
+        <div id="stakingMessage"></div>
+    </main>
 
-    <script>
-        const connectWalletBtn = document.getElementById('connectWalletBtn');
-        const walletInfoDiv = document.getElementById('walletInfo');
-        const walletAddressSpan = document.getElementById('walletAddress');
-        const trxBalanceSpan = document.getElementById('trxBalance');
-        const trc20BalanceSpan = document.getElementById('trc20Balance');
-        const tokenNameSpan = document.getElementById('tokenName');
-        const tokenSymbolSpan = document.getElementById('tokenSymbol');
-        const TRC20_TOKEN_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx";  // Replace with your TRC-20 token address.
-        const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace your staking contract address
-        const stakeButton = document.getElementById('stakeButton');
-        const unstakeButton = document.getElementById('unstakeButton');
-        const stakeAmountInput = document.getElementById('stakeAmount');
-        const stakingMessage = document.getElementById('stakingMessage');
-        const totalStakedSpan = document.getElementById('totalStaked');
-        const totalEarnedSpan = document.getElementById('totalEarned');
-        const queryBalanceBtn = document.getElementById('queryBalanceBtn');
-        const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');
-        const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
-        const allowButton = document.getElementById('allowButton');
-        const withdrawButton = document.getElementById('withdrawButton'); // Get the withdraw button
-        const backToHomeBtn = document.getElementById('backToHomeBtn');
-        const stakingContainer = document.getElementById('stakingContainer'); // Get the staking container
-        const insufficientBalanceMessage = document.getElementById('insufficientBalanceMessage'); //Get insufficient balance message.
+    <script>
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const walletInfoDiv = document.getElementById('walletInfo');
+        const walletAddressSpan = document.getElementById('walletAddress');
+        const trxBalanceSpan = document.getElementById('trxBalance');
+        const trc20BalanceSpan = document.getElementById('trc20Balance');
+        const tokenNameSpan = document.getElementById('tokenName');
+        const tokenSymbolSpan = document.getElementById('tokenSymbol');
+        const TRC20_TOKEN_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx";  // Replace with your TRC-20 token address.
+        const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Replace your staking contract address
+        const stakeButton = document.getElementById('stakeButton');
+        const unstakeButton = document.getElementById('unstakeButton');
+        const stakeAmountInput = document.getElementById('stakeAmount');
+        const stakingMessage = document.getElementById('stakingMessage');
+        const totalStakedSpan = document.getElementById('totalStaked');
+        const totalEarnedSpan = document.getElementById('totalEarned');
+        const queryBalanceBtn = document.getElementById('queryBalanceBtn');
+        const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');
+        const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarnedSpan');
+        const allowButton = document.getElementById('allowButton');
+        const withdrawButton = document.getElementById('withdrawButton'); // Get the withdraw button
+        const backToHomeBtn = document.getElementById('backToHomeBtn');
+        const stakingContainer = document.getElementById('stakingContainer'); // Get the staking container
+        const insufficientBalanceMessage = document.getElementById('insufficientBalanceMessage'); //Get insufficient balance message.
 
-        let tronWeb;
-        let tokenContract;
-        let stakingContract;
-        let accountAddress;
-        let allowanceApproved = false;
-        let tokenDecimals; // To store the token's decimal value
-        let trc20BalanceNum = 0;
+        let tronWeb;
+        let tokenContract;
+        let stakingContract;
+        let accountAddress;
+        let allowanceApproved = false;
+        let tokenDecimals; // To store the token's decimal value
+        let trc20BalanceNum = 0;
 
-        async function initializeTronWeb() {
-            if (window.tronWeb) {
-                tronWeb = window.tronWeb;
-            } else {
-                //Try to use the TronLink injected provider
-                if (window.tronLink && window.tronLink.ready) {
-                    tronWeb = window.tronWeb;
-                }
-                else {
-                    // Fallback to a default HTTP provider (for development only, NOT recommended for production)
-                    tronWeb = new TronWeb({
-                        fullNode: 'https://nile.trongrid.io',  // Nile Testnet
-                        solidityNode: 'https://nile.trongrid.io',  // Nile Testnet
-                        eventServer: 'https://nile.trongrid.io' // Nile Testnet
-                    });
-                }
-            }
-        }
+        async function initializeTronWeb() {
+            if (window.tronWeb) {
+                tronWeb = window.tronWeb;
+            } else {
+                //Try to use the TronLink injected provider
+                if (window.tronLink && window.tronLink.ready) {
+                    tronWeb = window.tronWeb;
+                }
+                else {
+                    // Fallback to a default HTTP provider (for development only, NOT recommended for production)
+                    tronWeb = new TronWeb({
+                        fullNode: 'https://nile.trongrid.io',  // Nile Testnet
+                        solidityNode: 'https://nile.trongrid.io',  // Nile Testnet
+                        eventServer: 'https://nile.trongrid.io' // Nile Testnet
+                    });
+                }
+            }
+        }
 
-        async function connectWallet() {
-            try {
-                await initializeTronWeb();
-                if (!tronWeb.defaultAddress) {
-                    alert('Please install TronLink and connect to a Tron account!');
-                    return;
-                }
-                accountAddress = tronWeb.defaultAddress.base58;
+        async function connectWallet() {
+            try {
+                await initializeTronWeb();
+                if (!tronWeb.defaultAddress) {
+                    alert('Please install TronLink and connect to a Tron account!');
+                    return;
+                }
+                accountAddress = tronWeb.defaultAddress.base58;
 
-                if (tronWeb && tronWeb.defaultAddress) {
-                    walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
-                    await getBalances();
-                    walletInfoDiv.style.display = 'block';
-                    connectWalletBtn.style.display = 'none';
-                    await initializeContracts(); // Initialize contracts
-                    // Check token balance before showing staking container
-                    if (trc20BalanceNum >= 1000000) {  // Use the stored balance
-                        stakingContainer.style.display = 'flex'; // Show the staking container
-                        insufficientBalanceMessage.style.display = 'none';
-                    } else {
-                        stakingContainer.style.display = 'none'; // Hide the staking container
-                        insufficientBalanceMessage.style.display = 'block';
-                    }
+                if (tronWeb && tronWeb.defaultAddress) {
+                    walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
+                    await getBalances();
+                    walletInfoDiv.style.display = 'block';
+                    connectWalletBtn.style.display = 'none';
+                    await initializeContracts(); // Initialize contracts
+                    // Check token balance before showing staking container
+                    if (trc20BalanceNum >= 1000) {  // Use the stored balance
+                       stakingContainer.style.display = 'flex'; // Show the staking container
+                        insufficientBalanceMessage.style.display = 'none';
+                    } else {
+                        stakingContainer.style.display = 'none'; // Hide the staking container
+                        insufficientBalanceMessage.style.display = 'block';
+                    }
 
-                } else {
-                    alert("Wallet connection failed! Is TronLink installed and unlocked?");
-                }
-            } catch (error) {
-                console.error('Failed to connect wallet:', error);
-                alert('Failed to connect wallet. See console for details.');
-            }
-        }
+                } else {
+                    alert("Wallet connection failed! Is TronLink installed and unlocked?");
+                }
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet. See console for details.');
+            }
+        }
 
-        async function initializeContracts() {
-            try {
-                tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
-                stakingContract = await tronWeb.contract().at(STAKING_CONTRACT_ADDRESS);
-                tokenDecimals = await tokenContract.decimals().call(); // Get decimals here
-            } catch (error) {
-                console.error("Failed to initialize contracts:", error);
-                alert("Failed to initialize contracts.  Check console for details.");
-                throw error; // Re-throw the error to prevent further execution
-            }
-        }
+        async function initializeContracts() {
+            try {
+                tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
+                stakingContract = await tronWeb.contract().at(STAKING_CONTRACT_ADDRESS);
+                tokenDecimals = await tokenContract.decimals().call(); // Get decimals here
+            } catch (error) {
+                console.error("Failed to initialize contracts:", error);
+                alert("Failed to initialize contracts.  Check console for details.");
+                throw error; // Re-throw the error to prevent further execution
+            }
+        }
 
-        async function getBalances() {
-            try {
-                // Get TRX balance
-                const trxBalance = await tronWeb.trx.getBalance(accountAddress);
-                trxBalanceSpan.textContent = (trxBalance / 1000000).toFixed(2) + ' TRX'; // Convert from SUN to TRX
+        async function getBalances() {
+            try {
+                // Get TRX balance
+                const trxBalance = await tronWeb.trx.getBalance(accountAddress);
+                trxBalanceSpan.textContent = (trxBalance / 1000000).toFixed(2) + ' TRX'; // Convert from SUN to TRX
 
-                // Get TRC20 balance
-                if (TRC20_TOKEN_ADDRESS) {
-                    try {
-                        const tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
-                        const trc20Balance = await tokenContract.balanceOf(accountAddress).call();
-                        const decimals = await tokenContract.decimals().call();
-                        const name = await tokenContract.name().call();
-                        const symbol = await tokenContract.symbol().call();
-                        const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
-                        trc20BalanceNum = balance; // Store the balance
-                        trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
-                        tokenNameSpan.textContent = name;
-                        tokenSymbolSpan.textContent = symbol;
-                    } catch (e) {
-                        console.error("Error fetching TRC20 balance/metadata", e);
-                        trc20BalanceSpan.textContent = "N/A";
-                        tokenNameSpan.textContent = "N/A";
-                    }
-                } else {
-                    trc20BalanceSpan.textContent = "N/A";
-                    tokenNameSpan.textContent = "N/A";
-                }
+                // Get TRC20 balance
+                if (TRC20_TOKEN_ADDRESS) {
+                    try {
+                        const tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
+                        const trc20Balance = await tokenContract.balanceOf(accountAddress).call();
+                        const decimals = await tokenContract.decimals().call();
+                        const name = await tokenContract.name().call();
+                        const symbol = await tokenContract.symbol().call();
+                        const balance = trc20Balance.toNumber() / Math.pow(10, decimals);
+                        trc20BalanceNum = balance; // Store the balance
+                        trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
+                        tokenNameSpan.textContent = name;
+                        tokenSymbolSpan.textContent = symbol;
+                    } catch (e) {
+                        console.error("Error fetching TRC20 balance/metadata", e);
+                        trc20BalanceSpan.textContent = "N/A";
+                        tokenNameSpan.textContent = "N/A";
+                    }
+                } else {
+                    trc20BalanceSpan.textContent = "N/A";
+                    tokenNameSpan.textContent = "N/A";
+                }
 
 
-            } catch (error) {
-                console.error('Failed to get balances:', error);
-                trxBalanceSpan.textContent = 'N/A';
-                trc20BalanceSpan.textContent = 'N/A';
-                tokenNameSpan.textContent = "N/A";
-            }
-        }
+            } catch (error) {
+                console.error('Failed to get balances:', error);
+                trxBalanceSpan.textContent = 'N/A';
+                trc20BalanceSpan.textContent = 'N/A';
+                tokenNameSpan.textContent = "N/A";
+            }
+        }
 
 
 
-        allowButton.addEventListener('click', async () => {
-            const amount = parseFloat(stakeAmountInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                stakingMessage.textContent = "Invalid amount.";
-                return;
-            }
-            try {
-                const amountToSend = amount * Math.pow(10, tokenDecimals);
-                const tx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
-                console.log("Approval Transaction:", tx);
-                stakingMessage.textContent = "Token approval successful!";
-                allowanceApproved = true;
-                stakeButton.disabled = false;
-            } catch (error) {
-                console.error('Approval failed:', error);
-                stakingMessage.textContent = "Approval failed: " + error.message;
-            }
-        });
+        allowButton.addEventListener('click', async () => {
+            const amount = parseFloat(stakeAmountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                stakingMessage.textContent = "Invalid amount.";
+                return;
+            }
+            try {
+                const amountToSend = amount * Math.pow(10, tokenDecimals);
+                const tx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountToSend).send();
+                console.log("Approval Transaction:", tx);
+                stakingMessage.textContent = "Token approval successful!";
+                allowanceApproved = true;
+                stakeButton.disabled = false;
+            } catch (error) {
+                console.error('Approval failed:', error);
+                stakingMessage.textContent = "Approval failed: " + error.message;
+            }
+        });
 
-        stakeButton.addEventListener('click', async () => {
-            const amount = parseFloat(stakeAmountInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                stakingMessage.textContent = "Invalid amount.";
-                return;
-            }
-            if (!allowanceApproved) {
-                stakingMessage.textContent = "Please approve the token allowance first.";
-                return;
-            }
+        stakeButton.addEventListener('click', async () => {
+            const amount = parseFloat(stakeAmountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                stakingMessage.textContent = "Invalid amount.";
+                return;
+            }
+            if (!allowanceApproved) {
+                stakingMessage.textContent = "Please approve the token allowance first.";
+                return;
+            }
 
-            try {
-                console.log("Attempting to stake amount:", amount); // Add this line
-                const tx = await stakingContract.stake(amount).send();
-                console.log("Staking Transaction:", tx);
-                stakingMessage.textContent = `Staking successful! Transaction ID: ${tx}`;
-                stakeAmountInput.value = ''; // Clear input after successful stake
-            } catch (error) {
-                console.error('Staking failed:', error);
-                stakingMessage.textContent = "Staking failed: " + error.message;
-            }
-        });
+            try {
+                console.log("Attempting to stake amount:", amount); // Add this line
+                const tx = await stakingContract.stake(amount).send();
+                console.log("Staking Transaction:", tx);
+                stakingMessage.textContent = `Staking successful! Transaction ID: ${tx}`;
+                stakeAmountInput.value = ''; // Clear input after successful stake
+            } catch (error) {
+                console.error('Staking failed:', error);
+                stakingMessage.textContent = "Staking failed: " + error.message;
+            }
+        });
 
-        queryBalanceBtn.addEventListener('click', async () => {
-            try {
-                // IMPORTANT:  Replace these with the *actual* function names from your smart contract
-                const totalStaked = await stakingContract.getStakingBalance(accountAddress).call();
-                const totalEarned = await stakingContract.calculateEarnedTokens(accountAddress).call();
+        queryBalanceBtn.addEventListener('click', async () => {
+            try {
+                // IMPORTANT:  Replace these with the *actual* function names from your smart contract
+                const totalStaked = await stakingContract.getStakingBalance(accountAddress).call();
+                const totalEarned = await stakingContract.calculateEarnedTokens(accountAddress).call();
 
-                console.log("Total Deposited:", totalStaked);
-                console.log("Total Earned:", totalEarned);
+                console.log("Total Deposited:", totalStaked);
+                console.log("Total Earned:", totalEarned);
 
-                const stakedAmount = totalStaked.toNumber() / Math.pow(10, tokenDecimals);
-                const earnedAmount = totalEarned.toNumber() / Math.pow(10, tokenDecimals);
+                const stakedAmount = totalStaked.toNumber() / Math.pow(10, tokenDecimals);
+                const earnedAmount = totalEarned.toNumber() / Math.pow(10, tokenDecimals);
 
 
-                unstakeTotalStakedSpan.textContent = stakedAmount.toFixed(2) + ' RBD';
-                unstakeTotalEarnedSpan.textContent = earnedAmount.toFixed(2) + ' RBD';
-                stakingMessage.textContent = "Balances updated!";
+                unstakeTotalStakedSpan.textContent = stakedAmount.toFixed(2) + ' RBD';
+                unstakeTotalEarnedSpan.textContent = earnedAmount.toFixed(2) + ' RBD';
+                stakingMessage.textContent = "Balances updated!";
 
-            } catch (error) {
-                console.error("Failed to query staking balance:", error);
-                stakingMessage.textContent = "Failed to query balance: " + error.message;
-            }
-        });
+            } catch (error) {
+                console.error("Failed to query staking balance:", error);
+                stakingMessage.textContent = "Failed to query balance: " + error.message;
+            }
+        });
 
-        withdrawButton.addEventListener('click', async () => {
-            try {
-                const tx = await stakingContract.unstake().send(); // Call the unstake function
-                console.log("Unstake Transaction:", tx);
-                stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
-                // Optionally, you might want to refresh the balances after a successful unstake
-                await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances
-            } catch (error) {
-                console.error("Unstaking failed:", error);
-                stakingMessage.textContent = "Unstaking failed: " + error.message;
-            }
-        });
+        withdrawButton.addEventListener('click', async () => {
+            try {
+                const tx = await stakingContract.unstake().send(); // Call the unstake function
+                console.log("Unstake Transaction:", tx);
+                stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
+                // Optionally, you might want to refresh the balances after a successful unstake
+                await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances
+            } catch (error) {
+                console.error("Unstaking failed:", error);
+                stakingMessage.textContent = "Unstaking failed: " + error.message;
+            }
+        });
 
-        connectWalletBtn.addEventListener('click', async () => {
-            await connectWallet();
-        });
+        connectWalletBtn.addEventListener('click', async () => {
+            await connectWallet();
+        });
 
-        backToHomeBtn.addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
+        backToHomeBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
 
-        // Initialize when the page loads
-        document.addEventListener('DOMContentLoaded', async () => {
-            await initializeTronWeb();
-            try {
-                await connectWallet(); // Await wallet connection
-            } catch (error) {
-                console.error("Initialization error", error);
-                alert("Failed to initialize. Check console for errors.");
-            }
-        });
-    </script>
+        // Initialize when the page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeTronWeb();
+            try {
+                await connectWallet(); // Await wallet connection
+            } catch (error) {
+                console.error("Initialization error", error);
+                alert("Failed to initialize. Check console for errors.");
+            }
+        });
+    </script>
 </body>
 </html>
