@@ -1,17 +1,95 @@
-this is the code we are working on
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RasTV</title>
-    <link rel="stylesheet" href="styles.css"> </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RasTV</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
+    <style>
+        #connectWalletButton {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #balanceDisplay {
+            font-size: 16px;
+            color: #000;
+            margin-top: 10px;
+        }
+    </style>
+</head>
 <body>
-    <div class="container"
-        <h1>RasTV</h1>
-        <p>Stay tuned for the release of <b>RasTV!</b></p>
-        <a href="index.html">Back to Home</a>
-    </div>
+    <header class="header-container">
+        <h1>RasTV</h1>
+        <button id="connectWalletButton">Connect Wallet</button>
+        <div id="balanceDisplay" style="display:none;">
+            <p>TRX Balance: <span id="trxBalance"></span></p>
+        </div>
+    </header>
+    <main class="body-container">
+        <p>Stay tuned for the release of <b>RasTV!</b></p>
+        <a href="index.html">Back to Home</a>
+    </main>
+    <script>
+        const connectWalletButton = document.getElementById("connectWalletButton");
+        const balanceDisplay = document.getElementById("balanceDisplay");
+        const trxBalanceDisplay = document.getElementById("trxBalance");
+
+        connectWalletButton.addEventListener("click", async () => {
+            if (window.tronWeb && window.tronWeb.defaultAddress) {
+                try {
+                    const address = window.tronWeb.defaultAddress.base58;
+                    console.log("Wallet Connected:", address);
+                    connectWalletButton.textContent = "Wallet Connected";
+                    await getTrxBalance(address);
+                } catch (error) {
+                    console.error("Error connecting wallet or getting balance:", error);
+                    alert("Failed to connect wallet.  Ensure TronLink or a compatible wallet is installed and unlocked.");
+                    connectWalletButton.textContent = "Connect Wallet"; // Reset button text
+                    balanceDisplay.style.display = 'none';
+
+                }
+
+            } else {
+                alert("Please install TronLink or a compatible Tron wallet.");
+            }
+        });
+
+        async function getTrxBalance(address) {
+            try {
+                const balanceInSun = await window.tronWeb.trx.getBalance(address);
+                const balanceInTRX = balanceInSun / 1000000; // Convert Sun to TRX
+                console.log("TRX Balance:", balanceInTRX);
+                trxBalanceDisplay.textContent = balanceInTRX.toFixed(2) + " TRX";
+                balanceDisplay.style.display = 'block'; // Show the balance display
+            } catch (error) {
+                console.error("Error fetching TRX balance:", error);
+                trxBalanceDisplay.textContent = "Error";
+                balanceDisplay.style.display = 'none';
+                alert("Failed to retrieve TRX balance.");
+            }
+        }
+
+        //Check if TronWeb is initialized.
+        const checkTronWeb = setInterval(() => {
+        if (window.tronWeb) {
+            clearInterval(checkTronWeb);
+            if (window.tronWeb.defaultAddress) {
+                const address = window.tronWeb.defaultAddress.base58;
+                 connectWalletButton.textContent = "Wallet Connected";
+                 getTrxBalance(address);
+            }
+        }
+        }, 100);
+    </script>
 </body>
 </html>
