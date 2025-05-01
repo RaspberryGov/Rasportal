@@ -56,9 +56,7 @@
                     alert("Failed to connect wallet.  Ensure TronLink or a compatible wallet is installed and unlocked.");
                     connectWalletButton.textContent = "Connect Wallet"; // Reset button text
                     balanceDisplay.style.display = 'none';
-
                 }
-
             } else {
                 alert("Please install TronLink or a compatible Tron wallet.");
             }
@@ -79,16 +77,21 @@
             }
         }
 
-        //Check if TronWeb is initialized.
+        // Check if TronWeb is initialized and the wallet is connected on page load
         const checkTronWeb = setInterval(() => {
-        if (window.tronWeb) {
-            clearInterval(checkTronWeb);
-            if (window.tronWeb.defaultAddress) {
-                const address = window.tronWeb.defaultAddress.base58;
-                 connectWalletButton.textContent = "Wallet Connected";
-                 getTrxBalance(address);
+            if (window.tronWeb) {
+                clearInterval(checkTronWeb); // Clear the interval once tronWeb is available
+
+                if (window.tronWeb.defaultAddress) {
+                    // Wallet is already connected
+                    const address = window.tronWeb.defaultAddress.base58;
+                    connectWalletButton.textContent = "Wallet Connected";
+                    getTrxBalance(address); // Get and display balance immediately
+                }
+                //  else {
+                //     //  connectWalletButton.textContent = "Connect Wallet"; // keep the button text
+                // }
             }
-        }
         }, 100);
     </script>
 </body>
