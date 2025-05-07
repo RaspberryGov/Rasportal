@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Market</title>
+    <link rel="stylesheet" href="styles.css"> </head>
+<body>
+    <div class="container">
+        import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Loader2, AlertCircle } from 'lucide-react';
+
+// TronWeb setup (using a simplified approach for demonstration)
+// In a real-world scenario, you might get this from a global context or window
+const TronWeb = require('tronweb'); // Import only for type checking
+let tronWeb: any;
+
+const SunSwapPriceWidget = () => {
+    const [price, setPrice] = useState<number | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const pairContractAddress = 'TM6fUHjWvB4kL91GiNTZrkDu5uzKEgGXoz'; // Replace with the actual pair address
+
+    // Replace with the actual ABI.  This is a simplified version.
+    const pairContractABI = [
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "getReserves",
+            "outputs": [
+                { "internalType": "uint256", "name": "reserve0", "type": "uint256" },
+                { "internalType": "uint256", "name": "reserve1", "type": "uint256" },
+                { "internalType": "uint256", "name": "blockTimestampLast", "type": "uint256" }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+    ];
+
+    useEffect(() => {
+        const initializeTronWeb = async () => {
+            try {
+                // Check if TronLink is installed (for browser)
+                if (window && (window as any).tronWeb) {
+                    tronWeb = (window as any).tronWeb;
+                } else {
+                    // Fallback to a default provider (replace with your Tron node)
+                    const HttpProvider = TronWeb.providers.HttpProvider;
+                    const fullNode = new HttpProvider({ fullNode: 'https://api.trongrid.io' });
+                    const solidityNode = new HttpProvider({ solidityNode: 'https://api.trongrid.io' });
+                    const eventServer = new HttpProvider({ eventServer: 'https://api.trongrid.io' });
+                    tronWeb = new TronWeb(fullNode, solidityNode, eventServer);
+                    //tronWeb = new TronWeb({      //Use this constructor instead
+                    //    fullNode: 'https://api.trongrid.io',
+                    //    solidityNode: 'https://api.trongrid.io',
+                    //    eventServer: 'https://api.trongrid.io',
+                    //});
+                }
+
+                if (!tronWeb.defaultAddress) {
+                    setError("TronWeb is not initialized.  Please ensure TronLink is installed and connected, or provide a default address.");
+                    setLoading(false);
+                    return;
+                }
+            } catch (e: any) {
+                setError(`Error initializing TronWeb: ${e.message}`);
+                setLoading(false);
+                return;
+            }
+        };
+
+        const fetchTokenPrice = async () => {
+            if (!tronWeb) {
+                return; // TronWeb not initialized yet
+            }
+            setLoading(true);
+            setError(null);
+            try {
+                const pairContract = await tronWeb.contract(pairContractABI, pairContractAddress);
+                const reserves = await pairContract.getReserves().call();
+                const reserve0 = reserves.reserve0.toNumber();  // Convert BigNumber to number
+                const reserve1 = reserves.reserve1.toNumber();
+
+                //  Get token decimals.  This is hardcoded as 18 in your example,
+                //  but in a real application, you'd query the token contracts.
+                const decimals0 = 18;
+                const decimals1 = 18;
+
+                // Calculate price
+                const calculatedPrice = (reserve1 * Math.pow(10, decimals0)) / (reserve0 * Math.pow(10, decimals1));
+                setPrice(calculatedPrice);
+            } catch (e: any) {
+                setError(`Error fetching price: ${e.message}`);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initializeTronWeb().then(() => {
+            fetchTokenPrice();
+            const intervalId = setInterval(fetchTokenPrice, 10000); // Update every 10 seconds
+
+            return () => clearInterval(intervalId); // Cleanup on unmount
+        });
+    }, []);
+
+    return (
+        <div className="p-4 rounded-lg bg-card border border-border shadow-md w-full max-w-md">
+            <h2 className="text-lg font-semibold mb-4 text-foreground">SunSwap Price</h2>
+            {loading ? (
+                <div className="flex items-center justify-center py-4">
+                    <Loader2 className="animate-spin text-gray-500 h-6 w-6 mr-2" />
+                    <span className="text-muted-foreground">Loading price...</span>
+                </div>
+            ) : error ? (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            ) : price !== null ? (
+                <div className="text-2xl font-bold text-foreground">
+                    {price.toFixed(6)} {/* Format the price as needed */}
+                </div>
+            ) : (
+                <div className="text-muted-foreground">
+                    Price not available.
+                </div>
+            )}
+            <div className="mt-4">
+                <p className="text-sm text-muted-foreground">
+                    Trading Pair: {pairContractAddress}
+                </p>
+                {/* You could add a link to the pair on SunSwap here */}
+            </div>
+        </div>
+    );
+};
+
+export default SunSwapPriceWidget;
+
+    </div>
+</body>
+</html>
