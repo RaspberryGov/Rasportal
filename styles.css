@@ -24,6 +24,19 @@ body {
     justify-content: center; /* Added to center the content horizontally */
 }
 
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center items horizontally */
+    padding: 10px 20px;
+    background-color: #f8f8f8; /* Optional: Add a background color to the header */
+}
+    
+    .logo-image {
+        max-height: 50px; /* Adjust the maximum height as needed */
+        margin-right: 20px; /* Add some spacing between the logo and the heading */
+    }
+
 .page-header h3 {
     font-family: 'Blackout Midnight 2AM', serif;  /* Apply the custom font */
     /* Keep other existing styles for the header */
