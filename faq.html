@@ -6,54 +6,53 @@
     <title>F.A.Q.</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-           .header {
-            display: flex;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #f8f8f8; /* Optional: Add a background color to the header */
-        }
-        
-        .faq-item {
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow: hidden;
-        }
+    .header {
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: #f8f8f8; /* Optional: Add a background color to the header */
+    }
+    
+    .logo-image {
+        max-height: 50px; /* Adjust the maximum height as needed */
+        margin-right: 20px; /* Add some spacing between the logo and the heading */
+    }
 
-        .faq-question {
-            background-color: #f0f0f0;
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-        }
-            
-        .logo-image {
-            max-height: 50px; /* Adjust the maximum height as needed */
-            margin-right: 20px; /* Add some spacing between the logo and the heading */
-        }
-            justify-content: space-between;
-            align-items: center;
-        }
+    .faq-item {
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow: hidden;
+    }
 
-        .faq-question::after {
-            content: '+';
-            font-size: 1.2em;
-        }
+    .faq-question {
+        background-color: #f0f0f0;
+        padding: 10px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-        .faq-item.open .faq-question::after {
-            content: '-';
-        }
+    .faq-question::after {
+        content: '+';
+        font-size: 1.2em;
+    }
 
-        .faq-answer {
-            padding: 10px;
-            background-color: #fff;
-            display: none;
-        }
+    .faq-item.open .faq-question::after {
+        content: '-';
+    }
 
-        .faq-item.open .faq-answer {
-            display: block;
-        }
-    </style>
+    .faq-answer {
+        padding: 10px;
+        background-color: #fff;
+        display: none;
+    }
+
+    .faq-item.open .faq-answer {
+        display: block;
+    }
+</style>
 </head>
 <body>
      <div class="header">
