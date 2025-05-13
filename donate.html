@@ -1,10 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>donate</title>
-    <link rel="stylesheet" href="styles.css"> </head>
+    <title>Raspberry Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+ .header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center items horizontally */
+    padding: 10px 20px;
+    background-color: #f8f8f8; /* Optional: Add a background color to the header */
+        width: 100%;  /* Make header full width */
+        box-sizing: border-box; /* Include padding in width */
+}
+    
+    .logo-image {
+        max-height: 50px; /* Adjust the maximum height as needed */
+        margin-right: 20px; /* Add some spacing between the logo and the heading */
+    }
+
+        
+      .page-header {
+        background-color: #f0f0f0;
+        padding: 20px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .page-header img {
+        max-height: 50px;
+        width: auto;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .page-header h1 {
+        font-family: 'Blackout Midnight 2AM', serif;
+        margin: 0;
+        font-size: 1.5em;
+        line-height: 1;
+        font-weight: bold;
+      }
+
+      .container {
+        max-width: 325px;
+        margin: 5px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .thumbnail-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        justify-content: center;
+      }
+
+      .thumbnail {
+        flex: 0 0 auto;
+        text-align: center;
+      }
+
+      .thumbnail a {
+        text-decoration: none;
+        color: #333;
+      }
+
+      .thumbnail img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 5px;
+      }
+
+      .thumbnail h3 {
+        margin-top: 0;
+        font-size: 1em;
+      }
+    </style>
+ </head>
 <body>
     <div class="container">
         <h3>Donate to The Raspberry</h3>
