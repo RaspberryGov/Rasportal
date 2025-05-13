@@ -4,8 +4,171 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SWAP</title>
-    <link rel="stylesheet" href="styles.css"> </head>
+    <link rel="stylesheet" href="styles.css"> 
+<style>
+        @font-face {
+            font-family: 'Blackout 2AM';
+            src: url('./fonts/Blackout-2am.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        #connectWalletBtn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #walletInfo {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+
+        }
+        #walletInfo p{
+          margin-bottom: 0.2rem; /* Reduced spacing between paragraphs */
+          font-size: 0.9em; /* Reduced font size */
+        }
+
+        .info-container { /* New container style */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center items horizontally */
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .info-container p {
+            margin-bottom: 0.5rem;
+        }
+
+        .staking-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .staking-container div {
+            width: 45%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .staking-container h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .staking-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .staking-container input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .staking-container button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px; /* Added margin to separate buttons */
+        }
+         .staking-container button:hover {
+            background-color: #367c39;
+        }
+
+        #stakingMessage {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            word-wrap: break-word;
+        }
+        #queryBalanceBtn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px; /* Added margin to separate buttons */
+        }
+        #queryBalanceBtn:hover {
+            background-color: #367c39;
+        }
+
+        .header-title {
+            font-family: 'Blackout 2AM', sans-serif;
+            display: inline-flex; /* Use inline-flex for better alignment */
+            align-items: center; /* Vertically center items */
+        }
+
+        #backToHomeBtn {
+            padding: 5px 10px; /* Reduced padding */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px; /* Added margin to move it away from the image */
+            font-size: 0.8em; /* Smaller font size */
+        }
+        #backToHomeBtn:hover {
+            background-color: #367c39;
+        }
+
+        .header-icon {
+            margin-right: 5px; /* Reduced margin */
+            height: 24px; /* explicitly set height */
+        }
+
+        
+ .header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center items horizontally */
+    padding: 10px 20px;
+    background-color: #f8f8f8; /* Optional: Add a background color to the header */
+        width: 100%;  /* Make header full width */
+        box-sizing: border-box; /* Include padding in width */
+}
+    
+    .logo-image {
+        max-height: 50px; /* Adjust the maximum height as needed */
+        margin-right: 20px; /* Add some spacing between the logo and the heading */
+    }
+
+
+    </style>
+</head>
 <body>
+ <div class="header">
+        <img src="images/RASblem.jpg" alt="Raspberry Logo" class="logo-image">
+        <h1>Swap</h1>
+        <a href="faq.html">
+            <img src="images/info.png" alt="Question Mark" style="width: 20px; height: 20px; vertical-align: middle; margin-left: 5px;">
+        </a>
+    </div>
+            
+    </header>
+
+
     <div class="container">
         <h5><a href="index.html">Back to Home</a></h5>
         <iframe id="simpleswap-frame" name="SimpleSwap Widget" width="288px" height="392px" src="https://simpleswap.io/widget/edcb0cd4-8056-4a53-9af7-50a121018967" frameborder="0"></iframe>
