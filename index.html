@@ -4,48 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raspberry Portal</title>
-    <link rel="stylesheet" href="styles.css"> </head>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .header {
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            align-items: center; /* Center items horizontally */
+            padding: 20px; /* Adjust padding as needed */
+            text-align: center; /* Ensure text within the header is centered */
+        }
+
+        .logo-image {
+            max-height: 50px; /* Set the maximum height to 50px */
+            width: auto; /* Maintain aspect ratio */
+            margin-bottom: 10px; /* Add some spacing between the logo and the heading */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center the header and other content on the page */
+        }
+
+        .container {
+            text-align: center; /* Center the content within the container */
+            margin-top: 20px; /* Add some space between the header and the main content */
+        }
+
+        .thumbnail-row {
+            display: flex;
+            justify-content: center; /* Center thumbnails horizontally */
+            gap: 10px; /* Add spacing between thumbnails */
+            margin-bottom: 10px; /* Add spacing between rows */
+        }
+
+        .thumbnail {
+            /* Add any specific styling for thumbnails if needed */
+        }
+    </style>
+</head>
 <body>
-<div class="container">
- <img src="images/RASblem.jpg" alt="Raspberry Logo" class="logo-image">
-<br>
+    <div class="header">
+        <img src="images/RASblem.jpg" alt="Raspberry Logo" class="logo-image">
         <h1>RAS Portal</h1>
-        <a href="faq.html"> <img src="images/info.png" alt="Question Mark" style="width: 20px; height: 20px; vertical-align: middle; margin-left: 5px;">
+        <a href="faq.html">
+            <img src="images/info.png" alt="Question Mark" style="width: 20px; height: 20px; vertical-align: middle; margin-left: 5px;">
         </a>
-</div>
+    </div>
 
     <div class="container">
-               <div class="thumbnail-row">
+        <div class="thumbnail-row">
             <div class="thumbnail">
                 <a href="RasTV.html">
                     <img src="images/photo-output.png" alt="RasTV">
                 </a>
             </div>
-              <div class="thumbnail">
+            <div class="thumbnail">
                 <a href="https://nile.tronscan.org/#/token20/TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx">
                     <img src="images/tronscan.jpg" alt="Tronscan">
                 </a>
             </div>
-                  <div class="thumbnail">
+            <div class="thumbnail">
                 <a href="page1.html">
                     <img src="images/vendor.jpg" alt="Vendors">
-                </a>      
+                </a>
             </div>
-               </div>
-           <div class="thumbnail-row">
+        </div>
+        <div class="thumbnail-row">
             <div class="thumbnail">
                 <a href="swap.html">
                     <img src="images/swap.png" alt="Swap">
                 </a>
-            </div>            
-                <div class="thumbnail">
+            </div>
+            <div class="thumbnail">
                 <a href="donate.html">
                     <img src="images/donateqr1.png" alt="Donate">
                 </a>
-            </div>            
-</div>
-        
-         <div class="thumbnail-row">
+            </div>
+        </div>
+        <div class="thumbnail-row">
             <div class="thumbnail">
                 <a href="https://apenft.io/">
                     <img src="images/passport.jpg" alt="passport">
@@ -55,16 +92,13 @@
                 <a href="RRSP.html">
                     <img src="images/rrsp.png" alt="RRSP">
                 </a>
-            
-        </div>    
-                  <div class="thumbnail">
+            </div>
+            <div class="thumbnail">
                 <a href="Blog.html">
                     <img src="images/blog.png" alt="Blog">
                 </a>
             </div>
-</div>
         </div>
     </div>
-</div>
 </body>
 </html>
