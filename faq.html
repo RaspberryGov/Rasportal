@@ -4,12 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>F.A.Q.</title>
-    <link rel="stylesheet" href="styles.css"> </head>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .faq-item {
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            background-color: #f0f0f0;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.2em;
+        }
+
+        .faq-item.open .faq-question::after {
+            content: '-';
+        }
+
+        .faq-answer {
+            padding: 10px;
+            background-color: #fff;
+            display: none;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+    </style>
+</head>
 <body>
     <div class="container">
         <h1>F.A.Q.</h1>
-        <p>Review the F.A.Q's and get comfortable with The Raspberry</p>
+        <p>Review the F.A.Q.'s and get comfortable with The Raspberry</p>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                What is The Free Nation of Raspberry?
+            </div>
+            <div class="faq-answer">
+                The Free Nation of Raspberry is a decentralized, free and sovereign micronation of global citizens, who believe in free speech, freedom of taxation, self-governance over bureaucratic government, the right to access livelihood, and who respect the way of the land as native inhabitants to Planet Earth.<br><br>
+                We do not believe in physical possession of the planet or development of enterprise, but rather utilization of the land and its resources to spread prosperity and accessibility of a basic livelihood to those who reside upon it and travel amongst it.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                What is Raspberry Dollar (RBD)?
+            </div>
+            <div class="faq-answer">
+                The Raspberry Dollar is the trusted money utilized within The Free Nation of Raspberry ecosystem by its citizens and visitors to barter goods and services. It is open source code that creates decentralized software hosted on the TRON Blockchain, designed and released by The Comptroller; Digital Currency Daily.<br><br>
+                The code base for the open source software that brings the raspberry dollar into fruition to be used as money is publicly accessible on the blockchain and can be copied, replicated, modified and redistributed by anyone who wishes to remodel the software code for their own use for a variety of purposes. It has no inherent value or return value for any other currency outside of the individual beliefs agreed upon by those who utilize it in their daily activities.<br><br>
+                Anyone that wishes to interact with the raspberry dollar software code on TRON Blockchain being used as money within the free nation of raspberry is free to program, design and release their own software or applications that communicate with the raspberry dollar smart contract hosted within the TRON blockchain web library to grow the economy and create additional uses.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                Why do people support The Raspberry Dollar as money in The Free Nation of Raspberry?
+            </div>
+            <div class="faq-answer">
+                Enthusiasts of the Free Nation of Raspberry movement choose to embrace this open source software as a money/currency due to its fair distribution model to citizens only, and permanent inflation structure which is predictable, fair, and scarcely limited by nature.<br><br>
+                Enthusiasts understand the properties of money and why they choose to exchange Raspberry Dollars as such to barter for goods and services amongst others within our community.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                How do I get Raspberry Dollars (RBD)?
+            </div>
+            <div class="faq-answer">
+                Raspberry Dollar was initially distributed via a free airdrop to supporters of the free nation. There has been an allocation of tokens set as liquidity on Sunswap upon launch aswell which traded at a free market exchange rate for TRX.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                How do I earn Raspberry Dollars (RBD)?
+            </div>
+            <div class="faq-answer">
+                As within any economy, to earn raspberry currency you can provide goods and services to other community members and accept Raspberry Dollars as payment. Alternatively, you can acquire it or “stake” your initial airdrop allocation of Raspberry Dollars and earn new raspberry dollars each day to spend within the economy.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                Is there a tax to use raspberry dollars?
+            </div>
+            <div class="faq-answer">
+                No, there is no taxation to use the Raspberry Dollar, in any form.<br><br>
+                However, the TRON Blockchain charges transactional fees to interact with smart contract functions, such as sending and receiving currency-like trc-20 tokens on the TRON blockchain so you will need TRX to perform transactions, or increased energy/bandwidth allocations on your wallet to perform transactions without cost.
+            </div>
+        </div>
+
         <a href="index.html">Back to Home</a>
     </div>
+
+    <script>
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                item.classList.toggle('open');
+            });
+        });
+    </script>
 </body>
 </html>
