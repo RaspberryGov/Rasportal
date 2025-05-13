@@ -16,6 +16,20 @@
         align-items: center;
       }
 
+ .header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center items horizontally */
+    padding: 10px 20px;
+    background-color: #f8f8f8; /* Optional: Add a background color to the header */
+}
+    
+    .logo-image {
+        max-height: 50px; /* Adjust the maximum height as needed */
+        margin-right: 20px; /* Add some spacing between the logo and the heading */
+    }
+
+        
       .page-header {
         background-color: #f0f0f0;
         padding: 20px;
@@ -84,7 +98,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="images/RASblem.jpg" alt="Raspberry Logo">
+        <img src="images/RASblem.jpg" alt="Raspberry Logo" class="logo-image">
         <h1>RAS Portal</h1>
         <a href="faq.html">
             <img src="images/info.png" alt="Question Mark" style="width: 20px; height: 20px; vertical-align: middle; margin-left: 5px;">
