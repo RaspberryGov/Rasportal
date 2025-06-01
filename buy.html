@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>Grand Exchange</title>
+    <title>RBD Grand Exchange</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -154,6 +154,21 @@
             margin-right: 20px; /* Add some spacing between the logo and the heading */
         }
 
+        /* New styles for contract info */
+        #contractInfo {
+            display: none; /* Hidden by default, shown after wallet connect */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #contractInfo p {
+            margin-bottom: 0.2rem;
+            font-size: 0.9em;
+        }
+
     </style>
 </head>
 <body>
@@ -178,6 +193,10 @@
                 <p>Token Balance: <span id="trc20Balance"></span></p>
                 <p>Token Name: <span id="tokenName"></span></p>
                 <p>Token Symbol: <span id="tokenSymbol"></span></p>
+            </div>
+            <div id="contractInfo">
+                <p>Contract TRX Balance: <span id="contractTrxBalance"></span></p>
+                <p>Contract USD Value (Approx.): <span id="contractUsdValue"></span></p>
             </div>
         </div>
 
@@ -209,6 +228,9 @@
         const trc20BalanceSpan = document.getElementById('trc20Balance');
         const tokenNameSpan = document.getElementById('tokenName');
         const tokenSymbolSpan = document.getElementById('tokenSymbol');
+        const contractInfoDiv = document.getElementById('contractInfo'); // New element
+        const contractTrxBalanceSpan = document.getElementById('contractTrxBalance'); // New element
+        const contractUsdValueSpan = document.getElementById('contractUsdValue'); // New element
         
         // This is the ONLY contract address used for all interactions
         const CONTRACT_ADDRESS = "TPQTwv4QdJg1F8bjsgYSnsh2hXxPAy4X7p";  
@@ -223,19 +245,19 @@
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
         const withdrawButton = document.getElementById('withdrawButton');
         const backToHomeBtn = document.getElementById('backToHomeBtn');
-        const checkPriceButton = document.getElementById('checkPriceButton'); 
-        // Removed: const buyRateDisplay = document.getElementById('buyRateDisplay'); 
+        const checkPriceButton = document.getElementById('checkPriceButton');  
+        // Removed: const buyRateDisplay = document.getElementById('buyRateDisplay');  
 
         let tronWeb;
         let mainContract;  
         let accountAddress;
-        let tokenDecimals; 
+        let tokenDecimals;  
         const TRX_DECIMALS = 6;
         // const swapFee = 100; // This is now dynamic based on r_value
 
         // These coefficients are no longer needed with the new fee calculation logic
-        // const RATE_COEFFICIENT_A = -1 / 9900; 
-        // const RATE_COEFFICIENT_B = 99912 / 9900; 
+        // const RATE_COEFFICIENT_A = -1 / 9900;  
+        // const RATE_COEFFICIENT_B = 99912 / 9900;  
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -275,8 +297,13 @@
                 accountAddress = tronWeb.defaultAddress.base58;
                 walletAddressSpan.textContent = accountAddress;
 
-                await initializeContracts(); 
-                await getBalances(); 
+                await initializeContracts();  
+                await getBalances();  
+
+                // --- NEW CODE STARTS HERE ---
+                await getContractTRXBalanceAndUSDValue();
+                contractInfoDiv.style.display = 'block'; // Show the contract info div
+                // --- NEW CODE ENDS HERE ---
 
                 walletInfoDiv.style.display = 'block';
                 connectWalletBtn.style.display = 'none';
@@ -297,18 +324,18 @@
                 
                 // Fetch token decimals for TRC20 balance display
                 try {
-                    const decimals = await mainContract.decimals().call(); 
+                    const decimals = await mainContract.decimals().call();  
                     tokenDecimals = decimals.toNumber();
                     console.log("Token decimals fetched:", tokenDecimals);
                 } catch (decimalsError) {
                     console.warn("Failed to fetch token decimals from contract. Using default 6 decimals for balance display.", decimalsError);
-                    tokenDecimals = 6; 
+                    tokenDecimals = 6;  
                 }
 
             } catch (error) {
                 console.error("Critical: Failed to initialize contract instance.", error);
                 alert("Failed to initialize contract. Please ensure the contract address is correct and try again.");
-                mainContract = null; 
+                mainContract = null;  
             }
         }
 
@@ -322,11 +349,11 @@
                 const trxBalance = await tronWeb.trx.getBalance(accountAddress);
                 trxBalanceSpan.textContent = (trxBalance / 1_000_000).toFixed(2) + ' TRX';
 
-                if (mainContract && tokenDecimals !== undefined) { 
+                if (mainContract && tokenDecimals !== undefined) {  
                     try {
                         const trc20Balance = await mainContract.balanceOf(accountAddress).call();
                         const name = await mainContract.name().call();
-                        const symbol = await mainContract.symbol().call(); 
+                        const symbol = await mainContract.symbol().call();  
                         const balance = trc20Balance.toNumber() / Math.pow(10, tokenDecimals);
                         trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
                         tokenNameSpan.textContent = name;
@@ -351,13 +378,48 @@
             }
         }
 
+        // --- NEW FUNCTION STARTS HERE ---
+        async function getContractTRXBalanceAndUSDValue() {
+            try {
+                if (!tronWeb) {
+                    console.error("TronWeb is not initialized for contract balance query.");
+                    contractTrxBalanceSpan.textContent = 'N/A';
+                    contractUsdValueSpan.textContent = 'N/A';
+                    return;
+                }
+
+                // Get TRX balance of the smart contract
+                const contractTrxBalance = await tronWeb.trx.getBalance(CONTRACT_ADDRESS);
+                const contractTrxBalanceHuman = (contractTrxBalance / 1_000_000).toFixed(2);
+                contractTrxBalanceSpan.textContent = `${contractTrxBalanceHuman} TRX`;
+
+                // Fetch current TRX/USD price (using a public API, e.g., CoinGecko)
+                // Note: This is an example and might require a different API or handling for production
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd');
+                const data = await response.json();
+                const trxToUsdRate = data.tron.usd;
+
+                if (trxToUsdRate) {
+                    const contractUsdValue = (contractTrxBalanceHuman * trxToUsdRate).toFixed(2);
+                    contractUsdValueSpan.textContent = `$${contractUsdValue} USD`;
+                } else {
+                    contractUsdValueSpan.textContent = 'N/A (Rate not found)';
+                }
+            } catch (error) {
+                console.error('Failed to get contract TRX balance or USD value:', error);
+                contractTrxBalanceSpan.textContent = 'N/A';
+                contractUsdValueSpan.textContent = 'N/A (Error)';
+            }
+        }
+        // --- NEW FUNCTION ENDS HERE ---
+
         buyRBDButton.addEventListener('click', async () => {
             const amountTRX = parseFloat(buyAmountInput.value);
             if (isNaN(amountTRX) || amountTRX <= 0) {
                 stakingMessage.textContent = "Invalid amount. Please enter a positive number of TRX.";
                 return;
             }
-            if (!mainContract) { 
+            if (!mainContract) {  
                 stakingMessage.textContent = "Contract not initialized. Please connect your wallet again.";
                 return;
             }
@@ -374,6 +436,7 @@
                 stakingMessage.textContent = `Buy RBD successful! Transaction ID: ${tx}`;
                 buyAmountInput.value = '';
                 await getBalances();
+                await getContractTRXBalanceAndUSDValue(); // Update contract info after a buy
             } catch (error) {
                 console.error('Buy RBD failed:', error);
                 stakingMessage.textContent = "Buy RBD failed: " + error.message;
@@ -382,7 +445,7 @@
 
         checkPriceButton.addEventListener('click', async () => {
             // Clear previous messages and show loading state
-            stakingMessage.textContent = "Fetching price..."; 
+            stakingMessage.textContent = "Fetching price...";  
 
             if (!mainContract) {
                 stakingMessage.textContent = "Contract not initialized. Please connect your wallet.";
@@ -402,7 +465,7 @@
             }
 
             try {
-                const buyRatePerTRX_raw = await mainContract.getBuyRateScaled().call(); 
+                const buyRatePerTRX_raw = await mainContract.getBuyRateScaled().call();  
                 const r_value = buyRatePerTRX_raw.toNumber(); // Get the integer value from BigNumber
 
                 // Base RBD for 100 TRX
@@ -415,13 +478,13 @@
                 const amountForCalculationTRX = 100;
                 const netRBD_human = baseRBDfor100TRX * (1 - feePercentage);
 
-                const netRBD_display = netRBD_human.toFixed(2); 
+                const netRBD_display = netRBD_human.toFixed(2);  
 
                 // --- Output to stakingMessage on the page ---
                 // The fee is dynamic, so we should display the fee percentage instead of "+1 per 100 TRX"
                 stakingMessage.innerHTML = `Current rate: ${r_value} (Tariff: ${(feePercentage * 100).toFixed(2)}%)<br>`;
                 stakingMessage.innerHTML += `${amountForCalculationTRX.toString()} TRX = Approx. ${netRBD_display} RBD`;
-            
+                
                 // Keep console.log for internal debugging, but primary user output is on page
                 console.log("--- Check Price Results (also on page) ---");
                 console.log(`Current buy rate (raw contract value): ${r_value}`);
@@ -438,7 +501,7 @@
 
 
         queryBalanceBtn.addEventListener('click', async () => {
-            if (!mainContract || tokenDecimals === undefined) { 
+            if (!mainContract || tokenDecimals === undefined) {  
                 stakingMessage.textContent = "Contract not fully initialized or token decimals not loaded. Please connect your wallet.";
                 return;
             }
@@ -463,7 +526,7 @@
         });
 
         withdrawButton.addEventListener('click', async () => {
-            if (!mainContract || tokenDecimals === undefined) { 
+            if (!mainContract || tokenDecimals === undefined) {  
                 stakingMessage.textContent = "Contract not fully initialized or token decimals not loaded. Please connect your wallet.";
                 return;
             }
@@ -473,6 +536,7 @@
                 stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
                 await queryBalanceBtn.click();
                 await getBalances();
+                await getContractTRXBalanceAndUSDValue(); // Update contract info after a sell
             } catch (error) {
                 console.error("Unstaking failed:", error);
                 stakingMessage.textContent = "Unstaking failed: " + error.message;
