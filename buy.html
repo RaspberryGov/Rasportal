@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>UBI</title>
+    <title>The Grand Exchange</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -234,6 +234,7 @@
         let mainContract;  
         let accountAddress;
         let tokenDecimals; // To store the token's decimal value
+        const TRX_DECIMALS = 6; // TRX has 6 decimals
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -264,12 +265,12 @@
 
                 if (tronWeb && tronWeb.defaultAddress) {
                     walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
-                    await initializeContracts(); // Initialize contract AFTER wallet connection
+                    await initializeContracts(); // Initialize contract AFTER wallet connection 
                     await getBalances();
                     walletInfoDiv.style.display = 'block';
                     connectWalletBtn.style.display = 'none';
-                    buyRBDButton.disabled = false; // Enable the "Buy RBD" button after wallet connection
-                    checkPriceButton.disabled = false; // Enable the "Check Price" button
+                    buyRBDButton.disabled = false; // Enable the "Buy RBD" button after wallet connection 
+                    checkPriceButton.disabled = false; // Enable the "Check Price" button 
                 } else {
                     alert("Wallet connection failed! Is TronLink installed and unlocked?");
                 }
@@ -283,7 +284,7 @@
             try {
                 // Initialize the single main contract for all interactions
                 mainContract = await tronWeb.contract().at(CONTRACT_ADDRESS);
-                // Get decimals for the token from this contract
+                // Get decimals for the token from this contract 
                 tokenDecimals = await mainContract.decimals().call();  
             } catch (error) {
                 console.error("Failed to initialize contract:", error);
@@ -294,11 +295,11 @@
 
         async function getBalances() {
             try {
-                // Get TRX balance
+                // Get TRX balance 
                 const trxBalance = await tronWeb.trx.getBalance(accountAddress);
-                trxBalanceSpan.textContent = (trxBalance / 1_000_000).toFixed(2) + ' TRX'; // Convert from SUN to TRX
+                trxBalanceSpan.textContent = (trxBalance / 1_000_000).toFixed(2) + ' TRX'; // Convert from SUN to TRX 
 
-                // Get TRC20 balance (RBD token) using the main contract
+                // Get TRC20 balance (RBD token) using the main contract 
                 if (mainContract) {
                     try {
                         const trc20Balance = await mainContract.balanceOf(accountAddress).call();
@@ -339,19 +340,19 @@
             }
 
             try {
-                // Convert TRX amount to SUN (smallest unit for Tron)
+                // Convert TRX amount to SUN (smallest unit for Tron) 
                 const amountInSun = tronWeb.toSun(amountTRX);  
                 console.log("Attempting to buy RBD with TRX amount (in SUN):", amountInSun);  
                 
-                // Call the 'buy' function on the main contract, sending TRX as callValue
+                // Call the 'buy' function on the main contract, sending TRX as callValue 
                 const tx = await mainContract.buy().send({
                     callValue: amountInSun  
                 });
                 
                 console.log("Buy Transaction:", tx);
                 stakingMessage.textContent = `Buy RBD successful! Transaction ID: ${tx}`;
-                buyAmountInput.value = ''; // Clear input after successful buy
-                await getBalances(); // Refresh balances to show new RBD token balance
+                buyAmountInput.value = ''; // Clear input after successful buy 
+                await getBalances(); // Refresh balances to show new RBD token balance 
             } catch (error) {
                 console.error('Buy RBD failed:', error);
                 stakingMessage.textContent = "Buy RBD failed: " + error.message;
@@ -359,16 +360,21 @@
         });
 
         checkPriceButton.addEventListener('click', async () => {
-            if (!mainContract) {
-                buyRateDisplay.textContent = "Contract not initialized. Please connect your wallet.";
+            if (!mainContract || typeof tokenDecimals === 'undefined') {
+                buyRateDisplay.textContent = "Contract not initialized or token decimals not loaded. Please connect your wallet.";
                 return;
             }
             try {
                 const buyRateScaled = await mainContract.currentBuyRateScaled().call();
-                // The currentBuyRateScaled function returns RBD amount per 10^tokenDecimals of TRX
-                // So, to get RBD per 1 TRX, we divide by 10^tokenDecimals (TRX decimals are 6)
-                const rbdPerTrx = buyRateScaled.toNumber() / Math.pow(10, tokenDecimals);
-                buyRateDisplay.textContent = `Current Buy Rate: ${rbdPerTrx.toFixed(2)} RBD per 1 TRX`;
+                
+                // The contract returns the RBD amount (in its smallest unit) for 100 TRX.
+                // First, convert the raw RBD amount to human-readable RBD.
+                const totalRBDfor100TRX = buyRateScaled.toNumber() / Math.pow(10, tokenDecimals);
+                
+                // Now, divide by 100 to get the RBD amount per 1 TRX.
+                const rbdPerTrx = totalRBDfor100TRX / 100;
+
+                buyRateDisplay.textContent = `Current Buy Rate: ${rbdPerTrx.toFixed(6)} RBD per 1 TRX`; // Increased decimal places for precision
             } catch (error) {
                 console.error('Failed to get buy rate:', error);
                 buyRateDisplay.textContent = "Failed to get buy rate: " + error.message;
@@ -381,7 +387,7 @@
                 return;
             }
             try {
-                // These functions interact with the main contract
+                // These functions interact with the main contract 
                 const totalStaked = await mainContract.getStakingBalance(accountAddress).call();
                 const totalEarned = await mainContract.calculateEarnedTokens(accountAddress).call();
 
@@ -407,12 +413,12 @@
                 return;
             }
             try {
-                // This function interacts with the main contract
+                // This function interacts with the main contract 
                 const tx = await mainContract.unstake().send();  
                 console.log("Unstake Transaction:", tx);
                 stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
-                await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances
-                await getBalances(); // Also refresh overall wallet balances
+                await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances 
+                await getBalances(); // Also refresh overall wallet balances 
             } catch (error) {
                 console.error("Unstaking failed:", error);
                 stakingMessage.textContent = "Unstaking failed: " + error.message;
@@ -427,14 +433,14 @@
             window.location.href = 'index.html';
         });
 
-        // Initialize when the page loads
+        // Initialize when the page loads 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Initially disable the buy and check price buttons until wallet is connected
+            // Initially disable the buy and check price buttons until wallet is connected 
             buyRBDButton.disabled = true;  
             checkPriceButton.disabled = true;
             await initializeTronWeb();
             try {
-                await connectWallet(); // Attempt wallet connection on load
+                await connectWallet(); // Attempt wallet connection on load 
             } catch (error) {
                 console.error("Initialization error", error);
                 alert("Failed to initialize. Check console for errors.");
