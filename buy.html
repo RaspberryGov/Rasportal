@@ -1,5 +1,3 @@
-HTML
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -366,31 +364,16 @@ HTML
                 return;
             }
 
-            const amountToSpendTRX = 100; // As requested, check price for 100 TRX
-            // Convert TRX amount to SUN (smallest unit for Tron) for the smart contract call
-            // The smart contract expects the input to be scaled by TRX_DECIMALS (6)
-            const amountInSun = new tronWeb.BigNumber(amountToSpendTRX).multipliedBy(Math.pow(10, TRX_DECIMALS));
-
             try {
-                // Call currentBuyRateScaled with the TRX amount in SUN
-                // The .call() method returns a BigNumber object from TronWeb
-                const returnedRBD_raw = await mainContract.currentBuyRateScaled(amountInSun).call();
+                // Call the 'getBuyRateScaled' function on the smart contract.
+                // As per previous smart contract analysis, this function does not take any arguments.
+                const rawBuyRate = await mainContract.getBuyRateScaled().call();
                 
-                // Convert the BigNumber result to a number for calculations.
-                // It's crucial to handle BigNumber correctly in TronWeb.
-                // The returned value is already scaled by the token's decimals (RBD decimals).
-                const returnedRBD_unscaled = new tronWeb.BigNumber(returnedRBD_raw);
+                // The 'rawBuyRate' will be a BigNumber object from TronWeb.
+                // Convert it to a string for display.
+                const buyRateValue = rawBuyRate.toString(); 
 
-                // Assuming 'swapFee' is 100, which represents 1% (100/10000)
-                // The contract subtracts 'swapFee' from 10000.
-                // So, if swapFee is 100, it's (10000 - 100) / 10000 = 9900 / 10000 = 0.99
-                const netRBD_with_fee = returnedRBD_unscaled.multipliedBy(new tronWeb.BigNumber(10000 - swapFee)).dividedBy(10000);
-
-                // Scale the net RBD amount by the token's decimals for display
-                // tokenDecimals is fetched when the contract is initialized.
-                const netRBD_display = netRBD_with_fee.dividedBy(Math.pow(10, tokenDecimals)).toFixed(2);
-
-                buyRateDisplay.textContent = `For ${amountToSpendTRX} TRX you will receive approximately ${netRBD_display} RBD (after fee).`;
+                buyRateDisplay.textContent = `Current Buy Rate: ${buyRateValue}`;
             } catch (error) {
                 console.error('Failed to get buy rate:', error);
                 buyRateDisplay.textContent = "Failed to get buy rate. See console for details: " + error.message;
