@@ -1,3 +1,5 @@
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -414,9 +416,6 @@
                 // Calculate the human-readable RBD per TRX (gross) using the derived linear model
                 const buyRatePerTRX_human_gross = (RATE_COEFFICIENT_A * r_value) + RATE_COEFFICIENT_B;
 
-                // Format the rate for display (e.g., 9.99 for 1 TRX). Using toFixed(4) for precision in display.
-                const rawBuyRateDisplay = buyRatePerTRX_human_gross.toFixed(4); 
-
                 const amountForCalculationTRX = new tronWeb.BigNumber(100);
 
                 // Calculate gross RBD for the specified TRX amount.
@@ -428,9 +427,10 @@
                 // Format the final net RBD amount for display.
                 const netRBD_display = netRBD_human.toFixed(2); 
 
-                // Updated display message
-                buyRateDisplay.innerHTML = `Current buy rate: ${rawBuyRateDisplay} RBD per TRX (before fee)<br>`;
-                buyRateDisplay.innerHTML += `For ${amountForCalculationTRX.toString()} TRX, you will receive approximately ${netRBD_display} RBD (after 1% fee).`;
+                // --- MODIFIED LINES START HERE ---
+                buyRateDisplay.innerHTML = `Current buy rate: ${r_value} (raw contract value)<br>`;
+                buyRateDisplay.innerHTML += `${amountForCalculationTRX.toString()} TRX = Approx. ${netRBD_display} RBD`;
+                // --- MODIFIED LINES END HERE ---
 
             } catch (error) {
                 console.error('Failed to get buy rate:', error);
