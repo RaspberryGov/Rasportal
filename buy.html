@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>RBD Grand Exchange</title>
+    <title>Grand Exchange</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -43,7 +43,7 @@
             align-items: center; /* Center items horizontally */
             margin-bottom: 20px;
             padding: 10px;
-            border: 1px solid #ccc;
+            /* No border here, as individual info divs have them */
             border-radius: 5px;
             text-align: center;
         }
@@ -154,11 +154,11 @@
             margin-right: 20px; /* Add some spacing between the logo and the heading */
         }
 
-        /* New styles for contract info */
+        /* Styles for contract info - MODIFIED */
         #contractInfo {
             display: none; /* Hidden by default, shown after wallet connect */
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 3px solid black; /* MODIFIED: Black border, 3px thickness */
             border-radius: 5px;
             margin-top: 10px;
             margin-bottom: 20px;
