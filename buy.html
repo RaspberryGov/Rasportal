@@ -88,7 +88,7 @@
             margin-top: 10px;
             margin-right: 10px; /* Added margin to separate buttons */
         }
-           .staking-container button:hover {
+            .staking-container button:hover {
             background-color: #367c39;
         }
 
@@ -231,21 +231,11 @@
         let accountAddress;
         let tokenDecimals; 
         const TRX_DECIMALS = 6;
-        const swapFee = 100; // 1% fee (100 basis points)
+        // const swapFee = 100; // This is now dynamic based on r_value
 
-        // Derived linear coefficients for RBD per TRX (gross) based on getBuyRateScaled() value (R)
-        // From data points: (R=1011, Net=989) and (R=1012, Net=988) for 100 TRX, 1% fee.
-        // Gross RBD for 100 TRX = Net RBD / 0.99
-        // RBD per TRX (gross) = (Gross RBD for 100 TRX) / 100
-        //
-        // Point 1: R=1011 => RBD/TRX (gross) = (989 / 0.99) / 100 = 9.99
-        // Point 2: R=1012 => RBD/TRX (gross) = (988 / 0.99) / 100 = 9.979797...
-        //
-        // Linear formula: RBD_per_TRX_gross = A * R + B
-        // A = (9.979797... - 9.99) / (1012 - 1011) = -0.010202... / 1 = -1/9900
-        // B = 9.99 - A * 1011 = 9.99 - (-1/9900) * 1011 = 9.99 + 1011/9900 = 999/100 + 1011/9900 = 98901/9900 + 1011/9900 = 99912/9900
-        const RATE_COEFFICIENT_A = -1 / 9900; 
-        const RATE_COEFFICIENT_B = 99912 / 9900; 
+        // These coefficients are no longer needed with the new fee calculation logic
+        // const RATE_COEFFICIENT_A = -1 / 9900; 
+        // const RATE_COEFFICIENT_B = 99912 / 9900; 
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -415,23 +405,27 @@
                 const buyRatePerTRX_raw = await mainContract.getBuyRateScaled().call(); 
                 const r_value = buyRatePerTRX_raw.toNumber(); // Get the integer value from BigNumber
 
-                const buyRatePerTRX_human_gross = (RATE_COEFFICIENT_A * r_value) + RATE_COEFFICIENT_B;
+                // Base RBD for 100 TRX
+                const baseRBDfor100TRX = 1000;
+                // Calculate the fee percentage based on r_value
+                // (r_value - 1000) * 0.1%
+                const feePercentage = (r_value - baseRBDfor100TRX) * 0.001; // 0.1% is 0.001 as a decimal
 
-                const amountForCalculationTRX = new tronWeb.BigNumber(100);
-
-                const grossRBD_human = buyRatePerTRX_human_gross * amountForCalculationTRX.toNumber();
-
-                const netRBD_human = grossRBD_human * (10000 - swapFee) / 10000;
+                // Calculate the net RBD for 100 TRX
+                const amountForCalculationTRX = 100;
+                const netRBD_human = baseRBDfor100TRX * (1 - feePercentage);
 
                 const netRBD_display = netRBD_human.toFixed(2); 
 
                 // --- Output to stakingMessage on the page ---
-                stakingMessage.innerHTML = `Current rate: ${r_value} (+1 per 100 TRX)<br>`;
+                // The fee is dynamic, so we should display the fee percentage instead of "+1 per 100 TRX"
+                stakingMessage.innerHTML = `Current rate: ${r_value} (Fee: ${(feePercentage * 100).toFixed(2)}%)<br>`;
                 stakingMessage.innerHTML += `${amountForCalculationTRX.toString()} TRX = Approx. ${netRBD_display} RBD`;
                 
                 // Keep console.log for internal debugging, but primary user output is on page
                 console.log("--- Check Price Results (also on page) ---");
                 console.log(`Current buy rate (raw contract value): ${r_value}`);
+                console.log(`Calculated Fee: ${(feePercentage * 100).toFixed(2)}%`);
                 console.log(`${amountForCalculationTRX.toString()} TRX = Approx. ${netRBD_display} RBD`);
                 console.log("------------------------------------------");
 
