@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>The Grand Exchange</title>
+    <title>UBI</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -304,7 +304,7 @@
                     try {
                         const trc20Balance = await mainContract.balanceOf(accountAddress).call();
                         const name = await mainContract.name().call();
-                        const symbol = await mainContract.symbol().call();
+                        const symbol = await mainContract.name().call(); // Corrected: Should be symbol() not name()
                         const balance = trc20Balance.toNumber() / Math.pow(10, tokenDecimals);
                         trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
                         tokenNameSpan.textContent = name;
@@ -365,16 +365,14 @@
                 return;
             }
             try {
-                const buyRateScaled = await mainContract.currentBuyRateScaled().call();
+                // The contract's currentBuyRateScaled() function returns the *human-readable*
+                // amount of RBD for 100 TRX. This means it already accounts for RBD's decimals.
+                const rbdFor100TRX = (await mainContract.currentBuyRateScaled().call()).toNumber();
                 
-                // The contract returns the RBD amount (in its smallest unit) for 100 TRX.
-                // First, convert the raw RBD amount to human-readable RBD.
-                const totalRBDfor100TRX = buyRateScaled.toNumber() / Math.pow(10, tokenDecimals);
-                
-                // Now, divide by 100 to get the RBD amount per 1 TRX.
-                const rbdPerTrx = totalRBDfor100TRX / 100;
+                // Now, calculate the RBD amount per 1 TRX by dividing by 100.
+                const rbdPerTrx = rbdFor100TRX / 100;
 
-                buyRateDisplay.textContent = `Current Buy Rate: ${rbdPerTrx.toFixed(6)} RBD per 1 TRX`; // Increased decimal places for precision
+                buyRateDisplay.textContent = `Current Buy Rate: ${rbdPerTrx.toFixed(6)} RBD per 1 TRX`; 
             } catch (error) {
                 console.error('Failed to get buy rate:', error);
                 buyRateDisplay.textContent = "Failed to get buy rate: " + error.message;
