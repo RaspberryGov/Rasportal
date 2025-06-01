@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>Grand Exchange</title>
+    <title>UBI</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -228,79 +229,100 @@
         const buyRateDisplay = document.getElementById('buyRateDisplay'); 
 
         let tronWeb;
-        // All contract interactions will now use this single contract instance
         let mainContract;  
         let accountAddress;
-        let tokenDecimals = 0; // Initialize tokenDecimals to 0 or a default value
-        const TRX_DECIMALS = 6; // TRX has 6 decimals
-        const swapFee = 100; // As per the contract code, swapFee is 100 (meaning 1% when divided by 10000)
+        let tokenDecimals = null; // Changed initial value to null to explicitly check if it's fetched
+        const TRX_DECIMALS = 6;
+        const swapFee = 100;
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
                 tronWeb = window.tronWeb;
-            } else {
-                if (window.tronLink && window.tronLink.ready) {
-                    tronWeb = window.tronWeb;
-                }
-                else {
-                    // Fallback to a default HTTP provider (for development only, NOT recommended for production)
-                    tronWeb = new TronWeb({
-                        fullNode: 'https://nile.trongrid.io',  // Nile Testnet
-                        solidityNode: 'https://nile.trongrid.io',  // Nile Testnet
-                        eventServer: 'https://nile.trongrid.io' // Nile Testnet
+                // Wait for TronLink to be ready if it exists
+                if (window.tronLink && !window.tronLink.ready) {
+                    console.log("TronLink not ready, waiting...");
+                    await new Promise(resolve => {
+                        const checkReady = setInterval(() => {
+                            if (window.tronLink.ready) {
+                                clearInterval(checkReady);
+                                resolve();
+                            }
+                        }, 100); // Check every 100ms
                     });
+                    console.log("TronLink is ready!");
                 }
+            } else {
+                // Fallback to a default HTTP provider (for development only, NOT recommended for production)
+                // This path should ideally only be used if TronLink is not detected at all.
+                console.warn("TronLink not detected, falling back to HTTP provider.");
+                tronWeb = new TronWeb({
+                    fullNode: 'https://nile.trongrid.io',
+                    solidityNode: 'https://nile.trongrid.io',
+                    eventServer: 'https://nile.trongrid.io'
+                });
             }
         }
 
         async function connectWallet() {
             try {
-                await initializeTronWeb();
-                if (!tronWeb.defaultAddress) {
+                await initializeTronWeb(); // Ensure tronWeb is initialized and ready
+                
+                if (!tronWeb.defaultAddress || !tronWeb.defaultAddress.base58) {
                     alert('Please install TronLink and connect to a Tron account!');
+                    console.error("TronLink default address not found.");
                     return;
                 }
+                
                 accountAddress = tronWeb.defaultAddress.base58;
+                walletAddressSpan.textContent = accountAddress;
 
-                if (tronWeb && tronWeb.defaultAddress) {
-                    walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
-                    await initializeContracts(); // Initialize contract AFTER wallet connection 
-                    await getBalances();
-                    walletInfoDiv.style.display = 'block';
-                    connectWalletBtn.style.display = 'none';
-                    buyRBDButton.disabled = false; // Enable the "Buy RBD" button after wallet connection 
-                    checkPriceButton.disabled = false; // Enable check price button
-                } else {
-                    alert("Wallet connection failed! Is TronLink installed and unlocked?");
-                }
+                // Initialize contract *after* wallet is connected and tronWeb is ready
+                await initializeContracts(); 
+                await getBalances();
+                
+                walletInfoDiv.style.display = 'block';
+                connectWalletBtn.style.display = 'none';
+                buyRBDButton.disabled = false;
+                checkPriceButton.disabled = false;
             } catch (error) {
                 console.error('Failed to connect wallet:', error);
-                alert('Failed to connect wallet. See console for details.');
+                alert('Failed to connect wallet. See console for details. Make sure TronLink is installed and unlocked on Nile Testnet.');
             }
         }
 
         async function initializeContracts() {
             try {
+                if (!tronWeb) {
+                    throw new Error("TronWeb is not initialized.");
+                }
                 // Initialize the single main contract for all interactions
                 mainContract = await tronWeb.contract().at(CONTRACT_ADDRESS);
-                // Get decimals for the token from this contract 
+                
+                // Fetch decimals for the token from this contract 
                 const decimals = await mainContract.decimals().call(); 
                 tokenDecimals = decimals.toNumber(); // Ensure tokenDecimals is a number
+                console.log("Contract and token decimals initialized:", tokenDecimals);
             } catch (error) {
                 console.error("Failed to initialize contract:", error);
-                alert("Failed to initialize contract. Check console for details.");
-                throw error; // Re-throw the error to prevent further execution
+                // Set a sensible default or handle the error gracefully if decimals can't be fetched
+                tokenDecimals = 6; // A common default for TRC20 tokens, adjust if your token has a different default
+                alert("Failed to initialize contract. Check console for details. Using default token decimals (6).");
             }
         }
 
         async function getBalances() {
             try {
+                if (!accountAddress) {
+                    console.warn("No account address to fetch balances for.");
+                    return;
+                }
+
                 // Get TRX balance 
                 const trxBalance = await tronWeb.trx.getBalance(accountAddress);
-                trxBalanceSpan.textContent = (trxBalance / 1_000_000).toFixed(2) + ' TRX'; // Convert from SUN to TRX 
+                trxBalanceSpan.textContent = (trxBalance / 1_000_000).toFixed(2) + ' TRX';
 
                 // Get TRC20 balance (RBD token) using the main contract 
-                if (mainContract && tokenDecimals !== undefined) { // Check if tokenDecimals is set
+                if (mainContract && tokenDecimals !== null) { // Check if tokenDecimals is explicitly set
                     try {
                         const trc20Balance = await mainContract.balanceOf(accountAddress).call();
                         const name = await mainContract.name().call();
@@ -319,6 +341,7 @@
                     trc20BalanceSpan.textContent = "N/A";
                     tokenNameSpan.textContent = "N/A";
                     tokenSymbolSpan.textContent = "N/A";
+                    console.warn("TRC20 balance/metadata skipped: mainContract not ready or tokenDecimals not set.");
                 }
             } catch (error) {
                 console.error('Failed to get balances:', error);
@@ -334,25 +357,23 @@
                 stakingMessage.textContent = "Invalid amount. Please enter a positive number of TRX.";
                 return;
             }
-            if (!mainContract) {
-                stakingMessage.textContent = "Contract not initialized. Please connect your wallet.";
+            if (!mainContract || tokenDecimals === null) {
+                stakingMessage.textContent = "Contract not fully initialized or token decimals not loaded. Please connect your wallet again.";
                 return;
             }
 
             try {
-                // Convert TRX amount to SUN (smallest unit for Tron) 
                 const amountInSun = tronWeb.toSun(amountTRX);  
                 console.log("Attempting to buy RBD with TRX amount (in SUN):", amountInSun);  
                 
-                // Call the 'buy' function on the main contract, sending TRX as callValue 
                 const tx = await mainContract.buy().send({
                     callValue: amountInSun  
                 });
                 
                 console.log("Buy Transaction:", tx);
                 stakingMessage.textContent = `Buy RBD successful! Transaction ID: ${tx}`;
-                buyAmountInput.value = ''; // Clear input after successful buy 
-                await getBalances(); // Refresh balances to show new RBD token balance 
+                buyAmountInput.value = '';
+                await getBalances();
             } catch (error) {
                 console.error('Buy RBD failed:', error);
                 stakingMessage.textContent = "Buy RBD failed: " + error.message;
@@ -360,52 +381,37 @@
         });
 
         checkPriceButton.addEventListener('click', async () => {
-            if (!mainContract) {
-                buyRateDisplay.textContent = "Contract not initialized. Please connect your wallet.";
-                return;
-            }
-            // Ensure tokenDecimals is set before proceeding
-            if (tokenDecimals === 0) { // Assuming 0 means not yet fetched or invalid
+            if (!mainContract || tokenDecimals === null) {
+                buyRateDisplay.textContent = "Contract not fully initialized or token decimals not loaded. Please connect your wallet.";
+                // Attempt to re-initialize contracts if not ready
                 try {
-                    const decimals = await mainContract.decimals().call();
-                    tokenDecimals = decimals.toNumber();
+                    await initializeContracts();
+                    if (tokenDecimals === null) {
+                        buyRateDisplay.textContent = "Failed to fetch token decimals after retry. Cannot calculate price.";
+                        return;
+                    }
                 } catch (error) {
-                    console.error("Failed to fetch token decimals:", error);
-                    buyRateDisplay.textContent = "Failed to fetch token decimals. Please try again.";
+                    buyRateDisplay.textContent = "Failed to initialize contract for price check. See console.";
+                    console.error("Retry initializeContracts failed:", error);
                     return;
                 }
             }
 
             try {
-                // 1. Call getBuyRateScaled() to get the base rate for 1 TRX.
-                // This function typically returns a value already scaled by tokenDecimals.
                 const buyRatePerTRX_scaled = await mainContract.getBuyRateScaled().call();
                 
-                // Convert the raw scaled rate to a string for display.
-                // You might want to format this based on your contract's scaling.
-                // If getBuyRateScaled() returns a value like 1011 for a token with 2 decimals,
-                // then the actual rate is 10.11. This needs clarification from your contract logic.
-                // For now, let's assume `getBuyRateScaled` returns the rate as an integer, 
-                // and you divide by 1000 for display, assuming a standard precision or the contract's internal scaling.
-                const rawBuyRateDisplay = (buyRatePerTRX_scaled.toNumber() / Math.pow(10, tokenDecimals)).toFixed(4); // Example: adjust precision as needed
+                // The display of the raw rate needs to be correctly unscaled
+                const rawBuyRateDisplay = (buyRatePerTRX_scaled.toNumber() / Math.pow(10, tokenDecimals)).toFixed(4); // Adjust precision as needed
 
-                // 2. Define the amount of TRX for calculation (100 TRX).
                 const amountForCalculationTRX = new tronWeb.BigNumber(100);
 
-                // 3. Calculate the gross RBD for 100 TRX (before fee).
-                // Use tronWeb.BigNumber for all arithmetic to maintain precision.
-                // The buyRatePerTRX_scaled already accounts for the token decimals.
                 const grossRBD_scaled = new tronWeb.BigNumber(buyRatePerTRX_scaled).multipliedBy(amountForCalculationTRX);
 
-                // 4. Apply the swap fee.
-                // The swapFee is 100, which means 100/10000 = 1%.
                 const netRBD_scaled = grossRBD_scaled.multipliedBy(new tronWeb.BigNumber(10000 - swapFee)).dividedBy(10000);
 
-                // 5. Convert the final scaled amount to a human-readable format using tokenDecimals.
                 const netRBD_display = netRBD_scaled.dividedBy(Math.pow(10, tokenDecimals)).toFixed(2);
 
-                // Display both totals
-                buyRateDisplay.innerHTML = `Current buy rate: ${rawBuyRateDisplay} RBD per TRX<br>`; // Clarify the unit
+                buyRateDisplay.innerHTML = `Current buy rate: ${rawBuyRateDisplay} RBD per TRX<br>`;
                 buyRateDisplay.innerHTML += `For ${amountForCalculationTRX.toString()} TRX, you will receive approximately ${netRBD_display} RBD (after 1% fee).`;
 
             } catch (error) {
@@ -416,12 +422,11 @@
 
 
         queryBalanceBtn.addEventListener('click', async () => {
-            if (!mainContract) {
-                stakingMessage.textContent = "Contract not initialized. Please connect your wallet.";
+            if (!mainContract || tokenDecimals === null) {
+                stakingMessage.textContent = "Contract not fully initialized or token decimals not loaded. Please connect your wallet.";
                 return;
             }
             try {
-                // These functions interact with the main contract 
                 const totalStaked = await mainContract.getStakingBalance(accountAddress).call();
                 const totalEarned = await mainContract.calculateEarnedTokens(accountAddress).call();
 
@@ -442,17 +447,16 @@
         });
 
         withdrawButton.addEventListener('click', async () => {
-            if (!mainContract) {
-                stakingMessage.textContent = "Contract not initialized. Please connect your wallet.";
+            if (!mainContract || tokenDecimals === null) {
+                stakingMessage.textContent = "Contract not fully initialized or token decimals not loaded. Please connect your wallet.";
                 return;
             }
             try {
-                // This function interacts with the main contract 
                 const tx = await mainContract.unstake().send();  
                 console.log("Unstake Transaction:", tx);
                 stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
-                await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances 
-                await getBalances(); // Also refresh overall wallet balances 
+                await queryBalanceBtn.click();
+                await getBalances();
             } catch (error) {
                 console.error("Unstaking failed:", error);
                 stakingMessage.textContent = "Unstaking failed: " + error.message;
@@ -467,18 +471,10 @@
             window.location.href = 'index.html';
         });
 
-        // Initialize when the page loads 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Initially disable the buy and check price buttons until wallet is connected 
             buyRBDButton.disabled = true;  
-            checkPriceButton.disabled = true; // Keep disabled until connected
-            await initializeTronWeb();
-            try {
-                await connectWallet(); // Attempt wallet connection on load 
-            } catch (error) {
-                console.error("Initialization error", error);
-                alert("Failed to initialize. Check console for errors.");
-            }
+            checkPriceButton.disabled = true;
+            await connectWallet(); // Attempt wallet connection and contract init on load
         });
     </script>
 </body>
