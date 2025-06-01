@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>GE</title>
+    <title>UBI</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -230,9 +230,23 @@
         let tronWeb;
         let mainContract;  
         let accountAddress;
-        let tokenDecimals; // This will still be fetched for TRC20 balance display, but not for the buy rate calculation.
+        let tokenDecimals; 
         const TRX_DECIMALS = 6;
-        const swapFee = 100;
+        const swapFee = 100; // 1% fee (100 basis points)
+
+        // Derived linear coefficients for RBD per TRX (gross) based on getBuyRateScaled() value (R)
+        // From data points: (R=1011, Net=989) and (R=1012, Net=988) for 100 TRX, 1% fee.
+        // Gross RBD for 100 TRX = Net RBD / 0.99
+        // RBD per TRX (gross) = (Gross RBD for 100 TRX) / 100
+        //
+        // Point 1: R=1011 => RBD/TRX (gross) = (989 / 0.99) / 100 = 9.99
+        // Point 2: R=1012 => RBD/TRX (gross) = (988 / 0.99) / 100 = 9.979797...
+        //
+        // Linear formula: RBD_per_TRX_gross = A * R + B
+        // A = (9.979797... - 9.99) / (1012 - 1011) = -0.010202... / 1 = -1/9900
+        // B = 9.99 - A * 1011 = 9.99 - (-1/9900) * 1011 = 9.99 + 1011/9900 = 999/100 + 1011/9900 = 98901/9900 + 1011/9900 = 99912/9900
+        const RATE_COEFFICIENT_A = -1 / 9900; 
+        const RATE_COEFFICIENT_B = 99912 / 9900; 
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -273,7 +287,7 @@
                 walletAddressSpan.textContent = accountAddress;
 
                 await initializeContracts(); 
-                await getBalances(); // This will fetch token decimals for display
+                await getBalances(); 
 
                 walletInfoDiv.style.display = 'block';
                 connectWalletBtn.style.display = 'none';
@@ -299,7 +313,7 @@
                     console.log("Token decimals fetched:", tokenDecimals);
                 } catch (decimalsError) {
                     console.warn("Failed to fetch token decimals from contract. Using default 6 decimals for balance display.", decimalsError);
-                    tokenDecimals = 6; // Default to 6 if decimals cannot be fetched
+                    tokenDecimals = 6; 
                 }
 
             } catch (error) {
@@ -319,7 +333,7 @@
                 const trxBalance = await tronWeb.trx.getBalance(accountAddress);
                 trxBalanceSpan.textContent = (trxBalance / 1_000_000).toFixed(2) + ' TRX';
 
-                if (mainContract && tokenDecimals !== undefined) { // Check if tokenDecimals has been set (even if defaulted)
+                if (mainContract && tokenDecimals !== undefined) { 
                     try {
                         const trc20Balance = await mainContract.balanceOf(accountAddress).call();
                         const name = await mainContract.name().call();
@@ -354,7 +368,7 @@
                 stakingMessage.textContent = "Invalid amount. Please enter a positive number of TRX.";
                 return;
             }
-            if (!mainContract) { // tokenDecimals is not strictly needed for sending TRX
+            if (!mainContract) { 
                 stakingMessage.textContent = "Contract not initialized. Please connect your wallet again.";
                 return;
             }
@@ -380,7 +394,6 @@
         checkPriceButton.addEventListener('click', async () => {
             if (!mainContract) {
                 buyRateDisplay.textContent = "Contract not initialized. Please connect your wallet.";
-                // Attempt to re-initialize contracts if not ready
                 try {
                     await initializeContracts();
                     if (!mainContract) {
@@ -395,43 +408,28 @@
             }
 
             try {
-                // IMPORTANT: Assume getBuyRateScaled() returns the rate already adjusted for RBD's decimals.
-                // We will display this directly for 'Current buy rate'.
-                const buyRatePerTRX_raw = await mainContract.getBuyRateScaled().call();
-                
-                // Convert BigNumber to a regular number for display and further calculation
-                const buyRatePerTRX_number = buyRatePerTRX_raw.toNumber();
+                const buyRatePerTRX_raw = await mainContract.getBuyRateScaled().call(); 
+                const r_value = buyRatePerTRX_raw.toNumber(); // Get the integer value from BigNumber
 
-                // Display the raw rate from the contract
-                // Format with a reasonable precision for display.
-                // If 1011 means 1.011, then divide by 1000 or whatever your contract scales by.
-                // For demonstration, let's just show the raw number.
-                const rawBuyRateDisplay = buyRatePerTRX_number; 
+                // Calculate the human-readable RBD per TRX (gross) using the derived linear model
+                const buyRatePerTRX_human_gross = (RATE_COEFFICIENT_A * r_value) + RATE_COEFFICIENT_B;
+
+                // Format the rate for display (e.g., 9.99 for 1 TRX). Using toFixed(4) for precision in display.
+                const rawBuyRateDisplay = buyRatePerTRX_human_gross.toFixed(4); 
 
                 const amountForCalculationTRX = new tronWeb.BigNumber(100);
 
-                // Calculate gross RBD (before fee). No Math.pow(10, tokenDecimals) here,
-                // as getBuyRateScaled already includes the decimal logic for RBD.
-                const grossRBD_calculated = new tronWeb.BigNumber(buyRatePerTRX_number).multipliedBy(amountForCalculationTRX);
+                // Calculate gross RBD for the specified TRX amount.
+                const grossRBD_human = buyRatePerTRX_human_gross * amountForCalculationTRX.toNumber();
 
                 // Apply the swap fee.
-                // The swapFee is 100, which means 100/10000 = 1%.
-                const netRBD_calculated = grossRBD_calculated.multipliedBy(new tronWeb.BigNumber(10000 - swapFee)).dividedBy(10000);
+                const netRBD_human = grossRBD_human * (10000 - swapFee) / 10000;
 
-                // Format the final RBD amount for display.
-                // Assuming netRBD_calculated is already in the correct human-readable form (e.g., if contract uses 2 decimals, 100 means 1.00)
-                // If it's still "raw" and needs unscaling, you might divide by 10^decimals again, but typically
-                // getBuyRateScaled handles this for the output token.
-                // Based on your original output "Current buy rate: 1011", it seems 1011 might mean 1011 RBD directly.
-                // If your RBD token has 2 decimals, and '1011' from the contract means 10.11 RBD, then you'd divide by 100.
-                // Without knowing your contract's exact `getBuyRateScaled` return value and RBD token decimals,
-                // I'll assume `buyRatePerTRX_number` and `netRBD_calculated` are already in human-readable units or need a simple fixed division.
-                // Let's assume for display purposes, if your contract returns 1011 for 10.11 RBD, you divide by 100.
-                // If 1011 is meant to be 1011 RBD, then no division here.
-                // For now, I'll display with 2 decimal places as a common token format.
-                const netRBD_display = netRBD_calculated.toFixed(2); // Format to 2 decimal places for display
+                // Format the final net RBD amount for display.
+                const netRBD_display = netRBD_human.toFixed(2); 
 
-                buyRateDisplay.innerHTML = `Current buy rate: ${rawBuyRateDisplay} RBD per TRX (contract's raw value)<br>`;
+                // Updated display message
+                buyRateDisplay.innerHTML = `Current buy rate: ${rawBuyRateDisplay} RBD per TRX (before fee)<br>`;
                 buyRateDisplay.innerHTML += `For ${amountForCalculationTRX.toString()} TRX, you will receive approximately ${netRBD_display} RBD (after 1% fee).`;
 
             } catch (error) {
@@ -442,7 +440,7 @@
 
 
         queryBalanceBtn.addEventListener('click', async () => {
-            if (!mainContract || tokenDecimals === undefined) { // Check if tokenDecimals has been set
+            if (!mainContract || tokenDecimals === undefined) { 
                 stakingMessage.textContent = "Contract not fully initialized or token decimals not loaded. Please connect your wallet.";
                 return;
             }
@@ -467,7 +465,7 @@
         });
 
         withdrawButton.addEventListener('click', async () => {
-            if (!mainContract || tokenDecimals === undefined) { // Check if tokenDecimals has been set
+            if (!mainContract || tokenDecimals === undefined) { 
                 stakingMessage.textContent = "Contract not fully initialized or token decimals not loaded. Please connect your wallet.";
                 return;
             }
