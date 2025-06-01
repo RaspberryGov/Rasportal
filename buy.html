@@ -1,13 +1,3 @@
-It looks like the issue of "TRX Balance: N/A, Token Balance: N/A, Token Name: N/A" after connecting the wallet stems from the asynchronous nature of TronLink's ready state and the direct access to window.tronWeb in your connectWallet function.
-
-When connectWallet is called, window.tronWeb might not be fully initialized by TronLink yet, even if window.tronLink.ready becomes true shortly after. This can lead to tronWeb.defaultAddress being unavailable when you try to access it immediately.
-
-The best practice is to use tronWeb.set _tronWeb provided by TronLink to ensure TronWeb is properly initialized and the account is ready before proceeding.
-
-Here's how to fix it by modifying the initializeTronWeb and connectWallet functions:
-
-HTML
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
