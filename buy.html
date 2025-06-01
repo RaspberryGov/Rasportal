@@ -304,7 +304,7 @@
                     try {
                         const trc20Balance = await mainContract.balanceOf(accountAddress).call();
                         const name = await mainContract.name().call();
-                        const symbol = await mainContract.name().call(); // Corrected: Should be symbol() not name()
+                        const symbol = await mainContract.symbol().call(); 
                         const balance = trc20Balance.toNumber() / Math.pow(10, tokenDecimals);
                         trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
                         tokenNameSpan.textContent = name;
@@ -365,14 +365,26 @@
                 return;
             }
             try {
-                // The contract's currentBuyRateScaled() function returns the *human-readable*
-                // amount of RBD for 100 TRX. This means it already accounts for RBD's decimals.
-                const rbdFor100TRX = (await mainContract.currentBuyRateScaled().call()).toNumber();
-                
-                // Now, calculate the RBD amount per 1 TRX by dividing by 100.
-                const rbdPerTrx = rbdFor100TRX / 100;
+                // Fetch constants from the contract
+                const initialBuyRateRaw = (await mainContract.initialBuyRate().call()).toNumber(); // This is the value from the contract's INITIAL_BUY_RATE
+                const baseTrxAmountRaw = (await mainContract.BASE_TRX_AMOUNT().call()).toNumber(); // This is 100 TRX in SUN
+                const buyFeeBps = (await mainContract.buyFeeBPS().call()).toNumber(); // This is 100 (1%)
+                const basisPointsDivisor = (await mainContract.BASIS_POINTS_DIVISOR().call()).toNumber(); // This is 10000
 
-                buyRateDisplay.textContent = `Current Buy Rate: ${rbdPerTrx.toFixed(6)} RBD per 1 TRX`; 
+                // Convert initialBuyRate to human-readable RBD for BASE_TRX_AMOUNT (100 TRX)
+                const grossRbdFor100Trx_human = initialBuyRateRaw / Math.pow(10, tokenDecimals);
+                
+                // Calculate the fee in human-readable RBD
+                const feePercentage = buyFeeBps / basisPointsDivisor; // e.g., 100 / 10000 = 0.01 (1%)
+                const feeAmount_human = grossRbdFor100Trx_human * feePercentage;
+
+                // Calculate the net RBD for 100 TRX (human-readable)
+                const netRbdFor100Trx_human = grossRbdFor100Trx_human - feeAmount_human;
+
+                // Calculate the net RBD per 1 TRX
+                const netRbdPerTrx = netRbdFor100Trx_human / (baseTrxAmountRaw / Math.pow(10, TRX_DECIMALS)); // Divide by 100 for 1 TRX
+
+                buyRateDisplay.textContent = `Current Buy Rate: ${netRbdPerTrx.toFixed(6)} RBD per 1 TRX (after fee)`; 
             } catch (error) {
                 console.error('Failed to get buy rate:', error);
                 buyRateDisplay.textContent = "Failed to get buy rate: " + error.message;
