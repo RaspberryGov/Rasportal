@@ -37,19 +37,31 @@
             font-size: 0.9em; /* Reduced font size */
         }
 
-        .info-container { /* New container style */
+        .info-container { /* This style is for the wallet info and contract info */
             display: flex;
             flex-direction: column; /* Stack elements vertically */
             align-items: center; /* Center items horizontally */
             margin-bottom: 20px;
             padding: 10px;
-            /* No border here, as individual info divs have them */
             border-radius: 5px;
             text-align: center;
         }
         .info-container p {
             margin-bottom: 0.5rem;
         }
+
+        /* New style for the connect button container */
+        #connectButtonContainer {
+            padding: 10px;
+            border: 1px solid #ccc; /* Apply a border to this container */
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex; /* Use flex to center the button easily */
+            justify-content: center;
+            align-items: center;
+        }
+
 
         .staking-container {
             display: flex;
@@ -185,21 +197,21 @@
 
     <main class="container">
         <a href="index.html">Back to Home</a>
-        <div class="info-container">
+        
+        <div id="connectButtonContainer">
             <button id="connectWalletBtn">Connect Wallet</button>
-            <div id="walletInfo">
-                <p>Address: <span id="walletAddress"></span></p>
-                <p>TRX Balance: <span id="trxBalance"></span></p>
-                <p>Token Balance: <span id="trc20Balance"></span></p>
-                <p>Token Name: <span id="tokenName"></span></p>
-                <p>Token Symbol: <span id="tokenSymbol"></span></p>
-            </div>
-            <div id="contractInfo">
-                <p>Raspberry GDP: <span id="contractTrxBalance"></span></p>
-                <p>USD Value (Approx.): <span id="contractUsdValue"></span></p>
-            </div>
         </div>
 
+        <div id="walletInfo" class="info-container"> <p>Address: <span id="walletAddress"></span></p>
+            <p>TRX Balance: <span id="trxBalance"></span></p>
+            <p>Token Balance: <span id="trc20Balance"></span></p>
+            <p>Token Name: <span id="tokenName"></span></p>
+            <p>Token Symbol: <span id="tokenSymbol"></span></p>
+        </div>
+        <div id="contractInfo" class="info-container"> <p>Raspberry GDP: <span id="contractTrxBalance"></span></p>
+            <p>USD Value (Approx.): <span id="contractUsdValue"></span></p>
+        </div>
+       
         <div class="staking-container">
             <div>
                 <h5>Buy Raspberry Dollars</h5>
@@ -222,22 +234,22 @@
 
     <script>
         const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const connectButtonContainer = document.getElementById('connectButtonContainer'); // Get the new container
         const walletInfoDiv = document.getElementById('walletInfo');
         const walletAddressSpan = document.getElementById('walletAddress');
         const trxBalanceSpan = document.getElementById('trxBalance');
         const trc20BalanceSpan = document.getElementById('trc20Balance');
         const tokenNameSpan = document.getElementById('tokenName');
         const tokenSymbolSpan = document.getElementById('tokenSymbol');
-        const contractInfoDiv = document.getElementById('contractInfo'); // New element
-        const contractTrxBalanceSpan = document.getElementById('contractTrxBalance'); // New element
-        const contractUsdValueSpan = document.getElementById('contractUsdValue'); // New element
+        const contractInfoDiv = document.getElementById('contractInfo'); 
+        const contractTrxBalanceSpan = document.getElementById('contractTrxBalance'); 
+        const contractUsdValueSpan = document.getElementById('contractUsdValue'); 
         
-        // This is the ONLY contract address used for all interactions
         const CONTRACT_ADDRESS = "TPQTwv4QdJg1F8bjsgYSnsh2hXxPAy4X7p";  
 
         const buyRBDButton = document.getElementById('buyRBDButton');
         const buyAmountInput = document.getElementById('buyAmount');
-        const stakingMessage = document.getElementById('stakingMessage'); // This is the target for output
+        const stakingMessage = document.getElementById('stakingMessage'); 
         const totalStakedSpan = document.getElementById('totalStaked');  
         const totalEarnedSpan = document.getElementById('totalEarned');  
         const queryBalanceBtn = document.getElementById('queryBalanceBtn');
@@ -246,18 +258,12 @@
         const withdrawButton = document.getElementById('withdrawButton');
         const backToHomeBtn = document.getElementById('backToHomeBtn');
         const checkPriceButton = document.getElementById('checkPriceButton');  
-        // Removed: const buyRateDisplay = document.getElementById('buyRateDisplay');  
 
         let tronWeb;
         let mainContract;  
         let accountAddress;
         let tokenDecimals;  
         const TRX_DECIMALS = 6;
-        // const swapFee = 100; // This is now dynamic based on r_value
-
-        // These coefficients are no longer needed with the new fee calculation logic
-        // const RATE_COEFFICIENT_A = -1 / 9900;  
-        // const RATE_COEFFICIENT_B = 99912 / 9900;  
 
         async function initializeTronWeb() {
             return new Promise(resolve => {
@@ -267,7 +273,7 @@
                         tronWeb = window.tronWeb;
                         console.log("TronLink is ready and TronWeb initialized.");
                         resolve();
-                    } else if (window.tronWeb) { // Fallback if TronLink is not explicitly ready but tronWeb exists
+                    } else if (window.tronWeb) { 
                          clearInterval(tronLinkCheck);
                          tronWeb = window.tronWeb;
                          console.warn("TronLink not explicitly ready but window.tronWeb found.");
@@ -275,7 +281,6 @@
                     }
                 }, 100);
 
-                // Add a timeout in case TronLink doesn't become ready
                 setTimeout(() => {
                     if (!tronWeb) {
                         clearInterval(tronLinkCheck);
@@ -287,13 +292,13 @@
                         });
                         resolve();
                     }
-                }, 5000); // 5 seconds timeout
+                }, 5000); 
             });
         }
 
         async function connectWallet() {
             try {
-                await initializeTronWeb(); // Wait for TronWeb to be ready
+                await initializeTronWeb(); 
 
                 if (!tronWeb) {
                     alert('TronWeb is not initialized. Cannot connect wallet.');
@@ -301,15 +306,13 @@
                     return;
                 }
                 
-                // Ensure defaultAddress is available after TronWeb is ready
                 if (!tronWeb.defaultAddress || !tronWeb.defaultAddress.base58) {
-                    // Request account permission if not already granted
                     const tronLink = window.tronLink;
                     if (tronLink) {
                         const { code, message } = await tronLink.request({ method: 'tron_requestAccounts' });
                         if (code === 200) {
                             console.log('TronLink connected successfully.');
-                            tronWeb = window.tronWeb; // Re-assign tronWeb after connection to ensure it's updated
+                            tronWeb = window.tronWeb; 
                         } else {
                             alert(`Failed to connect to TronLink: ${message}`);
                             console.error(`TronLink requestAccounts failed: ${message}`);
@@ -332,7 +335,7 @@
                 contractInfoDiv.style.display = 'block';
 
                 walletInfoDiv.style.display = 'block';
-                connectWalletBtn.style.display = 'none';
+                connectButtonContainer.style.display = 'none'; // Hide the connect button container
                 buyRBDButton.disabled = false;
                 checkPriceButton.disabled = false;
             } catch (error) {
@@ -348,7 +351,6 @@
                 }
                 mainContract = await tronWeb.contract().at(CONTRACT_ADDRESS);
                 
-                // Fetch token decimals for TRC20 balance display
                 try {
                     const decimals = await mainContract.decimals().call();  
                     tokenDecimals = decimals.toNumber();
@@ -457,7 +459,7 @@
                 stakingMessage.textContent = `Buy RBD successful! Transaction ID: ${tx}`;
                 buyAmountInput.value = '';
                 await getBalances();
-                await getContractTRXBalanceAndUSDValue(); // Update contract info after a buy
+                await getContractTRXBalanceAndUSDValue(); 
             } catch (error) {
                 console.error('Buy RBD failed:', error);
                 stakingMessage.textContent = "Buy RBD failed: " + error.message;
@@ -566,7 +568,14 @@
         document.addEventListener('DOMContentLoaded', async () => {
             buyRBDButton.disabled = true;  
             checkPriceButton.disabled = true;
-            await connectWallet();
+            // Initially hide walletInfo and contractInfo
+            walletInfoDiv.style.display = 'none'; 
+            contractInfoDiv.style.display = 'none';
+
+            // Show the connect button container by default
+            connectButtonContainer.style.display = 'flex'; 
+            
+            await connectWallet(); // Attempt to connect wallet on load
         });
     </script>
 </body>
