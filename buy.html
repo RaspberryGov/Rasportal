@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>UBI</title>
+    <title>The Grand Exchange</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -139,8 +137,7 @@
             height: 24px; /* explicitly set height */
         }
 
-        
-.header {
+        .header {
     display: flex;
     align-items: center;
     justify-content: center; /* Center items horizontally */
@@ -155,9 +152,7 @@
             margin-right: 20px; /* Add some spacing between the logo and the heading */
         }
 
-    </style>
-</head>
-<body>
+    </style></head><body>
 
  <div class="header">
         <img src="images/RASblem.jpg" alt="Raspberry Logo" class="logo-image">
@@ -169,8 +164,7 @@
             
     </header>
 
-    <main class="container">
-<a href="index.html">Back to Home</a>
+    <main class="container"><a href="index.html">Back to Home</a>
         <div class="info-container">
     <button id="connectWalletBtn">Connect Wallet</button>
             <div id="walletInfo">
@@ -226,8 +220,8 @@
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
         const withdrawButton = document.getElementById('withdrawButton');
         const backToHomeBtn = document.getElementById('backToHomeBtn');
-        // const checkPriceButton = document.getElementById('checkPriceButton'); // No longer needed for JS
-        // const buyRateDisplay = document.getElementById('buyRateDisplay'); // No longer needed for JS
+        const checkPriceButton = document.getElementById('checkPriceButton'); // Re-enabled
+        const buyRateDisplay = document.getElementById('buyRateDisplay'); // Re-enabled
 
         let tronWeb;
         // All contract interactions will now use this single contract instance
@@ -235,6 +229,7 @@
         let accountAddress;
         let tokenDecimals; // To store the token's decimal value
         const TRX_DECIMALS = 6; // TRX has 6 decimals
+        const swapFee = 100; // As per the contract code, swapFee is 100 (which means 1%)
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -270,7 +265,7 @@
                     walletInfoDiv.style.display = 'block';
                     connectWalletBtn.style.display = 'none';
                     buyRBDButton.disabled = false; // Enable the "Buy RBD" button after wallet connection 
-                    // checkPriceButton.disabled = false; // Check price button is now functionless
+                    checkPriceButton.disabled = false; // Enable check price button
                 } else {
                     alert("Wallet connection failed! Is TronLink installed and unlocked?");
                 }
@@ -359,7 +354,36 @@
             }
         });
 
-        // The checkPriceButton event listener and associated logic have been removed.
+        checkPriceButton.addEventListener('click', async () => {
+            if (!mainContract) {
+                buyRateDisplay.textContent = "Contract not initialized. Please connect your wallet.";
+                return;
+            }
+
+            const amountToSpendTRX = 100; // As requested, check price for 100 TRX
+            const amountInSun = tronWeb.toSun(amountToSpendTRX); // Convert 100 TRX to SUN
+
+            try {
+                // Call currentBuyRateScaled with the TRX amount in SUN
+                const returnedRBD_raw = await mainContract.currentBuyRateScaled(amountInSun).call();
+                
+                // Convert the BigNumber result to a regular number for calculations
+                const returnedRBD_unscaled = returnedRBD_raw.toNumber();
+
+                // Calculate the net RBD after applying the 1% swap fee
+                // The contract's swapFee is 100, which means 100 basis points or 1%
+                const netRBD_scaled = returnedRBD_unscaled * (10000 - swapFee) / 10000; // Assuming swapFee is in basis points (e.g., 100 for 1%)
+
+                // Scale the net RBD amount by the token's decimals for display
+                const netRBD = netRBD_scaled / Math.pow(10, tokenDecimals);
+
+                buyRateDisplay.textContent = `For ${amountToSpendTRX} TRX you will receive approximately ${netRBD.toFixed(2)} RBD (after fee).`;
+            } catch (error) {
+                console.error('Failed to get buy rate:', error);
+                buyRateDisplay.textContent = "Failed to get buy rate. See console for details.";
+            }
+        });
+
 
         queryBalanceBtn.addEventListener('click', async () => {
             if (!mainContract) {
@@ -417,7 +441,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Initially disable the buy and check price buttons until wallet is connected 
             buyRBDButton.disabled = true;  
-            // checkPriceButton.disabled = true; // No longer needed
+            checkPriceButton.disabled = true; // Keep disabled until connected
             await initializeTronWeb();
             try {
                 await connectWallet(); // Attempt wallet connection on load 
@@ -426,6 +450,4 @@
                 alert("Failed to initialize. Check console for errors.");
             }
         });
-    </script>
-</body>
-</html>
+    </script></body></html>
