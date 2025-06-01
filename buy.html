@@ -233,7 +233,7 @@
         let accountAddress;
         let tokenDecimals; // To store the token's decimal value
         const TRX_DECIMALS = 6; // TRX has 6 decimals
-        const swapFee = 100; // As per the contract code, swapFee is 100 (which means 1%)
+        const swapFee = 100; // As per the contract code, swapFee is 100 (meaning 1% when divided by 10000)
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -365,15 +365,31 @@
             }
 
             try {
-                // Call the 'getBuyRateScaled' function on the smart contract.
-                // As per previous smart contract analysis, this function does not take any arguments.
-                const rawBuyRate = await mainContract.getBuyRateScaled().call();
+                // 1. Call getBuyRateScaled() to get the base rate for 1 TRX.
+                // This function typically returns a value already scaled by tokenDecimals.
+                const buyRatePerTRX_scaled = await mainContract.getBuyRateScaled().call();
                 
-                // The 'rawBuyRate' will be a BigNumber object from TronWeb.
-                // Convert it to a string for display.
-                const buyRateValue = rawBuyRate.toString(); 
+                // Convert the raw scaled rate to a string for display.
+                const rawBuyRateDisplay = buyRatePerTRX_scaled.toString();
 
-                buyRateDisplay.textContent = `Current Buy Rate: ${buyRateValue}`;
+                // 2. Define the amount of TRX for calculation (100 TRX).
+                const amountForCalculationTRX = new tronWeb.BigNumber(100);
+
+                // 3. Calculate the gross RBD for 100 TRX (before fee).
+                // Use tronWeb.BigNumber for all arithmetic to maintain precision.
+                const grossRBD_scaled = new tronWeb.BigNumber(buyRatePerTRX_scaled).multipliedBy(amountForCalculationTRX);
+
+                // 4. Apply the swap fee.
+                // The swapFee is 100, which means 100/10000 = 1%.
+                const netRBD_scaled = grossRBD_scaled.multipliedBy(new tronWeb.BigNumber(10000 - swapFee)).dividedBy(10000);
+
+                // 5. Convert the final scaled amount to a human-readable format using tokenDecimals.
+                const netRBD_display = netRBD_scaled.dividedBy(Math.pow(10, tokenDecimals)).toFixed(2);
+
+                // Display both totals
+                buyRateDisplay.innerHTML = `Current buy rate: ${rawBuyRateDisplay}<br>`;
+                buyRateDisplay.innerHTML += `For ${amountForCalculationTRX.toString()} TRX, you will receive approximately ${netRBD_display} RBD (after 1% fee).`;
+
             } catch (error) {
                 console.error('Failed to get buy rate:', error);
                 buyRateDisplay.textContent = "Failed to get buy rate. See console for details: " + error.message;
