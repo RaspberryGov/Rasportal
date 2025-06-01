@@ -419,9 +419,9 @@
 
                 // --- Output to stakingMessage on the page ---
                 // The fee is dynamic, so we should display the fee percentage instead of "+1 per 100 TRX"
-                stakingMessage.innerHTML = `Current rate: ${r_value} (Fee: ${(feePercentage * 100).toFixed(2)}%)<br>`;
+                stakingMessage.innerHTML = `Current rate: ${r_value} (Tariff: ${(feePercentage * 100).toFixed(2)}%)<br>`;
                 stakingMessage.innerHTML += `${amountForCalculationTRX.toString()} TRX = Approx. ${netRBD_display} RBD`;
-                
+            
                 // Keep console.log for internal debugging, but primary user output is on page
                 console.log("--- Check Price Results (also on page) ---");
                 console.log(`Current buy rate (raw contract value): ${r_value}`);
