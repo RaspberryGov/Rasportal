@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>The Grand Exchange</title>
+    <title>UBI</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -226,8 +226,8 @@
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
         const withdrawButton = document.getElementById('withdrawButton');
         const backToHomeBtn = document.getElementById('backToHomeBtn');
-        const checkPriceButton = document.getElementById('checkPriceButton');
-        const buyRateDisplay = document.getElementById('buyRateDisplay');
+        // const checkPriceButton = document.getElementById('checkPriceButton'); // No longer needed for JS
+        // const buyRateDisplay = document.getElementById('buyRateDisplay'); // No longer needed for JS
 
         let tronWeb;
         // All contract interactions will now use this single contract instance
@@ -270,7 +270,7 @@
                     walletInfoDiv.style.display = 'block';
                     connectWalletBtn.style.display = 'none';
                     buyRBDButton.disabled = false; // Enable the "Buy RBD" button after wallet connection 
-                    checkPriceButton.disabled = false; // Enable the "Check Price" button 
+                    // checkPriceButton.disabled = false; // Check price button is now functionless
                 } else {
                     alert("Wallet connection failed! Is TronLink installed and unlocked?");
                 }
@@ -359,43 +359,7 @@
             }
         });
 
-        checkPriceButton.addEventListener('click', async () => {
-            if (!mainContract || typeof tokenDecimals === 'undefined') {
-                buyRateDisplay.textContent = "Contract not initialized or token decimals not loaded. Please connect your wallet.";
-                return;
-            }
-            try {
-                // Fetch the gross buy rate from the contract.
-                // As per instruction, this is the ONLY contract function we will call here.
-                // This function returns the value 1000.
-                const initialBuyRateFromContract = (await mainContract.currentBuyRateScaled().call()).toNumber(); 
-                
-                // --- HARDCODED CONTRACT CONSTANTS (derived from Tronscan inspection) ---
-                // We interpret initialBuyRateFromContract (which is 1000) as the gross human-readable
-                // RBD amount for 100 TRX, based on observed transaction behavior.
-                const BASE_TRX_AMOUNT_HUMAN = 100; // The base TRX amount for the rate is 100 TRX.
-                const BUY_FEE_BPS_HARDCODED = 100; // Buy fee is 100 basis points (1%).
-                const BASIS_POINTS_DIVISOR_HARDCODED = 10000; // Basis points divisor.
-
-                // Interpret the contract's returned value (1000) directly as the human-readable gross RBD.
-                const grossRbdForBaseTrx_human = initialBuyRateFromContract; // This will be 1000 RBD
-                
-                // Calculate the fee in human-readable RBD
-                const feePercentage = BUY_FEE_BPS_HARDCODED / BASIS_POINTS_DIVISOR_HARDCODED; // 100 / 10000 = 0.01 (1%)
-                const feeAmount_human = grossRbdForBaseTrx_human * feePercentage; // 1000 * 0.01 = 10 RBD
-
-                // Calculate the net RBD for BASE_TRX_AMOUNT (human-readable)
-                const netRbdForBaseTrx_human = grossRbdForBaseTrx_human - feeAmount_human; // 1000 - 10 = 990 RBD
-
-                // Calculate the net RBD per 1 TRX
-                const netRbdPerTrx = netRbdForBaseTrx_human / BASE_TRX_AMOUNT_HUMAN; // 990 RBD / 100 TRX = 9.9 RBD/TRX
-
-                buyRateDisplay.textContent = `Current Buy Rate: ${netRbdPerTrx.toFixed(6)} RBD per 1 TRX (after fee)`; 
-            } catch (error) {
-                console.error('Failed to get buy rate:', error);
-                buyRateDisplay.textContent = "Failed to get buy rate: " + error.message;
-            }
-        });
+        // The checkPriceButton event listener and associated logic have been removed.
 
         queryBalanceBtn.addEventListener('click', async () => {
             if (!mainContract) {
@@ -453,7 +417,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Initially disable the buy and check price buttons until wallet is connected 
             buyRBDButton.disabled = true;  
-            checkPriceButton.disabled = true;
+            // checkPriceButton.disabled = true; // No longer needed
             await initializeTronWeb();
             try {
                 await connectWallet(); // Attempt wallet connection on load 
