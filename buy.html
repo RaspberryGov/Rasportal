@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>The Grand Exchange</title>
+    <title>UBI</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -365,32 +365,33 @@
                 return;
             }
             try {
-                // Fetch constants from the contract
-                // Use currentBuyRateScaled() as it's the explicit public view function
-                // that returns the INITIAL_BUY_RATE value.
+                // Fetch the gross buy rate from the contract.
+                // As per instruction, this is the ONLY contract function we will call here.
                 const initialBuyRateRaw = (await mainContract.currentBuyRateScaled().call()).toNumber(); 
                 
-                // These should work as they are public constant variables.
-                const baseTrxAmountRaw = (await mainContract.BASE_TRX_AMOUNT().call()).toNumber(); 
-                const buyFeeBps = (await mainContract.buyFeeBPS().call()).toNumber(); 
-                const basisPointsDivisor = (await mainContract.BASIS_POINTS_DIVISOR().call()).toNumber(); 
+                // --- HARDCODED CONTRACT CONSTANTS ---
+                // These values were confirmed from the contract's read methods on Tronscan:
+                // initialBuyRateRaw: 1,000,000,000 (from currentBuyRateScaled)
+                // BASE_TRX_AMOUNT: 100,000,000 (100 TRX in SUN)
+                // BUY_FEE_BPS: 100 (1%)
+                // BASIS_POINTS_DIVISOR: 10000
+                const BASE_TRX_AMOUNT_HUMAN = 100; // 100 TRX is the base amount for the rate
+                const BUY_FEE_BPS_HARDCODED = 100; // Buy fee is 100 basis points (1%)
+                const BASIS_POINTS_DIVISOR_HARDCODED = 10000; // Basis points divisor
 
-                // Convert initialBuyRate (which is the gross rate for BASE_TRX_AMOUNT)
+                // Convert initialBuyRate (which represents the gross RBD for BASE_TRX_AMOUNT)
                 // from raw units to human-readable RBD.
-                const grossRbdForBaseTrx_human = initialBuyRateRaw / Math.pow(10, tokenDecimals);
+                const grossRbdForBaseTrx_human = initialBuyRateRaw / Math.pow(10, tokenDecimals); // 1,000,000,000 / 1,000,000 = 1000 RBD
                 
                 // Calculate the fee in human-readable RBD
-                const feePercentage = buyFeeBps / basisPointsDivisor; 
-                const feeAmount_human = grossRbdForBaseTrx_human * feePercentage;
+                const feePercentage = BUY_FEE_BPS_HARDCODED / BASIS_POINTS_DIVISOR_HARDCODED; // 100 / 10000 = 0.01 (1%)
+                const feeAmount_human = grossRbdForBaseTrx_human * feePercentage; // 1000 * 0.01 = 10 RBD
 
                 // Calculate the net RBD for BASE_TRX_AMOUNT (human-readable)
-                const netRbdForBaseTrx_human = grossRbdForBaseTrx_human - feeAmount_human;
-
-                // Convert BASE_TRX_AMOUNT from raw SUN to human-readable TRX (e.g., 100 TRX)
-                const baseTrxAmount_human = baseTrxAmountRaw / Math.pow(10, TRX_DECIMALS);
+                const netRbdForBaseTrx_human = grossRbdForBaseTrx_human - feeAmount_human; // 1000 - 10 = 990 RBD
 
                 // Calculate the net RBD per 1 TRX
-                const netRbdPerTrx = netRbdForBaseTrx_human / baseTrxAmount_human; 
+                const netRbdPerTrx = netRbdForBaseTrx_human / BASE_TRX_AMOUNT_HUMAN; // 990 RBD / 100 TRX = 9.9 RBD/TRX
 
                 buyRateDisplay.textContent = `Current Buy Rate: ${netRbdPerTrx.toFixed(6)} RBD per 1 TRX (after fee)`; 
             } catch (error) {
