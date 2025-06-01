@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=width, initial-scale=1.0">
+    <title>UBI</title>
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        @font-face {
+            font-family: 'Blackout 2AM';
+            src: url('./fonts/Blackout-2am.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        #connectWalletBtn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #walletInfo {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+
+        }
+        #walletInfo p{
+          margin-bottom: 0.2rem; /* Reduced spacing between paragraphs */
+          font-size: 0.9em; /* Reduced font size */
+        }
+
+        .info-container { /* New container style */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center items horizontally */
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .info-container p {
+            margin-bottom: 0.5rem;
+        }
+
+        .staking-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .staking-container div {
+            width: 45%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .staking-container h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .staking-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .staking-container input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .staking-container button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px; /* Added margin to separate buttons */
+        }
+           .staking-container button:hover {
+            background-color: #367c39;
+        }
+
+        #stakingMessage {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            word-wrap: break-word;
+        }
+        #queryBalanceBtn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px; /* Added margin to separate buttons */
+        }
+        #queryBalanceBtn:hover {
+            background-color: #367c39;
+        }
+
+        .header-title {
+            font-family: 'Blackout 2AM', sans-serif;
+            display: inline-flex; /* Use inline-flex for better alignment */
+            align-items: center; /* Vertically center items */
+        }
+
+        #backToHomeBtn {
+            padding: 5px 10px; /* Reduced padding */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px; /* Added margin to move it away from the image */
+            font-size: 0.8em; /* Smaller font size */
+        }
+        #backToHomeBtn:hover {
+            background-color: #367c39;
+        }
+
+        .header-icon {
+            margin-right: 5px; /* Reduced margin */
+            height: 24px; /* explicitly set height */
+        }
+
+        
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center items horizontally */
+    padding: 10px 20px;
+    background-color: #f8f8f8; /* Optional: Add a background color to the header */
+        width: 100%;  /* Make header full width */
+        box-sizing: border-box; /* Include padding in width */
+}
+        
+        .logo-image {
+            max-height: 50px; /* Adjust the maximum height as needed */
+            margin-right: 20px; /* Add some spacing between the logo and the heading */
+        }
+
+    </style>
+</head>
+<body>
+
+ <div class="header">
+        <img src="images/RASblem.jpg" alt="Raspberry Logo" class="logo-image">
+        <h1>Universal Basic Income</h1>
+        <a href="faq.html">
+            <img src="images/info.png" alt="Question Mark" style="width: 20px; height: 20px; vertical-align: middle; margin-left: 5px;">
+        </a>
+    </div>
+            
+    </header>
+
+    <main class="container">
+<a href="index.html">Back to Home</a>
+        <div class="info-container">
+    <button id="connectWalletBtn">Connect Wallet</button>
+            <div id="walletInfo">
+                <p>Address: <span id="walletAddress"></span></p>
+                <p>TRX Balance: <span id="trxBalance"></span></p>
+                <p>Token Balance: <span id="trc20Balance"></span></p>
+                <p>Token Name: <span id="tokenName"></span></p>
+                <p>Token Symbol: <span id="tokenSymbol"></span></p>
+            </div>
+        </div>
+        </div>
+
+        <div class="staking-container">
+            <div>
+                <h3>Buy RBD Tokens</h3>
+                <label for="buyAmount">Amount of TRX to send:</label>
+                <input type="number" id="buyAmount" placeholder="Enter amount">
+                <button id="buyRBDButton">Buy RBD</button>
+            </div>
+            <div>
+                <h3>UBI Portfolio</h3>
+                <button id="queryBalanceBtn">Query Balance</button>
+                <p>Total Deposited: <span id="unstakeTotalStaked">0.00</span> </p>
+                <p>Total Earned: <span id="unstakeTotalEarned">0.00</span> </p>
+                <button id="withdrawButton">Withdraw</button>
+            </div>
+        </div>
+
+        <div id="stakingMessage"></div>
+    </main>
+
+    <script>
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const walletInfoDiv = document.getElementById('walletInfo');
+        const walletAddressSpan = document.getElementById('walletAddress');
+        const trxBalanceSpan = document.getElementById('trxBalance');
+        const trc20BalanceSpan = document.getElementById('trc20Balance');
+        const tokenNameSpan = document.getElementById('tokenName');
+        const tokenSymbolSpan = document.getElementById('tokenSymbol');
+        const TRC20_TOKEN_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx";  // Replace with your TRC-20 token address (RBD token)
+        const STAKING_CONTRACT_ADDRESS = "TZ1FU1ezQXqeYM1PdKqhvn9fwE4U1Vn1Xx"; // Your staking contract address (for UBI Portfolio)
+        const BUY_CONTRACT_ADDRESS = "TPQTwv4QdJg1F8bjsgYSnsh2hXxPAy4X7p"; // New contract address for buying RBD
+
+        const buyRBDButton = document.getElementById('buyRBDButton'); // Renamed from stakeButton
+        const buyAmountInput = document.getElementById('buyAmount'); // Renamed from stakeAmount
+        const stakingMessage = document.getElementById('stakingMessage');
+        const totalStakedSpan = document.getElementById('totalStaked'); // Not used in this version but kept for context
+        const totalEarnedSpan = document.getElementById('totalEarned'); // Not used in this version but kept for context
+        const queryBalanceBtn = document.getElementById('queryBalanceBtn');
+        const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');
+        const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
+        const withdrawButton = document.getElementById('withdrawButton');
+        const backToHomeBtn = document.getElementById('backToHomeBtn');
+
+        let tronWeb;
+        let tokenContract; // For the TRC20 token (RBD)
+        let stakingContract; // For the UBI staking portfolio
+        let buyContract; // For buying the RBD token
+        let accountAddress;
+        let tokenDecimals; // To store the token's decimal value for the RBD token
+
+        async function initializeTronWeb() {
+            if (window.tronWeb) {
+                tronWeb = window.tronWeb;
+            } else {
+                if (window.tronLink && window.tronLink.ready) {
+                    tronWeb = window.tronWeb;
+                }
+                else {
+                    // Fallback to a default HTTP provider (for development only, NOT recommended for production)
+                    tronWeb = new TronWeb({
+                        fullNode: 'https://nile.trongrid.io',  // Nile Testnet
+                        solidityNode: 'https://nile.trongrid.io',  // Nile Testnet
+                        eventServer: 'https://nile.trongrid.io' // Nile Testnet
+                    });
+                }
+            }
+        }
+
+        async function connectWallet() {
+            try {
+                await initializeTronWeb();
+                if (!tronWeb.defaultAddress) {
+                    alert('Please install TronLink and connect to a Tron account!');
+                    return;
+                }
+                accountAddress = tronWeb.defaultAddress.base58;
+
+                if (tronWeb && tronWeb.defaultAddress) {
+                    walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
+                    await getBalances();
+                    walletInfoDiv.style.display = 'block';
+                    connectWalletBtn.style.display = 'none';
+                    await initializeContracts(); // Initialize contracts
+                    buyRBDButton.disabled = false; // Enable the "Buy RBD" button after wallet connection
+                } else {
+                    alert("Wallet connection failed! Is TronLink installed and unlocked?");
+                }
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet. See console for details.');
+            }
+        }
+
+        async function initializeContracts() {
+            try {
+                tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
+                stakingContract = await tronWeb.contract().at(STAKING_CONTRACT_ADDRESS);
+                buyContract = await tronWeb.contract().at(BUY_CONTRACT_ADDRESS); // Initialize the buy contract
+                tokenDecimals = await tokenContract.decimals().call(); // Get decimals for the RBD token
+            } catch (error) {
+                console.error("Failed to initialize contracts:", error);
+                alert("Failed to initialize contracts. Check console for details.");
+                throw error; // Re-throw the error to prevent further execution
+            }
+        }
+
+        async function getBalances() {
+            try {
+                // Get TRX balance
+                const trxBalance = await tronWeb.trx.getBalance(accountAddress);
+                trxBalanceSpan.textContent = (trxBalance / 1_000_000).toFixed(2) + ' TRX'; // Convert from SUN to TRX
+
+                // Get TRC20 balance (RBD token)
+                if (TRC20_TOKEN_ADDRESS) {
+                    try {
+                        const trc20Balance = await tokenContract.balanceOf(accountAddress).call();
+                        const name = await tokenContract.name().call();
+                        const symbol = await tokenContract.symbol().call();
+                        const balance = trc20Balance.toNumber() / Math.pow(10, tokenDecimals);
+                        trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
+                        tokenNameSpan.textContent = name;
+                        tokenSymbolSpan.textContent = symbol;
+                    } catch (e) {
+                        console.error("Error fetching TRC20 balance/metadata", e);
+                        trc20BalanceSpan.textContent = "N/A";
+                        tokenNameSpan.textContent = "N/A";
+                        tokenSymbolSpan.textContent = "N/A";
+                    }
+                } else {
+                    trc20BalanceSpan.textContent = "N/A";
+                    tokenNameSpan.textContent = "N/A";
+                }
+            } catch (error) {
+                console.error('Failed to get balances:', error);
+                trxBalanceSpan.textContent = 'N/A';
+                trc20BalanceSpan.textContent = 'N/A';
+                tokenNameSpan.textContent = "N/A";
+            }
+        }
+
+        // Renamed from stakeButton event listener
+        buyRBDButton.addEventListener('click', async () => {
+            const amountTRX = parseFloat(buyAmountInput.value);
+            if (isNaN(amountTRX) || amountTRX <= 0) {
+                stakingMessage.textContent = "Invalid amount. Please enter a positive number of TRX.";
+                return;
+            }
+
+            try {
+                // Convert TRX amount to SUN (smallest unit for Tron)
+                const amountInSun = tronWeb.toSun(amountTRX); 
+                console.log("Attempting to buy RBD with TRX amount (in SUN):", amountInSun); 
+                
+                // Call the 'buy' function on the BUY_CONTRACT_ADDRESS, sending TRX as callValue
+                // Assuming the contract has a function named 'buy' that takes no arguments
+                // and expects TRX to be sent with the transaction.
+                const tx = await buyContract.buy().send({
+                    callValue: amountInSun // Amount of TRX to send with the transaction
+                });
+                
+                console.log("Buy Transaction:", tx);
+                stakingMessage.textContent = `Buy RBD successful! Transaction ID: ${tx}`;
+                buyAmountInput.value = ''; // Clear input after successful buy
+                await getBalances(); // Refresh balances to show new RBD token balance
+            } catch (error) {
+                console.error('Buy RBD failed:', error);
+                stakingMessage.textContent = "Buy RBD failed: " + error.message;
+            }
+        });
+
+        queryBalanceBtn.addEventListener('click', async () => {
+            try {
+                // These functions interact with the STAKING_CONTRACT_ADDRESS
+                const totalStaked = await stakingContract.getStakingBalance(accountAddress).call();
+                const totalEarned = await stakingContract.calculateEarnedTokens(accountAddress).call();
+
+                console.log("Total Deposited:", totalStaked);
+                console.log("Total Earned:", totalEarned);
+
+                const stakedAmount = totalStaked.toNumber() / Math.pow(10, tokenDecimals);
+                const earnedAmount = totalEarned.toNumber() / Math.pow(10, tokenDecimals);
+
+                unstakeTotalStakedSpan.textContent = stakedAmount.toFixed(2) + ' RBD';
+                unstakeTotalEarnedSpan.textContent = earnedAmount.toFixed(2) + ' RBD';
+                stakingMessage.textContent = "UBI Portfolio balances updated!";
+
+            } catch (error) {
+                console.error("Failed to query staking balance:", error);
+                stakingMessage.textContent = "Failed to query UBI Portfolio balance: " + error.message;
+            }
+        });
+
+        withdrawButton.addEventListener('click', async () => {
+            try {
+                // This function interacts with the STAKING_CONTRACT_ADDRESS
+                const tx = await stakingContract.unstake().send(); // Call the unstake function
+                console.log("Unstake Transaction:", tx);
+                stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
+                await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances
+                await getBalances(); // Also refresh overall wallet balances
+            } catch (error) {
+                console.error("Unstaking failed:", error);
+                stakingMessage.textContent = "Unstaking failed: " + error.message;
+            }
+        });
+
+        connectWalletBtn.addEventListener('click', async () => {
+            await connectWallet();
+        });
+
+        backToHomeBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Initialize when the page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initially disable the buy button until wallet is connected
+            buyRBDButton.disabled = true; 
+            await initializeTronWeb();
+            try {
+                await connectWallet(); // Await wallet connection
+            } catch (error) {
+                console.error("Initialization error", error);
+                alert("Failed to initialize. Check console for errors.");
+            }
+        });
+    </script>
+</body>
+</html>
