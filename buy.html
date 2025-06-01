@@ -210,15 +210,15 @@
         const trc20BalanceSpan = document.getElementById('trc20Balance');
         const tokenNameSpan = document.getElementById('tokenName');
         const tokenSymbolSpan = document.getElementById('tokenSymbol');
-        const TRC20_TOKEN_ADDRESS = "TPQTwv4QdJg1F8bjsgYSnsh2hXxPAy4X7p";  // Replace with your TRC-20 token address (RBD token)
-        const STAKING_CONTRACT_ADDRESS = "TPQTwv4QdJg1F8bjsgYSnsh2hXxPAy4X7p"; // Your staking contract address (for UBI Portfolio)
-        const BUY_CONTRACT_ADDRESS = "TPQTwv4QdJg1F8bjsgYSnsh2hXxPAy4X7p"; // New contract address for buying RBD
+        
+        // This is the ONLY contract address used for all interactions
+        const CONTRACT_ADDRESS = "TPQTwv4QdJg1F8bjsgYSnsh2hXxPAy4X7p"; 
 
-        const buyRBDButton = document.getElementById('buyRBDButton'); // Renamed from stakeButton
-        const buyAmountInput = document.getElementById('buyAmount'); // Renamed from stakeAmount
+        const buyRBDButton = document.getElementById('buyRBDButton');
+        const buyAmountInput = document.getElementById('buyAmount');
         const stakingMessage = document.getElementById('stakingMessage');
-        const totalStakedSpan = document.getElementById('totalStaked'); // Not used in this version but kept for context
-        const totalEarnedSpan = document.getElementById('totalEarned'); // Not used in this version but kept for context
+        const totalStakedSpan = document.getElementById('totalStaked'); 
+        const totalEarnedSpan = document.getElementById('totalEarned'); 
         const queryBalanceBtn = document.getElementById('queryBalanceBtn');
         const unstakeTotalStakedSpan = document.getElementById('unstakeTotalStaked');
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
@@ -226,11 +226,10 @@
         const backToHomeBtn = document.getElementById('backToHomeBtn');
 
         let tronWeb;
-        let tokenContract; // For the TRC20 token (RBD)
-        let stakingContract; // For the UBI staking portfolio
-        let buyContract; // For buying the RBD token
+        // All contract interactions will now use this single contract instance
+        let mainContract; 
         let accountAddress;
-        let tokenDecimals; // To store the token's decimal value for the RBD token
+        let tokenDecimals; // To store the token's decimal value
 
         async function initializeTronWeb() {
             if (window.tronWeb) {
@@ -261,10 +260,10 @@
 
                 if (tronWeb && tronWeb.defaultAddress) {
                     walletAddressSpan.textContent = tronWeb.defaultAddress.base58;
+                    await initializeContracts(); // Initialize contract AFTER wallet connection
                     await getBalances();
                     walletInfoDiv.style.display = 'block';
                     connectWalletBtn.style.display = 'none';
-                    await initializeContracts(); // Initialize contracts
                     buyRBDButton.disabled = false; // Enable the "Buy RBD" button after wallet connection
                 } else {
                     alert("Wallet connection failed! Is TronLink installed and unlocked?");
@@ -277,13 +276,13 @@
 
         async function initializeContracts() {
             try {
-                tokenContract = await tronWeb.contract().at(TRC20_TOKEN_ADDRESS);
-                stakingContract = await tronWeb.contract().at(STAKING_CONTRACT_ADDRESS);
-                buyContract = await tronWeb.contract().at(BUY_CONTRACT_ADDRESS); // Initialize the buy contract
-                tokenDecimals = await tokenContract.decimals().call(); // Get decimals for the RBD token
+                // Initialize the single main contract for all interactions
+                mainContract = await tronWeb.contract().at(CONTRACT_ADDRESS);
+                // Get decimals for the token from this contract
+                tokenDecimals = await mainContract.decimals().call(); 
             } catch (error) {
-                console.error("Failed to initialize contracts:", error);
-                alert("Failed to initialize contracts. Check console for details.");
+                console.error("Failed to initialize contract:", error);
+                alert("Failed to initialize contract. Check console for details.");
                 throw error; // Re-throw the error to prevent further execution
             }
         }
@@ -294,18 +293,18 @@
                 const trxBalance = await tronWeb.trx.getBalance(accountAddress);
                 trxBalanceSpan.textContent = (trxBalance / 1_000_000).toFixed(2) + ' TRX'; // Convert from SUN to TRX
 
-                // Get TRC20 balance (RBD token)
-                if (TRC20_TOKEN_ADDRESS) {
+                // Get TRC20 balance (RBD token) using the main contract
+                if (mainContract) {
                     try {
-                        const trc20Balance = await tokenContract.balanceOf(accountAddress).call();
-                        const name = await tokenContract.name().call();
-                        const symbol = await tokenContract.symbol().call();
+                        const trc20Balance = await mainContract.balanceOf(accountAddress).call();
+                        const name = await mainContract.name().call();
+                        const symbol = await mainContract.symbol().call();
                         const balance = trc20Balance.toNumber() / Math.pow(10, tokenDecimals);
                         trc20BalanceSpan.textContent = balance.toFixed(2) + ' ' + symbol;
                         tokenNameSpan.textContent = name;
                         tokenSymbolSpan.textContent = symbol;
                     } catch (e) {
-                        console.error("Error fetching TRC20 balance/metadata", e);
+                        console.error("Error fetching TRC20 balance/metadata from main contract:", e);
                         trc20BalanceSpan.textContent = "N/A";
                         tokenNameSpan.textContent = "N/A";
                         tokenSymbolSpan.textContent = "N/A";
@@ -313,6 +312,7 @@
                 } else {
                     trc20BalanceSpan.textContent = "N/A";
                     tokenNameSpan.textContent = "N/A";
+                    tokenSymbolSpan.textContent = "N/A";
                 }
             } catch (error) {
                 console.error('Failed to get balances:', error);
@@ -322,11 +322,14 @@
             }
         }
 
-        // Renamed from stakeButton event listener
         buyRBDButton.addEventListener('click', async () => {
             const amountTRX = parseFloat(buyAmountInput.value);
             if (isNaN(amountTRX) || amountTRX <= 0) {
                 stakingMessage.textContent = "Invalid amount. Please enter a positive number of TRX.";
+                return;
+            }
+            if (!mainContract) {
+                stakingMessage.textContent = "Contract not initialized. Please connect your wallet.";
                 return;
             }
 
@@ -335,11 +338,9 @@
                 const amountInSun = tronWeb.toSun(amountTRX); 
                 console.log("Attempting to buy RBD with TRX amount (in SUN):", amountInSun); 
                 
-                // Call the 'buy' function on the BUY_CONTRACT_ADDRESS, sending TRX as callValue
-                // Assuming the contract has a function named 'buy' that takes no arguments
-                // and expects TRX to be sent with the transaction.
-                const tx = await buyContract.buy().send({
-                    callValue: amountInSun // Amount of TRX to send with the transaction
+                // Call the 'buy' function on the main contract, sending TRX as callValue
+                const tx = await mainContract.buy().send({
+                    callValue: amountInSun 
                 });
                 
                 console.log("Buy Transaction:", tx);
@@ -353,10 +354,14 @@
         });
 
         queryBalanceBtn.addEventListener('click', async () => {
+            if (!mainContract) {
+                stakingMessage.textContent = "Contract not initialized. Please connect your wallet.";
+                return;
+            }
             try {
-                // These functions interact with the STAKING_CONTRACT_ADDRESS
-                const totalStaked = await stakingContract.getStakingBalance(accountAddress).call();
-                const totalEarned = await stakingContract.calculateEarnedTokens(accountAddress).call();
+                // These functions interact with the main contract
+                const totalStaked = await mainContract.getStakingBalance(accountAddress).call();
+                const totalEarned = await mainContract.calculateEarnedTokens(accountAddress).call();
 
                 console.log("Total Deposited:", totalStaked);
                 console.log("Total Earned:", totalEarned);
@@ -375,9 +380,13 @@
         });
 
         withdrawButton.addEventListener('click', async () => {
+            if (!mainContract) {
+                stakingMessage.textContent = "Contract not initialized. Please connect your wallet.";
+                return;
+            }
             try {
-                // This function interacts with the STAKING_CONTRACT_ADDRESS
-                const tx = await stakingContract.unstake().send(); // Call the unstake function
+                // This function interacts with the main contract
+                const tx = await mainContract.unstake().send(); 
                 console.log("Unstake Transaction:", tx);
                 stakingMessage.textContent = `Unstaking successful! Transaction ID: ${tx}`;
                 await queryBalanceBtn.click(); // Simulate a click on the queryBalanceBtn to update balances
@@ -402,7 +411,7 @@
             buyRBDButton.disabled = true; 
             await initializeTronWeb();
             try {
-                await connectWallet(); // Await wallet connection
+                await connectWallet(); // Attempt wallet connection on load
             } catch (error) {
                 console.error("Initialization error", error);
                 alert("Failed to initialize. Check console for errors.");
