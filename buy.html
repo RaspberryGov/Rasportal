@@ -1,3 +1,7 @@
+Okay, I've adjusted the layout for the "Check Price" button and moved its output to the console log for a cleaner user interface, as requested.
+
+Here's the updated HTML code:
+
 HTML
 
 <!DOCTYPE html>
@@ -5,7 +9,7 @@ HTML
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>GE</title>
+    <title>UBI</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -186,11 +190,11 @@ HTML
         <div class="staking-container">
             <div>
                 <h5>Buy Raspberry Dollars</h5>
+                <button id="checkPriceButton">Check Price</button> 
                 <label for="buyAmount">Amount of TRX to spend:</label>
                 <input type="number" id="buyAmount" placeholder="Enter amount">
                 <button id="buyRBDButton">Buy RBD</button>
-                <button id="checkPriceButton" style="margin-top: 10px;">Check Price</button>
-                <p id="buyRateDisplay"></p>
+                <p id="buyRateDisplay"></p> 
             </div>
             <div>
                 <h5>Exit RBD Economy</h5>
@@ -395,16 +399,15 @@ HTML
 
         checkPriceButton.addEventListener('click', async () => {
             if (!mainContract) {
-                buyRateDisplay.textContent = "Contract not initialized. Please connect your wallet.";
+                console.error("Contract not initialized. Please connect your wallet.");
                 try {
                     await initializeContracts();
                     if (!mainContract) {
-                        buyRateDisplay.textContent = "Failed to initialize contract for price check after retry. Cannot calculate price.";
+                        console.error("Failed to initialize contract for price check after retry. Cannot calculate price.");
                         return;
                     }
                 } catch (error) {
-                    buyRateDisplay.textContent = "Failed to initialize contract for price check. See console.";
-                    console.error("Retry initializeContracts failed:", error);
+                    console.error("Failed to initialize contract for price check. See console.", error);
                     return;
                 }
             }
@@ -427,14 +430,14 @@ HTML
                 // Format the final net RBD amount for display.
                 const netRBD_display = netRBD_human.toFixed(2); 
 
-                // --- MODIFIED LINES START HERE ---
-                buyRateDisplay.innerHTML = `Current buy rate: ${r_value} (raw contract value)<br>`;
-                buyRateDisplay.innerHTML += `${amountForCalculationTRX.toString()} TRX = Approx. ${netRBD_display} RBD`;
-                // --- MODIFIED LINES END HERE ---
+                // --- Console Log Output ---
+                console.log("--- Check Price Results ---");
+                console.log(`Current buy rate (raw contract value): ${r_value}`);
+                console.log(`${amountForCalculationTRX.toString()} TRX = Approx. ${netRBD_display} RBD`);
+                console.log("-------------------------");
 
             } catch (error) {
                 console.error('Failed to get buy rate:', error);
-                buyRateDisplay.textContent = "Failed to get buy rate. See console for details: " + error.message;
             }
         });
 
