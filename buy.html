@@ -1,7 +1,11 @@
-<!DOCTYPE html><html lang="en"><head>
+HTML
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=width, initial-scale=1.0">
-    <title>The Grand Exchange</title>
+    <title>UBI</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@4.5.1/dist/TronWeb.min.js"></script>
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -138,23 +142,25 @@
         }
 
         .header {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center items horizontally */
-    padding: 10px 20px;
-    background-color: #f8f8f8; /* Optional: Add a background color to the header */
-        width: 100%;  /* Make header full width */
-        box-sizing: border-box; /* Include padding in width */
-}
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center items horizontally */
+            padding: 10px 20px;
+            background-color: #f8f8f8; /* Optional: Add a background color to the header */
+            width: 100%;  /* Make header full width */
+            box-sizing: border-box; /* Include padding in width */
+        }
         
         .logo-image {
             max-height: 50px; /* Adjust the maximum height as needed */
             margin-right: 20px; /* Add some spacing between the logo and the heading */
         }
 
-    </style></head><body>
+    </style>
+</head>
+<body>
 
- <div class="header">
+    <div class="header">
         <img src="images/RASblem.jpg" alt="Raspberry Logo" class="logo-image">
         <h3>The Grand Exchange</h3>
         <a href="faq.html">
@@ -164,9 +170,10 @@
             
     </header>
 
-    <main class="container"><a href="index.html">Back to Home</a>
+    <main class="container">
+        <a href="index.html">Back to Home</a>
         <div class="info-container">
-    <button id="connectWalletBtn">Connect Wallet</button>
+            <button id="connectWalletBtn">Connect Wallet</button>
             <div id="walletInfo">
                 <p>Address: <span id="walletAddress"></span></p>
                 <p>TRX Balance: <span id="trxBalance"></span></p>
@@ -174,7 +181,6 @@
                 <p>Token Name: <span id="tokenName"></span></p>
                 <p>Token Symbol: <span id="tokenSymbol"></span></p>
             </div>
-        </div>
         </div>
 
         <div class="staking-container">
@@ -220,8 +226,8 @@
         const unstakeTotalEarnedSpan = document.getElementById('unstakeTotalEarned');
         const withdrawButton = document.getElementById('withdrawButton');
         const backToHomeBtn = document.getElementById('backToHomeBtn');
-        const checkPriceButton = document.getElementById('checkPriceButton'); // Re-enabled
-        const buyRateDisplay = document.getElementById('buyRateDisplay'); // Re-enabled
+        const checkPriceButton = document.getElementById('checkPriceButton'); 
+        const buyRateDisplay = document.getElementById('buyRateDisplay'); 
 
         let tronWeb;
         // All contract interactions will now use this single contract instance
@@ -361,26 +367,33 @@
             }
 
             const amountToSpendTRX = 100; // As requested, check price for 100 TRX
-            const amountInSun = tronWeb.toSun(amountToSpendTRX); // Convert 100 TRX to SUN
+            // Convert TRX amount to SUN (smallest unit for Tron) for the smart contract call
+            // The smart contract expects the input to be scaled by TRX_DECIMALS (6)
+            const amountInSun = new tronWeb.BigNumber(amountToSpendTRX).multipliedBy(Math.pow(10, TRX_DECIMALS));
 
             try {
                 // Call currentBuyRateScaled with the TRX amount in SUN
+                // The .call() method returns a BigNumber object from TronWeb
                 const returnedRBD_raw = await mainContract.currentBuyRateScaled(amountInSun).call();
                 
-                // Convert the BigNumber result to a regular number for calculations
-                const returnedRBD_unscaled = returnedRBD_raw.toNumber();
+                // Convert the BigNumber result to a number for calculations.
+                // It's crucial to handle BigNumber correctly in TronWeb.
+                // The returned value is already scaled by the token's decimals (RBD decimals).
+                const returnedRBD_unscaled = new tronWeb.BigNumber(returnedRBD_raw);
 
-                // Calculate the net RBD after applying the 1% swap fee
-                // The contract's swapFee is 100, which means 100 basis points or 1%
-                const netRBD_scaled = returnedRBD_unscaled * (10000 - swapFee) / 10000; // Assuming swapFee is in basis points (e.g., 100 for 1%)
+                // Assuming 'swapFee' is 100, which represents 1% (100/10000)
+                // The contract subtracts 'swapFee' from 10000.
+                // So, if swapFee is 100, it's (10000 - 100) / 10000 = 9900 / 10000 = 0.99
+                const netRBD_with_fee = returnedRBD_unscaled.multipliedBy(new tronWeb.BigNumber(10000 - swapFee)).dividedBy(10000);
 
                 // Scale the net RBD amount by the token's decimals for display
-                const netRBD = netRBD_scaled / Math.pow(10, tokenDecimals);
+                // tokenDecimals is fetched when the contract is initialized.
+                const netRBD_display = netRBD_with_fee.dividedBy(Math.pow(10, tokenDecimals)).toFixed(2);
 
-                buyRateDisplay.textContent = `For ${amountToSpendTRX} TRX you will receive approximately ${netRBD.toFixed(2)} RBD (after fee).`;
+                buyRateDisplay.textContent = `For ${amountToSpendTRX} TRX you will receive approximately ${netRBD_display} RBD (after fee).`;
             } catch (error) {
                 console.error('Failed to get buy rate:', error);
-                buyRateDisplay.textContent = "Failed to get buy rate. See console for details.";
+                buyRateDisplay.textContent = "Failed to get buy rate. See console for details: " + error.message;
             }
         });
 
@@ -450,4 +463,6 @@
                 alert("Failed to initialize. Check console for errors.");
             }
         });
-    </script></body></html>
+    </script>
+</body>
+</html>
