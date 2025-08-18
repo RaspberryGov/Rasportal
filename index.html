@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Free Nation of Raspberry</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Using Inter font for a modern look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .text-glow {
+            text-shadow: 0 0 5px #f97316, 0 0 10px #f97316;
+        }
+        /* Custom scrollbar for a themed feel */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e5680c;
+        }
+    </style>
+</head>
+<body class="bg-black text-orange-400 leading-relaxed">
+
+    <!-- Header Section -->
+    <header class="bg-gray-900 shadow-lg py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2">
+                <span class="text-3xl text-orange-500 text-glow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 inline" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                </span>
+                <h1 class="text-3xl font-bold text-white tracking-wide">The Free Nation of Raspberry</h1>
+            </a>
+            <!-- Simple Navigation Menu -->
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#about" class="hover:text-white transition-colors duration-300">Our Values</a></li>
+                    <li><a href="#currency" class="hover:text-white transition-colors duration-300">The Raspberry Dollar</a></li>
+                    <li><a href="#community" class="hover:text-white transition-colors duration-300">Community</a></li>
+                    <li><a href="#join" class="hover:text-white transition-colors duration-300 px-4 py-2 bg-orange-500 rounded-full font-semibold text-gray-900 shadow-md whitespace-nowrap">Join Us</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Hero Section -->
+        <section class="text-center py-24 md:py-32">
+            <h2 class="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+                Embrace the <span class="text-orange-500 text-glow">Freedom</span> of the Land.
+            </h2>
+            <p class="text-xl md:text-2xl text-gray-300 mb-10 max-w-4xl mx-auto">
+                Discover a way of life built on self-sufficiency, shared knowledge, and true liberty. We are the Free Nation of Raspberry, living in harmony with nature and each other.
+            </p>
+            <a href="#about" class="inline-block px-10 py-4 bg-orange-500 text-gray-900 font-bold text-lg rounded-full shadow-lg hover:bg-orange-600 transform hover:scale-105 transition-all duration-300">
+                Learn More
+            </a>
+        </section>
+
+        <!-- Our Core Values Section -->
+        <section id="about" class="py-16">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold text-white mb-4">Our Core Values</h3>
+                <p class="text-gray-300 max-w-2xl mx-auto">
+                    We believe in a life of purpose, where freedom is found in providing for yourself and enriching your community.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Value Card 1: Livelihood from the Land -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border-2 border-orange-500 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h4 class="text-2xl font-semibold mb-4 text-white">Livelihood from the Land</h4>
+                    <p class="text-gray-400">
+                        We respect and utilize the natural resources of the Earth to sustain our way of life. Our livelihood is a direct result of our efforts and the land's bounty.
+                    </p>
+                </div>
+                <!-- Value Card 2: Self-Sufficiency & Sharing -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border-2 border-orange-500 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h4 class="text-2xl font-semibold mb-4 text-white">Self-Sufficiency & Sharing</h4>
+                    <p class="text-gray-400">
+                        Our main priority is to provide for ourselves. We strengthen our community by sharing skills, talents, and ideas as needed for collective well-being.
+                    </p>
+                </div>
+                <!-- Value Card 3: Natural Products & Local Economy -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border-2 border-orange-500 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h4 class="text-2xl font-semibold mb-4 text-white">Natural Products & Economy</h4>
+                    <p class="text-gray-400">
+                        Citizens craft natural products to enrich the lives of others, transacting within our sovereign economy using the Raspberry Dollar and Bitcoin.
+                    </p>
+                </div>
+                <!-- Value Card 4: Free from Taxation & Commercial Enterprise -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border-2 border-orange-500 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">🤝</span> Free from Taxation & Commercial Enterprise
+                    </h4>
+                    <p class="text-gray-400">
+                        A truly Free Trade environment allows citizens to exchange or sell goods to obtain a livelihood. We do not permit interference with the regulation of personal trade for livelihood.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Raspberry Dollar Section -->
+        <section id="currency" class="py-16">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold text-white mb-4">The Raspberry Dollar: A Currency of Freedom</h3>
+                <p class="text-gray-300 max-w-2xl mx-auto">
+                    More than just a medium of exchange, the Raspberry Dollar embodies our commitment to a decentralized, equitable, and stable financial future.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+                <!-- Currency Feature 1: TRON Blockchain -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border-2 border-orange-500 transform hover:scale-105 transition-transform duration-300">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">🔗</span> Built on TRON Blockchain
+                    </h4>
+                    <p class="text-gray-400">
+                        The Raspberry Dollar is securely built on the high-speed and efficient TRON blockchain, ensuring swift and transparent transactions for all citizens.
+                    </p>
+                </div>
+                <!-- Currency Feature 2: Decentralized Nature -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border-2 border-orange-500 transform hover:scale-105 transition-transform duration-300">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">🌐</span> Truly Decentralized
+                    </h4>
+                    <p class="text-gray-400">
+                        Free from the control of centralized banks or governments, our currency is decentralized by nature, putting financial power back into the hands of the people.
+                    </p>
+                </div>
+                <!-- Currency Feature 3: Universal Basic Income -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border-2 border-orange-500 transform hover:scale-105 transition-transform duration-300">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">💰</span> 15% Annual UBI
+                    </h4>
+                    <p class="text-gray-400">
+                        As a community, we believe in shared prosperity. Citizens can generate a 15% annual Universal Basic Income simply by holding our currency, providing a stable foundation for all.
+                    </p>
+                </div>
+                <!-- Currency Feature 4: Inflation-Free -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border-2 border-orange-500 transform hover:scale-105 transition-transform duration-300">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">🛡️</span> Free from Indirect Inflation
+                    </h4>
+                    <p class="text-gray-400">
+                        Our currency is designed to be free from the devaluing effects of indirect inflation, ensuring your hard-earned value remains secure and stable over time.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Knowledge Section -->
+        <section id="community" class="py-16">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold text-white mb-4">Community Knowledge & Insights</h3>
+                <p class="text-gray-300 max-w-2xl mx-auto">
+                    We empower each other by sharing practical insights on living within our means and thriving outside of traditional systems.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Knowledge Card 1: Free Transportation -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">🚲</span> Free Transportation
+                    </h4>
+                    <p class="text-gray-400">
+                        Discover resourceful ways to get around without relying on costly vehicles or public transport.
+                    </p>
+                </div>
+                <!-- Knowledge Card 2: Free Power -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">💡</span> Free Power Access
+                    </h4>
+                    <p class="text-gray-400">
+                        Learn about sustainable and off-grid power generation methods.
+                    </p>
+                </div>
+                <!-- Knowledge Card 3: Free Water -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">💧</span> Free Water Access
+                    </h4>
+                    <p class="text-gray-400">
+                        Insights on how to responsibly access and purify water from natural sources.
+                    </p>
+                </div>
+                <!-- Knowledge Card 4: Farming -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">🌱</span> Farming & Sustenance
+                    </h4>
+                    <p class="text-gray-400">
+                        Shared knowledge on cultivating food and living in harmony with the land.
+                    </p>
+                </div>
+                <!-- Knowledge Card 5: Outside Regulations -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">🗺️</span> Living Outside Regulations
+                    </h4>
+                    <p class="text-gray-400">
+                        Guidance on respecting others' space and standards of living while maintaining freedom from bureaucratic regulations.
+                    </p>
+                </div>
+                <!-- Knowledge Card 6: Sharing & Skills -->
+                <div class="bg-gray-900 p-8 rounded-2xl shadow-lg">
+                    <h4 class="text-2xl font-semibold mb-4 text-white flex items-center">
+                        <span class="text-orange-500 mr-3">🤝</span> Skills & Knowledge Sharing
+                    </h4>
+                    <p class="text-gray-400">
+                        Our community thrives on the open exchange of skills and ideas, contributing to the well-being of all.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section id="join" class="text-center py-20 bg-gray-900 rounded-3xl mt-12 shadow-2xl border-2 border-orange-500">
+            <h3 class="text-4xl font-bold text-white mb-6">Ready to Live Free?</h3>
+            <p class="text-gray-300 max-w-3xl mx-auto mb-8">
+                The Free Nation of Raspberry is more than a community; it's a way of life. Join us in embracing freedom, sustainability, and shared prosperity.
+            </p>
+            <a href="#" class="inline-block px-12 py-5 bg-orange-500 text-gray-900 font-bold text-xl rounded-full shadow-lg hover:bg-orange-600 transform hover:scale-110 transition-all duration-300">
+                Join the Nation
+            </a>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-900 text-center py-8 mt-12">
+        <p class="text-gray-500 text-sm">&copy; 2024 The Free Nation of Raspberry. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>
