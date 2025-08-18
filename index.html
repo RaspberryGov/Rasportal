@@ -38,13 +38,13 @@
         <div class="container mx-auto px-6 flex justify-between items-center">
             <a href="#" class="flex items-center space-x-2">
                 <span class="text-3xl text-orange-500 text-glow">
-                    <!-- Updated to use an image from a relative path -->
-                    <img src="images/RASblem.png" alt="Raspberry Nation Logo" class="h-12 w-12 inline-block">
+                    <!-- Updated to use an image from a relative path and made larger -->
+                    <img src="images/RASblem.jpg" alt="Raspberry Nation Logo" class="h-12 w-12 inline-block">
                 </span>
                 <h1 class="text-3xl font-bold text-white tracking-wide">Free Nation of Raspberry</h1>
             </a>
-            <!-- Simple Navigation Menu -->
-            <nav>
+            <!-- Desktop Navigation Menu -->
+            <nav class="hidden md:flex">
                 <ul class="flex space-x-6">
                     <li><a href="#about" class="hover:text-white transition-colors duration-300">Our Values</a></li>
                     <li><a href="#currency" class="hover:text-white transition-colors duration-300">The Raspberry Dollar</a></li>
@@ -52,8 +52,24 @@
                     <li><a href="#join" class="hover:text-white transition-colors duration-300 px-4 py-2 bg-orange-500 rounded-full font-semibold text-gray-900 shadow-md whitespace-nowrap">Join Us</a></li>
                 </ul>
             </nav>
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-orange-400 focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
         </div>
     </header>
+
+    <!-- Mobile Navigation Menu (hidden by default) -->
+    <nav id="mobile-menu" class="hidden absolute top-20 left-0 w-full z-50 bg-gray-900 shadow-xl transition-all duration-300">
+        <ul class="flex flex-col text-center divide-y divide-gray-800">
+            <li><a href="#about" class="block py-4 hover:bg-orange-500 hover:text-gray-900 transition-colors duration-300">Our Values</a></li>
+            <li><a href="#currency" class="block py-4 hover:bg-orange-500 hover:text-gray-900 transition-colors duration-300">The Raspberry Dollar</a></li>
+            <li><a href="#community" class="block py-4 hover:bg-orange-500 hover:text-gray-900 transition-colors duration-300">Community</a></li>
+            <li><a href="#join" class="block py-4 hover:bg-orange-500 hover:text-gray-900 transition-colors duration-300">Join Us</a></li>
+        </ul>
+    </nav>
 
     <main class="container mx-auto px-6 py-12">
 
@@ -243,5 +259,31 @@
         <p class="text-gray-500 text-sm">&copy; 2024 The Free Nation of Raspberry. All Rights Reserved.</p>
     </footer>
 
+    <!-- JavaScript for Mobile Menu Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuButton && mobileMenu) {
+                // Function to toggle the menu's visibility
+                const toggleMenu = () => {
+                    mobileMenu.classList.toggle('hidden');
+                };
+
+                // Add click listener to the button to open/close the menu
+                mobileMenuButton.addEventListener('click', toggleMenu);
+
+                // Add click listeners to the menu links to close the menu
+                const mobileLinks = mobileMenu.querySelectorAll('a');
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        // Close the menu after a link is clicked
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>
