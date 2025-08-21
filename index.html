@@ -52,10 +52,11 @@
             padding: 1rem;
             overflow-y: auto;
         }
+        /* MODIFICATION: Adjusted the top position to move the button higher */
         #toggle-popup-button {
             position: fixed;
             left: 0;
-            top: 50%;
+            top: 30%; /* Changed from 50% to 30% */
             transform: translateY(-50%);
             z-index: 51;
             padding: 0.5rem 0.5rem;
@@ -76,7 +77,7 @@
             <a href="#" class="flex items-center space-x-2">
                 <span class="text-3xl text-orange-500 text-glow">
                     <!-- Updated to use an image from a relative path and made larger -->
-                    <img src="images/RASblem.png" alt="Raspberry Nation Logo" class="h-10 w-10 inline-block aspect-square object-contain">
+                    <img src="images/RASblem.png" onerror="this.src='https://placehold.co/40x40/f97316/000?text=Logo'" alt="Raspberry Nation Logo" class="h-10 w-10 inline-block aspect-square object-contain">
                 </span>
                 <h1 class="text-2xl font-bold text-white tracking-wide">Free Nation of Raspberry</h1>
             </a>
