@@ -11,6 +11,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Prevents horizontal scrollbar from the off-screen popup */
         }
         .text-glow {
             text-shadow: 0 0 5px #f97316, 0 0 10px #f97316;
@@ -28,6 +29,42 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #e5680c;
+        }
+
+        /* Styles for the sliding pop-up menu */
+        #left-popup {
+            position: fixed;
+            top: 0;
+            left: -300px; /* Hidden off-screen to the left */
+            height: 100%;
+            width: 300px;
+            background-color: #1f2937;
+            z-index: 50;
+            transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth slide-in effect */
+            display: flex;
+            flex-direction: column;
+        }
+        #left-popup.active {
+            left: 0; /* Slides into view */
+        }
+        .widget-container {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        #toggle-popup-button {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 51;
+            padding: 0.5rem 0.5rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+        #close-popup-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
         }
     </style>
 </head>
@@ -321,33 +358,74 @@
         </section>
     </main>
 
+    <!-- Sliding Pop-up Panel -->
+    <div id="left-popup">
+        <div class="flex-shrink-0 text-center py-4 bg-gray-800 text-white">
+            <h4 class="text-xl font-bold">SimpleSwap</h4>
+            <button id="close-popup-button" class="absolute top-2 right-2 text-gray-400 hover:text-white transition-colors duration-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="widget-container">
+            <!-- Provided Widget Code -->
+            <a target="_blank" href="https://simpleswap.io/?ref=23307229deb4">
+                <img style="object-fit: contain; max-width: 100%;" 
+                    src="https://static.simpleswap.io/images/affiliate-account/banners_v2/banners_EN/EN_instant_exchange/250х300_EN_instant_exchange.png" 
+                    width="250х300" 
+                    alt="SimpleSwap Instant Exchange Widget"
+                />
+            </a>
+        </div>
+    </div>
+    
+    <!-- Button to toggle the sliding pop-up -->
+    <button id="toggle-popup-button" class="px-4 py-3 bg-orange-500 text-white rounded-r-full shadow-lg hover:bg-orange-600 transition-colors duration-300 transform -rotate-90 origin-left">
+        <span class="block -rotate-270">Exchange</span>
+    </button>
+
     <!-- Footer Section -->
     <footer class="bg-gray-900 text-center py-8 mt-12">
         <p class="text-gray-500 text-sm">&copy; 2024 Free Nation of Raspberry. All Rights Reserved.</p>
     </footer>
 
-    <!-- JavaScript for Mobile Menu Functionality -->
+    <!-- JavaScript for Mobile Menu and Pop-up Functionality -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
+            const togglePopupButton = document.getElementById('toggle-popup-button');
+            const leftPopup = document.getElementById('left-popup');
+            const closePopupButton = document.getElementById('close-popup-button');
 
+            // --- Mobile Menu Logic ---
             if (mobileMenuButton && mobileMenu) {
-                // Function to toggle the menu's visibility
                 const toggleMenu = () => {
                     mobileMenu.classList.toggle('hidden');
                 };
-
-                // Add click listener to the button to open/close the menu
                 mobileMenuButton.addEventListener('click', toggleMenu);
-
-                // Add click listeners to the menu links to close the menu
                 const mobileLinks = mobileMenu.querySelectorAll('a');
                 mobileLinks.forEach(link => {
                     link.addEventListener('click', () => {
-                        // Close the menu after a link is clicked
                         mobileMenu.classList.add('hidden');
                     });
+                });
+            }
+
+            // --- Sliding Pop-up Logic ---
+            if (togglePopupButton && leftPopup && closePopupButton) {
+                // Function to toggle the sliding panel
+                const togglePopup = () => {
+                    leftPopup.classList.toggle('active');
+                };
+
+                // Add click listener to the "Exchange" button
+                togglePopupButton.addEventListener('click', togglePopup);
+
+                // Add click listener to the "Close" button inside the panel
+                closePopupButton.addEventListener('click', () => {
+                    leftPopup.classList.remove('active');
                 });
             }
         });
