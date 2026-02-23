@@ -3,119 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Deep Monitor: @rename</title>
+    <title>Polymarket Live: @rename</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black text-slate-200 min-h-screen p-4 font-mono">
+<body class="bg-[#0a0b0d] text-slate-200 min-h-screen p-4 md:p-10 font-sans">
     <div class="max-w-4xl mx-auto">
-        <header class="border-b border-slate-800 pb-6 mb-8 flex justify-between items-end">
+        <header class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
             <div>
-                <h1 class="text-2xl font-bold text-white uppercase tracking-tighter">User: @rename</h1>
-                <p id="proxy-display" class="text-xs text-slate-500">Resolving Proxy Wallet...</p>
+                <h1 class="text-2xl font-black text-white tracking-tight">@RENAME <span class="text-blue-500 underline decoration-2 underline-offset-4">LIVE</span></h1>
+                <p id="proxy-status" class="text-[10px] font-mono text-slate-500 mt-1 uppercase tracking-widest">Identifying Proxy Wallet...</p>
             </div>
-            <button onclick="init()" class="bg-white text-black px-4 py-1 text-xs font-bold hover:bg-slate-200 transition">FORCE REFRESH</button>
+            <div class="flex gap-3">
+                <button onclick="fetchEverything()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-all active:scale-95 shadow-lg shadow-blue-500/20">
+                    REFRESH
+                </button>
+            </div>
         </header>
 
-        <div class="grid md:grid-cols-2 gap-8">
-            <section>
-                <h2 class="text-blue-500 text-xs font-bold mb-4 border-l-2 border-blue-500 pl-2">ACTIVE POSITIONS</h2>
-                <div id="active-list" class="space-y-4 text-sm">
-                    <div class="text-slate-600 animate-pulse">Scanning blockchain...</div>
+        <div class="grid lg:grid-cols-2 gap-8">
+            
+            <div class="space-y-4">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> Active Positions
+                </h2>
+                <div id="active-container" class="space-y-3">
+                    <div class="p-8 border border-slate-800 rounded-2xl text-center text-slate-600 italic text-sm">Initializing scan...</div>
                 </div>
-            </section>
+            </div>
 
-            <section>
-                <h2 class="text-emerald-500 text-xs font-bold mb-4 border-l-2 border-emerald-500 pl-2">ACTIVITY FEED</h2>
-                <div id="activity-feed" class="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-                    <div class="text-slate-600 animate-pulse">Loading transaction logs...</div>
+            <div class="space-y-4">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Activity History</h2>
+                <div id="activity-container" class="bg-slate-900/40 border border-slate-800 rounded-2xl divide-y divide-slate-800 overflow-hidden">
+                    <div class="p-8 text-center text-slate-600 italic text-sm">Loading history...</div>
                 </div>
-            </section>
+            </div>
+
         </div>
+
+        <details class="mt-20 opacity-30 hover:opacity-100 transition">
+            <summary class="text-[10px] cursor-pointer uppercase font-bold text-slate-600">Technical Debug Log</summary>
+            <pre id="debug-log" class="text-[10px] bg-black p-4 mt-2 rounded border border-slate-800 overflow-x-auto"></pre>
+        </details>
     </div>
 
     <script>
-        const PROFILE_ADDRESS = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
-        let PROXY_ADDRESS = "";
+        const ADDRESS = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
+        let resolvedProxy = "";
 
-        async function init() {
-            // Step 1: Resolve the actual Trading Proxy address
+        async function fetchEverything() {
+            const debug = document.getElementById('debug-log');
             try {
-                const profileRes = await fetch(`https://gamma-api.polymarket.com/public-profile?wallet=${PROFILE_ADDRESS}`);
-                const profileData = await profileRes.json();
-                PROXY_ADDRESS = profileData.proxyWallet || PROFILE_ADDRESS;
-                document.getElementById('proxy-display').innerText = `Proxy: ${PROXY_ADDRESS}`;
+                // 1. Resolve Proxy Wallet via Gamma API
+                if (!resolvedProxy) {
+                    const profileRes = await fetch(`https://gamma-api.polymarket.com/public-profile?wallet=${ADDRESS}`);
+                    const profile = await profileRes.json();
+                    resolvedProxy = profile.proxyWallet || ADDRESS;
+                    document.getElementById('proxy-status').innerText = `PROXY: ${resolvedProxy}`;
+                }
+
+                // 2. Fetch Active Positions (Size Threshold set to 0 to show everything)
+                const posRes = await fetch(`https://data-api.polymarket.com/positions?user=${resolvedProxy}&sizeThreshold=0`);
+                const positions = await posRes.json();
                 
-                // Step 2: Fetch both Active and Activity Feed
-                refreshData();
-            } catch (e) {
-                console.error("Resolution error", e);
+                // 3. Fetch Activity
+                const actRes = await fetch(`https://data-api.polymarket.com/activity?user=${resolvedProxy}&limit=10`);
+                const activity = await actRes.json();
+
+                debug.innerText = JSON.stringify({ positions, activity }, null, 2);
+                renderActive(positions);
+                renderActivity(activity);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('proxy-status').innerText = "API CONNECTION ERROR";
             }
         }
 
-        async function refreshData() {
-            if (!PROXY_ADDRESS) return;
-
-            // 1. Fetch Active Positions (matches "Positions > Active" on site)
-            const posRes = await fetch(`https://data-api.polymarket.com/positions?user=${PROXY_ADDRESS}&sizeThreshold=0.01`);
-            const positions = await posRes.json();
-            renderPositions(positions);
-
-            // 2. Fetch Activity (matches "Activity" tab on site)
-            const actRes = await fetch(`https://data-api.polymarket.com/activity?user=${PROXY_ADDRESS}&limit=15`);
-            const activity = await actRes.json();
-            renderActivity(activity);
-        }
-
-        function renderPositions(data) {
-            const container = document.getElementById('active-list');
-            const btc = data.filter(p => p.title.toLowerCase().includes("btc"));
+        function renderActive(positions) {
+            const container = document.getElementById('active-container');
+            // Filter specifically for BTC markets as requested
+            const btc = positions.filter(p => p.title.toLowerCase().includes("btc"));
 
             if (btc.length === 0) {
-                container.innerHTML = `<div class="text-slate-700 italic border border-slate-800 p-4 rounded">No active BTC positions.</div>`;
+                container.innerHTML = `<div class="p-10 border border-dashed border-slate-800 rounded-2xl text-center text-slate-600 text-sm">No active BTC positions at this moment.</div>`;
                 return;
             }
 
             container.innerHTML = btc.map(p => `
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded hover:border-slate-700 transition">
-                    <div class="text-[10px] text-slate-500 mb-1">${p.title}</div>
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold ${p.outcome === 'Up' ? 'text-green-400' : 'text-red-400'} text-lg">${p.outcome.toUpperCase()}</span>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl hover:border-blue-500/50 transition-colors shadow-xl">
+                    <div class="text-[10px] text-blue-400 font-bold uppercase mb-2">${p.title}</div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-2xl font-black ${p.outcome.toLowerCase() === 'up' ? 'text-green-400' : 'text-red-400'}">${p.outcome.toUpperCase()}</div>
+                            <div class="text-[10px] text-slate-500 font-mono mt-1">Shares: ${parseFloat(p.size).toFixed(2)}</div>
+                        </div>
                         <div class="text-right">
-                            <div class="text-white font-bold">${Math.round(p.size)} Shares</div>
-                            <div class="text-[10px] text-slate-500">Avg: $${parseFloat(p.avgPrice).toFixed(3)}</div>
+                            <div class="text-white font-bold">$${parseFloat(p.avgPrice).toFixed(3)}</div>
+                            <div class="text-[10px] text-slate-500 uppercase">Avg Entry</div>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        function renderActivity(data) {
-            const container = document.getElementById('activity-feed');
-            
-            container.innerHTML = data.map(a => {
+        function renderActivity(activity) {
+            const container = document.getElementById('activity-container');
+            if (activity.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-600 italic">No recent activity.</div>`;
+                return;
+            }
+
+            container.innerHTML = activity.map(a => {
                 const isBuy = a.side === 'BUY';
-                const date = new Date(a.timestamp * 1000).toLocaleTimeString();
-                
                 return `
-                <div class="text-[11px] border-b border-slate-900 pb-2 mb-2">
-                    <div class="flex justify-between text-slate-500 mb-1">
-                        <span>${date}</span>
-                        <span class="font-bold ${isBuy ? 'text-emerald-500' : 'text-orange-500'}">${a.type}</span>
+                    <div class="p-4 flex justify-between items-center hover:bg-slate-800/30 transition">
+                        <div class="min-w-0 pr-4">
+                            <div class="text-[11px] font-bold text-slate-200 truncate">${a.title || 'Market Trade'}</div>
+                            <div class="text-[9px] text-slate-500 uppercase mt-0.5">${new Date(a.timestamp * 1000).toLocaleTimeString()}</div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <div class="${isBuy ? 'text-green-500' : 'text-orange-500'} font-black text-xs">${a.side} ${a.type}</div>
+                            <div class="text-[10px] text-white font-mono">$${parseFloat(a.cash).toFixed(2)}</div>
+                        </div>
                     </div>
-                    <div class="text-slate-300 truncate">${a.title || 'Market Interaction'}</div>
-                    <div class="flex gap-2 mt-1">
-                        <span class="text-white">$${parseFloat(a.cash).toFixed(2)}</span>
-                        <span class="text-slate-600">@</span>
-                        <span class="text-slate-400">$${parseFloat(a.price).toFixed(3)}</span>
-                    </div>
-                </div>
                 `;
             }).join('');
         }
 
-        // Auto-update every 20 seconds for the fast 5m markets
-        init();
-        setInterval(refreshData, 20000);
+        // Auto-refresh every 20 seconds
+        fetchEverything();
+        setInterval(fetchEverything, 20000);
     </script>
 </body>
 </html>
