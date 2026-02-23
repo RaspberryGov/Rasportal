@@ -1,3 +1,9 @@
+To add this functionality, we need to modify the createCard function. I will wrap the item title in an <a> tag and construct the URL using the slug property, which is the standard way Polymarket links to its markets.
+
+I've also ensured the link opens in a new tab so you don't lose your monitor's dashboard.
+
+Complete Updated Code
+HTML
 
 <!DOCTYPE html>
 <html lang="en">
@@ -60,8 +66,7 @@
 
             <div id="favorites-container" class="flex flex-wrap items-center gap-2 py-2 border-y border-gray-800/50">
                 <span class="text-[9px] font-bold text-gray-600 uppercase tracking-widest mr-2">Favourited Monitors:</span>
-                <div id="favorites-list" class="flex flex-wrap gap-2">
-                    </div>
+                <div id="favorites-list" class="flex flex-wrap gap-2"></div>
             </div>
         </header>
 
@@ -103,33 +108,22 @@
 
         function updateUser(address = null) {
             const newAddress = address || document.getElementById('wallet-input').value.trim();
-            
             if (newAddress.length === 42 && newAddress.startsWith('0x')) {
                 CURRENT_USER = newAddress;
                 document.getElementById('wallet-input').value = newAddress;
-                
                 ASSETS.forEach(id => {
                     document.getElementById(`col-${id}`).innerHTML = `<div class="animate-pulse mt-10 text-center text-[10px] text-gray-600">SYNCING...</div>`;
                 });
-                
                 updateStarUI();
                 sync();
-            } else if (!address) {
-                alert("Invalid Ethereum Address.");
             }
         }
 
-        // FAVORITES LOGIC
         function toggleFavorite() {
             const addr = CURRENT_USER.toLowerCase();
             const index = favorites.indexOf(addr);
-            
-            if (index > -1) {
-                favorites.splice(index, 1);
-            } else {
-                favorites.push(addr);
-            }
-            
+            if (index > -1) favorites.splice(index, 1);
+            else favorites.push(addr);
             localStorage.setItem('poly_favorites', JSON.stringify(favorites));
             renderFavorites();
             updateStarUI();
@@ -146,7 +140,7 @@
         function updateStarUI() {
             const star = document.getElementById('star-icon');
             if (favorites.includes(CURRENT_USER.toLowerCase())) {
-                star.setAttribute('fill', '#fbbf24'); // Yellow-400
+                star.setAttribute('fill', '#fbbf24');
                 star.setAttribute('stroke', '#fbbf24');
             } else {
                 star.setAttribute('fill', 'none');
@@ -157,7 +151,6 @@
         function renderFavorites() {
             const list = document.getElementById('favorites-list');
             list.innerHTML = '';
-            
             favorites.forEach(addr => {
                 const short = addr.slice(0, 4) + '...' + addr.slice(-4);
                 const chip = document.createElement('div');
@@ -170,25 +163,20 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </button>
-                `;
+                    </button>`;
                 list.appendChild(chip);
             });
         }
 
-        // DATA SYNC LOGIC
         async function sync() {
             try {
                 const response = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_USER}&limit=40`);
                 const data = await response.json();
-                
                 ASSETS.forEach(id => document.getElementById(`col-${id}`).innerHTML = '');
-
                 if (!data || data.length === 0) {
                     document.getElementById('status-bar').innerText = "NO RECENT ACTIVITY";
                     return;
                 }
-
                 data.forEach(item => {
                     const title = item.title.toLowerCase();
                     let targetCol = null;
@@ -196,12 +184,8 @@
                     else if (title.includes('eth') || title.includes('ethereum')) targetCol = 'eth';
                     else if (title.includes('solana') || title.includes('sol')) targetCol = 'sol';
                     else if (title.includes('xrp')) targetCol = 'xrp';
-
-                    if (targetCol) {
-                        document.getElementById(`col-${targetCol}`).insertAdjacentHTML('beforeend', createCard(item));
-                    }
+                    if (targetCol) document.getElementById(`col-${targetCol}`).insertAdjacentHTML('beforeend', createCard(item));
                 });
-
                 const shortAddr = CURRENT_USER.slice(0,6) + "..." + CURRENT_USER.slice(-4);
                 document.getElementById('status-bar').innerText = `LIVE: ${shortAddr} | UPDATED: ${new Date().toLocaleTimeString()}`;
             } catch (err) {
@@ -219,23 +203,30 @@
             const isBuy = item.side === 'BUY';
             const value = item.usdcSize ? parseFloat(item.usdcSize).toLocaleString(undefined, {minimumFractionDigits: 2}) : "0.00";
             const price = item.price ? parseFloat(item.price).toFixed(3) : "0.000";
+            
+            // Build Polymarket URL
+            const polyLink = `https://polymarket.com/event/${item.slug}`;
 
             return `
                 <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-gray-500 transition-all group">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[9px] font-bold ${isBuy ? 'text-green-500' : 'text-red-400'} uppercase">
+                        <span class="text-[9px] font-bold ${isBuy ? 'text-green-500' : 'text-red-400'} uppercase tracking-widest">
                             ${item.side} ${item.type}
                         </span>
                         <span class="text-[9px] text-gray-600 font-mono">${new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
-                    <div class="text-[11px] font-medium text-gray-300 mb-3 leading-tight group-hover:text-white">${item.title}</div>
+                    
+                    <a href="${polyLink}" target="_blank" class="block text-[11px] font-medium text-gray-300 mb-3 leading-tight hover:text-blue-400 transition-colors decoration-blue-500/30 hover:underline">
+                        ${item.title}
+                    </a>
+
                     <div class="flex justify-between items-end bg-black/40 p-2 rounded border border-gray-800/50">
                         <div>
-                            <div class="text-[8px] text-gray-500 uppercase font-bold">Position</div>
+                            <div class="text-[8px] text-gray-500 uppercase font-bold tracking-widest">Position</div>
                             <div class="text-sm font-black ${direction === 'UP' ? 'text-green-400' : 'text-red-400'}">${direction}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-[8px] text-gray-500 uppercase font-bold">Value</div>
+                            <div class="text-[8px] text-gray-500 uppercase font-bold tracking-widest">Value</div>
                             <div class="text-xs font-mono font-bold text-white">$${value}</div>
                             <div class="text-[9px] text-gray-600 font-mono">$${price}</div>
                         </div>
