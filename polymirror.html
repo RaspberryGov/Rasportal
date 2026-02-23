@@ -3,91 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Activity Mirror: @rename</title>
+    <title>Polymarket Feed: @rename</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0e1117] text-white font-sans p-4">
-    <div class="max-w-2xl mx-auto">
-        <header class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
-            <h1 class="text-xl font-bold">@rename Activity Mirror</h1>
-            <div class="flex items-center gap-2">
-                <span id="load-indicator" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span class="text-xs text-gray-400 font-mono" id="last-update">Updating...</span>
-            </div>
+<body class="bg-[#0b0e14] text-white font-sans p-4">
+    <div class="max-w-xl mx-auto">
+        <header class="flex justify-between items-center mb-6 py-4 border-b border-gray-800">
+            <h1 class="text-xl font-black tracking-tighter text-blue-500 uppercase">@rename Activity</h1>
+            <span id="update-timer" class="text-[10px] font-mono text-gray-500 uppercase">Syncing...</span>
         </header>
 
-        <div id="activity-feed" class="space-y-3">
-            <div class="animate-pulse flex flex-col gap-3">
-                <div class="h-20 bg-gray-800 rounded-xl"></div>
-                <div class="h-20 bg-gray-800 rounded-xl"></div>
-            </div>
+        <div id="feed" class="space-y-4">
+            <div class="text-center py-20 text-gray-600 animate-pulse uppercase text-xs tracking-widest">Scanning Blockchain...</div>
         </div>
-        
-        <button onclick="sync()" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold text-sm transition">
-            Manual Sync
-        </button>
     </div>
 
     <script>
-        // The core profile address provided
-        const USER = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
+        const USER_ADDRESS = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
 
-        async function sync() {
-            const feed = document.getElementById('activity-feed');
-            const indicator = document.getElementById('load-indicator');
-            indicator.classList.add('bg-blue-500');
-
+        async function fetchActivity() {
             try {
-                // This is the specific endpoint that mirrors the "Activity" tab on the site
-                const response = await fetch(`https://data-api.polymarket.com/activity?user=${USER}&limit=20`);
+                // Fetch the exact activity feed from the Data API
+                const response = await fetch(`https://data-api.polymarket.com/activity?user=${USER_ADDRESS}&limit=15`);
                 const data = await response.json();
 
-                if (!data || data.length === 0) {
-                    feed.innerHTML = `<div class="text-center py-10 text-gray-500 italic">No activity found for this address.</div>`;
-                    return;
-                }
-
-                feed.innerHTML = data.map(item => {
-                    const isBuy = item.side === 'BUY';
-                    const time = new Date(item.timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    
-                    // Filter for BTC markets as requested, or show all if you prefer
-                    const isBTC = item.title.toLowerCase().includes('btc');
-                    const highlightClass = isBTC ? 'border-blue-500/50 bg-blue-500/5' : 'border-gray-800';
-
-                    return `
-                        <div class="border ${highlightClass} p-4 rounded-xl flex justify-between items-center group hover:bg-gray-800/40 transition">
-                            <div class="flex flex-col gap-1 min-w-0">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-bold uppercase tracking-wider ${isBuy ? 'text-green-500' : 'text-red-500'}">
-                                        ${item.side} ${item.type}
-                                    </span>
-                                    <span class="text-[10px] text-gray-500 font-mono">${time}</span>
-                                </div>
-                                <div class="text-sm font-medium text-gray-200 truncate pr-4">
-                                    ${item.title}
-                                </div>
-                            </div>
-                            <div class="text-right shrink-0">
-                                <div class="text-sm font-bold text-white">$${parseFloat(item.cash).toFixed(2)}</div>
-                                <div class="text-[10px] text-gray-500 font-mono">@ $${parseFloat(item.price).toFixed(3)}</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                document.getElementById('last-update').innerText = `Last Sync: ${new Date().toLocaleTimeString()}`;
+                render(data);
+                document.getElementById('update-timer').innerText = "Last Sync: " + new Date().toLocaleTimeString();
             } catch (err) {
-                console.error("Sync Error:", err);
-                feed.innerHTML = `<div class="text-red-400 text-xs p-4 bg-red-900/20 rounded">Error: Could not reach Polymarket API. Check your connection.</div>`;
-            } finally {
-                indicator.classList.remove('bg-blue-500');
+                console.error("Fetch Error:", err);
             }
         }
 
-        // Automatic Refresh every 15 seconds to catch 5-minute market moves
-        sync();
-        setInterval(sync, 15000);
+        function render(items) {
+            const container = document.getElementById('feed');
+            
+            if (!items || items.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 italic py-10">No recent activity found.</div>`;
+                return;
+            }
+
+            container.innerHTML = items.map(item => {
+                // 1. Determine Direction (Up/Down)
+                // In binary markets (Up/Down), index 0 is usually 'Up' and 1 is 'Down'
+                let direction = "Unknown";
+                if (item.outcomeIndex === "0") direction = "UP";
+                if (item.outcomeIndex === "1") direction = "DOWN";
+
+                // Fallback: If title contains "Up" or "Down" but index is weird, we check the outcome field
+                if (item.outcome) direction = item.outcome.toUpperCase();
+
+                // 2. Fix Dollar Amount ($NaN fix)
+                // The API uses 'usdcSize' for the total dollar amount spent
+                const totalDollars = item.usdcSize ? parseFloat(item.usdcSize).toFixed(2) : "0.00";
+                const sharePrice = item.price ? parseFloat(item.price).toFixed(3) : "0.000";
+                const isBuy = item.side === 'BUY';
+
+                return `
+                    <div class="bg-[#161b22] border-l-4 ${isBuy ? 'border-green-500' : 'border-red-500'} p-4 rounded-r-xl shadow-lg">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${item.side} ${item.type}</span>
+                            <span class="text-[10px] font-mono text-gray-600">${new Date(item.timestamp * 1000).toLocaleTimeString()}</span>
+                        </div>
+                        
+                        <div class="text-sm font-bold text-gray-100 mb-3 leading-tight">
+                            ${item.title}
+                        </div>
+
+                        <div class="flex justify-between items-end border-t border-gray-800 pt-3 mt-1">
+                            <div>
+                                <div class="text-[9px] text-gray-500 uppercase font-bold tracking-tighter">Direction</div>
+                                <div class="text-lg font-black ${direction === 'UP' ? 'text-green-400' : 'text-red-400'}">${direction}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[9px] text-gray-500 uppercase font-bold tracking-tighter">Position Value</div>
+                                <div class="text-lg font-mono text-white">$${totalDollars}</div>
+                                <div class="text-[10px] text-gray-500">at $${sharePrice} / share</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize and set interval
+        fetchActivity();
+        setInterval(fetchActivity, 15000); // 15 seconds refresh
     </script>
 </body>
 </html>
