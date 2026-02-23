@@ -3,136 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Live: @rename</title>
+    <title>Polymarket Activity Mirror: @rename</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0a0b0d] text-slate-200 min-h-screen p-4 md:p-10 font-sans">
-    <div class="max-w-4xl mx-auto">
-        <header class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
-            <div>
-                <h1 class="text-2xl font-black text-white tracking-tight">@RENAME <span class="text-blue-500 underline decoration-2 underline-offset-4">LIVE</span></h1>
-                <p id="proxy-status" class="text-[10px] font-mono text-slate-500 mt-1 uppercase tracking-widest">Identifying Proxy Wallet...</p>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="fetchEverything()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-5 py-2 rounded-full transition-all active:scale-95 shadow-lg shadow-blue-500/20">
-                    REFRESH
-                </button>
+<body class="bg-[#0e1117] text-white font-sans p-4">
+    <div class="max-w-2xl mx-auto">
+        <header class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
+            <h1 class="text-xl font-bold">@rename Activity Mirror</h1>
+            <div class="flex items-center gap-2">
+                <span id="load-indicator" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-xs text-gray-400 font-mono" id="last-update">Updating...</span>
             </div>
         </header>
 
-        <div class="grid lg:grid-cols-2 gap-8">
-            
-            <div class="space-y-4">
-                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> Active Positions
-                </h2>
-                <div id="active-container" class="space-y-3">
-                    <div class="p-8 border border-slate-800 rounded-2xl text-center text-slate-600 italic text-sm">Initializing scan...</div>
-                </div>
+        <div id="activity-feed" class="space-y-3">
+            <div class="animate-pulse flex flex-col gap-3">
+                <div class="h-20 bg-gray-800 rounded-xl"></div>
+                <div class="h-20 bg-gray-800 rounded-xl"></div>
             </div>
-
-            <div class="space-y-4">
-                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Activity History</h2>
-                <div id="activity-container" class="bg-slate-900/40 border border-slate-800 rounded-2xl divide-y divide-slate-800 overflow-hidden">
-                    <div class="p-8 text-center text-slate-600 italic text-sm">Loading history...</div>
-                </div>
-            </div>
-
         </div>
-
-        <details class="mt-20 opacity-30 hover:opacity-100 transition">
-            <summary class="text-[10px] cursor-pointer uppercase font-bold text-slate-600">Technical Debug Log</summary>
-            <pre id="debug-log" class="text-[10px] bg-black p-4 mt-2 rounded border border-slate-800 overflow-x-auto"></pre>
-        </details>
+        
+        <button onclick="sync()" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold text-sm transition">
+            Manual Sync
+        </button>
     </div>
 
     <script>
-        const ADDRESS = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
-        let resolvedProxy = "";
+        // The core profile address provided
+        const USER = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
 
-        async function fetchEverything() {
-            const debug = document.getElementById('debug-log');
+        async function sync() {
+            const feed = document.getElementById('activity-feed');
+            const indicator = document.getElementById('load-indicator');
+            indicator.classList.add('bg-blue-500');
+
             try {
-                // 1. Resolve Proxy Wallet via Gamma API
-                if (!resolvedProxy) {
-                    const profileRes = await fetch(`https://gamma-api.polymarket.com/public-profile?wallet=${ADDRESS}`);
-                    const profile = await profileRes.json();
-                    resolvedProxy = profile.proxyWallet || ADDRESS;
-                    document.getElementById('proxy-status').innerText = `PROXY: ${resolvedProxy}`;
+                // This is the specific endpoint that mirrors the "Activity" tab on the site
+                const response = await fetch(`https://data-api.polymarket.com/activity?user=${USER}&limit=20`);
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    feed.innerHTML = `<div class="text-center py-10 text-gray-500 italic">No activity found for this address.</div>`;
+                    return;
                 }
 
-                // 2. Fetch Active Positions (Size Threshold set to 0 to show everything)
-                const posRes = await fetch(`https://data-api.polymarket.com/positions?user=${resolvedProxy}&sizeThreshold=0`);
-                const positions = await posRes.json();
-                
-                // 3. Fetch Activity
-                const actRes = await fetch(`https://data-api.polymarket.com/activity?user=${resolvedProxy}&limit=10`);
-                const activity = await actRes.json();
+                feed.innerHTML = data.map(item => {
+                    const isBuy = item.side === 'BUY';
+                    const time = new Date(item.timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    // Filter for BTC markets as requested, or show all if you prefer
+                    const isBTC = item.title.toLowerCase().includes('btc');
+                    const highlightClass = isBTC ? 'border-blue-500/50 bg-blue-500/5' : 'border-gray-800';
 
-                debug.innerText = JSON.stringify({ positions, activity }, null, 2);
-                renderActive(positions);
-                renderActivity(activity);
+                    return `
+                        <div class="border ${highlightClass} p-4 rounded-xl flex justify-between items-center group hover:bg-gray-800/40 transition">
+                            <div class="flex flex-col gap-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider ${isBuy ? 'text-green-500' : 'text-red-500'}">
+                                        ${item.side} ${item.type}
+                                    </span>
+                                    <span class="text-[10px] text-gray-500 font-mono">${time}</span>
+                                </div>
+                                <div class="text-sm font-medium text-gray-200 truncate pr-4">
+                                    ${item.title}
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <div class="text-sm font-bold text-white">$${parseFloat(item.cash).toFixed(2)}</div>
+                                <div class="text-[10px] text-gray-500 font-mono">@ $${parseFloat(item.price).toFixed(3)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
 
+                document.getElementById('last-update').innerText = `Last Sync: ${new Date().toLocaleTimeString()}`;
             } catch (err) {
-                console.error(err);
-                document.getElementById('proxy-status').innerText = "API CONNECTION ERROR";
+                console.error("Sync Error:", err);
+                feed.innerHTML = `<div class="text-red-400 text-xs p-4 bg-red-900/20 rounded">Error: Could not reach Polymarket API. Check your connection.</div>`;
+            } finally {
+                indicator.classList.remove('bg-blue-500');
             }
         }
 
-        function renderActive(positions) {
-            const container = document.getElementById('active-container');
-            // Filter specifically for BTC markets as requested
-            const btc = positions.filter(p => p.title.toLowerCase().includes("btc"));
-
-            if (btc.length === 0) {
-                container.innerHTML = `<div class="p-10 border border-dashed border-slate-800 rounded-2xl text-center text-slate-600 text-sm">No active BTC positions at this moment.</div>`;
-                return;
-            }
-
-            container.innerHTML = btc.map(p => `
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl hover:border-blue-500/50 transition-colors shadow-xl">
-                    <div class="text-[10px] text-blue-400 font-bold uppercase mb-2">${p.title}</div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <div class="text-2xl font-black ${p.outcome.toLowerCase() === 'up' ? 'text-green-400' : 'text-red-400'}">${p.outcome.toUpperCase()}</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-1">Shares: ${parseFloat(p.size).toFixed(2)}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-white font-bold">$${parseFloat(p.avgPrice).toFixed(3)}</div>
-                            <div class="text-[10px] text-slate-500 uppercase">Avg Entry</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderActivity(activity) {
-            const container = document.getElementById('activity-container');
-            if (activity.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-600 italic">No recent activity.</div>`;
-                return;
-            }
-
-            container.innerHTML = activity.map(a => {
-                const isBuy = a.side === 'BUY';
-                return `
-                    <div class="p-4 flex justify-between items-center hover:bg-slate-800/30 transition">
-                        <div class="min-w-0 pr-4">
-                            <div class="text-[11px] font-bold text-slate-200 truncate">${a.title || 'Market Trade'}</div>
-                            <div class="text-[9px] text-slate-500 uppercase mt-0.5">${new Date(a.timestamp * 1000).toLocaleTimeString()}</div>
-                        </div>
-                        <div class="text-right shrink-0">
-                            <div class="${isBuy ? 'text-green-500' : 'text-orange-500'} font-black text-xs">${a.side} ${a.type}</div>
-                            <div class="text-[10px] text-white font-mono">$${parseFloat(a.cash).toFixed(2)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Auto-refresh every 20 seconds
-        fetchEverything();
-        setInterval(fetchEverything, 20000);
+        // Automatic Refresh every 15 seconds to catch 5-minute market moves
+        sync();
+        setInterval(sync, 15000);
     </script>
 </body>
 </html>
