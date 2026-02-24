@@ -193,17 +193,45 @@
             else if (item.outcomeIndex === "1" || outcome === "no") direction = "DOWN";
             else if (item.outcome) direction = item.outcome.toUpperCase();
 
-            const isBuy = item.side === 'BUY';
             const value = item.usdcSize ? parseFloat(item.usdcSize).toLocaleString(undefined, {minimumFractionDigits: 2}) : "0.00";
             const price = item.price ? parseFloat(item.price).toFixed(3) : "0.000";
             
+            // --- Helper to extract duration from title ---
+            function getMarketDuration(title) {
+                // Matches patterns like "10:20PM-10:25PM"
+                const timeRegex = /(\d{1,2}:\d{2}\s?[APM]{2})\s?-\s?(\d{1,2}:\d{2}\s?[APM]{2})/i;
+                const match = title.match(timeRegex);
+                
+                if (match) {
+                    const startStr = match[1];
+                    const endStr = match[2];
+                    
+                    // Create dummy dates to calculate difference
+                    const dummyDate = "2026-01-01 ";
+                    const startTime = new Date(dummyDate + startStr);
+                    const endTime = new Date(dummyDate + endStr);
+                    
+                    const diffMs = endTime - startTime;
+                    const diffMins = Math.round(diffMs / 60000);
+                    
+                    // Adjust for midnight wrap-around if necessary
+                    const finalMins = diffMins < 0 ? diffMins + 1440 : diffMins;
+                    
+                    if (finalMins === 5) return { text: "5 Minute Market", color: "text-green-500" };
+                    if (finalMins === 15) return { text: "15 Minute Market", color: "text-orange-500" };
+                    return { text: `${finalMins} Minute Market`, color: "text-blue-400" };
+                }
+                return { text: "Unknown Duration", color: "text-gray-500" };
+            }
+
+            const durationInfo = getMarketDuration(item.title);
             const polyLink = `https://polymarket.com/event/${item.slug}`;
 
             return `
                 <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-gray-500 transition-all group">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[9px] font-bold ${isBuy ? 'text-green-500' : 'text-red-400'} uppercase tracking-widest">
-                            ${item.side} ${item.type}
+                        <span class="text-[9px] font-bold ${durationInfo.color} uppercase tracking-widest">
+                            ${durationInfo.text}
                         </span>
                         <span class="text-[9px] text-gray-600 font-mono">${new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
