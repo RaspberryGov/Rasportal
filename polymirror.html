@@ -16,22 +16,22 @@
             100% { border-color: rgba(59, 130, 246, 0.5); }
         }
         .status-active { animation: pulse-border 2s infinite; }
-
+        .donate-pulse { animation: pulse-gold 2s infinite; }
         @keyframes pulse-gold {
             0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); }
             70% { box-shadow: 0 0 0 6px rgba(234, 179, 8, 0); }
             100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
         }
-        .donate-pulse { animation: pulse-gold 2s infinite; }
         .modal-bg { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); }
 
+        /* MOBILE FIX: Force hidden unless active */
         @media (max-width: 1023px) {
-            .column-hidden { display: none; }
-            .column-active { display: flex !important; }
+            .mobile-col { display: none !important; }
+            .mobile-col.active { display: flex !important; width: 100%; }
         }
     </style>
 </head>
-<body class="bg-[#0b0e14] text-slate-200 font-sans p-4">
+<body class="bg-[#0b0e14] text-slate-200 font-sans p-2 md:p-4">
     
     <div id="qr-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-bg p-4" onclick="closeQR()">
         <div class="bg-[#161b22] border border-yellow-500/30 p-6 rounded-2xl max-w-xs w-full text-center shadow-2xl" onclick="event.stopPropagation()">
@@ -45,53 +45,61 @@
     </div>
 
     <div class="max-w-[1600px] mx-auto">
-        <header class="flex flex-col mb-6 gap-6 items-center">
+        <header class="flex flex-col mb-4 gap-4 items-center">
             
             <div class="flex flex-wrap justify-center items-center gap-4 w-full">
-                <h1 class="text-2xl font-black text-white italic tracking-tighter">POLY <span class="text-blue-500">MONITOR</span></h1>
-                
-                <div id="status-bar" class="text-[10px] font-mono text-gray-400 bg-gray-900 px-4 py-1.5 rounded-full border border-gray-800 uppercase tracking-widest status-active">
-                    SYNCING...
+                <h1 class="text-xl font-black text-white italic tracking-tighter">POLY <span class="text-blue-500">MONITOR</span></h1>
+                <div id="status-bar" class="text-[9px] font-mono text-gray-400 bg-gray-900 px-3 py-1 rounded-full border border-gray-800 uppercase tracking-widest status-active">SYNCING...</div>
+                <div onclick="openQR(); copyDonation();" class="donate-pulse flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1 rounded-full cursor-pointer">
+                    <span class="text-[9px] font-black text-yellow-500 uppercase">Donate</span>
+                    <span id="donation-addr" class="text-[9px] font-mono text-yellow-200/70">0xE54...A4Eb</span>
                 </div>
-
-                <div onclick="openQR(); copyDonation();" class="donate-pulse flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 px-4 py-1.5 rounded-full cursor-pointer hover:bg-yellow-500/20 transition-all group">
-                    <span class="text-[10px] font-black text-yellow-500 uppercase tracking-tighter">Donate</span>
-                    <span id="donation-addr" class="text-[10px] font-mono text-yellow-200/70">0xE54...A4Eb</span>
-                </div>
-
-                <a href="https://x.com/raspberrygov" target="_blank" class="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full hover:bg-white/10 transition-all group">
-                    <span class="text-[10px] font-black text-white uppercase tracking-tighter">Follow</span>
+                <a href="https://x.com/raspberrygov" target="_blank" class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full hover:bg-white/10">
+                    <span class="text-[9px] font-black text-white uppercase">Follow</span>
                     <svg class="h-3 w-3 fill-current text-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
                 </a>
             </div>
 
-            <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-xl p-1 shadow-2xl w-full max-w-xl">
-                <button onclick="toggleFavorite()" id="fav-btn" class="px-3 text-gray-500 hover:text-yellow-400 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="star-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
-                </button>
-                <input type="text" id="wallet-input" placeholder="Enter Wallet Address (0x...)" class="bg-transparent text-sm font-mono px-3 py-2 w-full outline-none text-blue-400 placeholder:text-gray-600" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="clearInput()" class="px-3 text-gray-600 hover:text-red-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                <button onclick="updateUser()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black px-6 py-2 rounded-lg uppercase transition-all ml-1">Switch</button>
+            <div class="w-full max-w-4xl bg-black/40 border border-gray-800 rounded-lg p-2 overflow-hidden">
+                <div class="text-[8px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1 text-center">Global Recent (10)</div>
+                <div id="recent-ticker" class="flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                    <div class="text-[10px] text-gray-700 w-full text-center py-1">Fetching live data...</div>
+                </div>
             </div>
 
-            <div id="favorites-container" class="flex flex-wrap justify-center items-center gap-2 py-2 border-y border-gray-800/50 w-full max-w-4xl">
-                <span class="text-[9px] font-bold text-gray-600 uppercase tracking-widest mr-2">Monitors:</span>
-                <div id="favorites-list" class="flex flex-wrap gap-2"></div>
+            <div id="favorites-list" class="flex flex-wrap justify-center gap-2 w-full"></div>
+
+            <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-xl p-1 shadow-2xl w-full max-w-lg">
+                <button onclick="toggleFavorite()" id="fav-btn" class="px-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="star-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></button>
+                <input type="text" id="wallet-input" class="bg-transparent text-xs font-mono px-2 py-1.5 w-full outline-none text-blue-400" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
+                <button onclick="updateUser()" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black px-4 py-1.5 rounded-lg uppercase">Switch</button>
             </div>
 
-            <div class="lg:hidden flex justify-between w-full bg-gray-900/50 p-1 rounded-lg border border-gray-800">
-                <button onclick="switchTab('btc')" id="tab-btc" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded tab-btn bg-orange-500 text-black">BTC</button>
-                <button onclick="switchTab('eth')" id="tab-eth" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded tab-btn text-gray-500">ETH</button>
-                <button onclick="switchTab('sol')" id="tab-sol" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded tab-btn text-gray-500">SOL</button>
-                <button onclick="switchTab('xrp')" id="tab-xrp" class="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded tab-btn text-gray-500">XRP</button>
+            <div class="lg:hidden flex w-full bg-gray-900 border border-gray-800 rounded-lg p-1">
+                <button onclick="switchTab('btc')" id="tab-btc" class="flex-1 py-2 text-[10px] font-black rounded bg-orange-500 text-black">BTC</button>
+                <button onclick="switchTab('eth')" id="tab-eth" class="flex-1 py-2 text-[10px] font-black rounded text-gray-500">ETH</button>
+                <button onclick="switchTab('sol')" id="tab-sol" class="flex-1 py-2 text-[10px] font-black rounded text-gray-500">SOL</button>
+                <button onclick="switchTab('xrp')" id="tab-xrp" class="flex-1 py-2 text-[10px] font-black rounded text-gray-500">XRP</button>
             </div>
         </header>
 
         <div id="swipe-area" class="grid grid-cols-1 lg:grid-cols-4 gap-4 touch-pan-y">
-            <div id="wrapper-btc" class="flex flex-col h-[70vh] column-active"><h2 class="bg-orange-500/10 text-orange-500 text-[10px] font-black p-2 mb-2 rounded border border-orange-500/20 text-center uppercase tracking-widest">Bitcoin</h2><div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div id="wrapper-eth" class="flex flex-col h-[70vh] column-hidden lg:flex"><h2 class="bg-blue-500/10 text-blue-500 text-[10px] font-black p-2 mb-2 rounded border border-blue-500/20 text-center uppercase tracking-widest">Ethereum</h2><div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div id="wrapper-sol" class="flex flex-col h-[70vh] column-hidden lg:flex"><h2 class="bg-purple-500/10 text-purple-500 text-[10px] font-black p-2 mb-2 rounded border border-purple-500/20 text-center uppercase tracking-widest">Solana</h2><div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div id="wrapper-xrp" class="flex flex-col h-[70vh] column-hidden lg:flex"><h2 class="bg-teal-500/10 text-teal-500 text-[10px] font-black p-2 mb-2 rounded border border-teal-500/20 text-center uppercase tracking-widest">XRP</h2><div id="col-xrp" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div id="wrapper-btc" class="mobile-col active lg:flex flex-col h-[65vh]">
+                <h2 class="bg-orange-500/10 text-orange-500 text-[10px] font-black p-2 mb-2 rounded border border-orange-500/20 text-center uppercase">Bitcoin</h2>
+                <div id="col-btc" class="space-y-2 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+            </div>
+            <div id="wrapper-eth" class="mobile-col lg:flex flex-col h-[65vh]">
+                <h2 class="bg-blue-500/10 text-blue-500 text-[10px] font-black p-2 mb-2 rounded border border-blue-500/20 text-center uppercase">Ethereum</h2>
+                <div id="col-eth" class="space-y-2 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+            </div>
+            <div id="wrapper-sol" class="mobile-col lg:flex flex-col h-[65vh]">
+                <h2 class="bg-purple-500/10 text-purple-500 text-[10px] font-black p-2 mb-2 rounded border border-purple-500/20 text-center uppercase">Solana</h2>
+                <div id="col-sol" class="space-y-2 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+            </div>
+            <div id="wrapper-xrp" class="mobile-col lg:flex flex-col h-[65vh]">
+                <h2 class="bg-teal-500/10 text-teal-500 text-[10px] font-black p-2 mb-2 rounded border border-teal-500/20 text-center uppercase">XRP</h2>
+                <div id="col-xrp" class="space-y-2 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+            </div>
         </div>
     </div>
 
@@ -101,25 +109,19 @@
         let activeTabIndex = 0;
 
         function init() {
-            renderFavorites();
-            updateStarUI();
-            sync();
+            renderFavorites(); updateStarUI(); sync();
             setInterval(sync, 10000);
             setupSwipe();
         }
 
         function setupSwipe() {
             let startX = 0;
-            const area = document.getElementById('swipe-area');
-            area.addEventListener('touchstart', e => startX = e.changedTouches[0].screenX);
-            area.addEventListener('touchend', e => {
-                let endX = e.changedTouches[0].screenX;
+            document.getElementById('swipe-area').addEventListener('touchstart', e => startX = e.changedTouches[0].screenX);
+            document.getElementById('swipe-area').addEventListener('touchend', e => {
                 if (window.innerWidth >= 1024) return;
-                if (startX - endX > 50) { // Swiped Left
-                    activeTabIndex = (activeTabIndex + 1) % ASSETS.length;
-                    switchTab(ASSETS[activeTabIndex]);
-                } else if (endX - startX > 50) { // Swiped Right
-                    activeTabIndex = (activeTabIndex - 1 + ASSETS.length) % ASSETS.length;
+                let diff = startX - e.changedTouches[0].screenX;
+                if (Math.abs(diff) > 60) {
+                    activeTabIndex = diff > 0 ? (activeTabIndex + 1) % 4 : (activeTabIndex - 1 + 4) % 4;
                     switchTab(ASSETS[activeTabIndex]);
                 }
             });
@@ -128,96 +130,43 @@
         function switchTab(asset) {
             activeTabIndex = ASSETS.indexOf(asset);
             ASSETS.forEach(id => {
-                document.getElementById(`wrapper-${id}`).classList.add('column-hidden');
-                document.getElementById(`wrapper-${id}`).classList.remove('column-active');
-                document.getElementById(`tab-${id}`).className = "flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded text-gray-500";
+                document.getElementById(`wrapper-${id}`).classList.remove('active');
+                document.getElementById(`tab-${id}`).className = "flex-1 py-2 text-[10px] font-black rounded text-gray-500";
             });
             const colors = {btc: 'bg-orange-500', eth: 'bg-blue-500', sol: 'bg-purple-500', xrp: 'bg-teal-500'};
-            document.getElementById(`wrapper-${asset}`).classList.remove('column-hidden');
-            document.getElementById(`wrapper-${asset}`).classList.add('column-active');
-            document.getElementById(`tab-${asset}`).className = `flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded ${colors[asset]} text-black`;
-        }
-
-        function toggleFavorite() {
-            let favs = JSON.parse(localStorage.getItem('poly_favorites') || '[]');
-            const addr = CURRENT_USER.toLowerCase();
-            if (favs.includes(addr)) {
-                favs = favs.filter(a => a !== addr);
-            } else {
-                favs.push(addr);
-            }
-            localStorage.setItem('poly_favorites', JSON.stringify(favs));
-            renderFavorites();
-            updateStarUI();
-        }
-
-        function renderFavorites() {
-            const list = document.getElementById('favorites-list');
-            const favs = JSON.parse(localStorage.getItem('poly_favorites') || '[]');
-            list.innerHTML = '';
-            favs.forEach(addr => {
-                const short = addr.slice(0, 4) + '...' + addr.slice(-4);
-                const isActive = addr === CURRENT_USER.toLowerCase();
-                const div = document.createElement('div');
-                div.className = `flex items-center bg-gray-900 border ${isActive ? 'border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]' : 'border-gray-800'} rounded overflow-hidden`;
-                div.innerHTML = `
-                    <button onclick="updateUser('${addr}')" class="px-3 py-1.5 text-[10px] font-mono ${isActive ? 'text-white font-bold' : 'text-gray-400 hover:text-white'}">${short}</button>
-                    <button onclick="removeFav('${addr}', event)" class="px-2 py-1.5 border-l border-gray-800 text-gray-600 hover:text-red-500">×</button>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function removeFav(addr, e) {
-            e.stopPropagation();
-            let favs = JSON.parse(localStorage.getItem('poly_favorites') || '[]');
-            favs = favs.filter(a => a !== addr.toLowerCase());
-            localStorage.setItem('poly_favorites', JSON.stringify(favs));
-            renderFavorites();
-            updateStarUI();
-        }
-
-        function updateUser(address = null) {
-            const input = document.getElementById('wallet-input');
-            const newAddr = (address || input.value).trim().toLowerCase();
-            if (newAddr.startsWith('0x') && newAddr.length === 42) {
-                CURRENT_USER = newAddr;
-                input.value = newAddr;
-                ASSETS.forEach(id => document.getElementById(`col-${id}`).innerHTML = '<div class="p-4 text-center text-[10px] text-gray-600">SYNCING...</div>');
-                renderFavorites();
-                updateStarUI();
-                sync();
-            }
-        }
-
-        function updateStarUI() {
-            const favs = JSON.parse(localStorage.getItem('poly_favorites') || '[]');
-            const icon = document.getElementById('star-icon');
-            if (favs.includes(CURRENT_USER.toLowerCase())) {
-                icon.setAttribute('fill', '#fbbf24');
-                icon.setAttribute('stroke', '#fbbf24');
-            } else {
-                icon.setAttribute('fill', 'none');
-                icon.setAttribute('stroke', 'currentColor');
-            }
+            document.getElementById(`wrapper-${asset}`).classList.add('active');
+            document.getElementById(`tab-${asset}`).className = `flex-1 py-2 text-[10px] font-black rounded ${colors[asset]} text-black`;
         }
 
         async function sync() {
             try {
-                const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_USER}&limit=40`);
+                const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_USER}&limit=50`);
                 const data = await res.json();
                 ASSETS.forEach(id => document.getElementById(`col-${id}`).innerHTML = '');
+                const ticker = document.getElementById('recent-ticker');
+                ticker.innerHTML = '';
+
                 if (!data || data.length === 0) {
-                    document.getElementById('status-bar').innerText = "NO RECENT ACTIVITY";
+                    document.getElementById('status-bar').innerText = "NO ACTIVITY";
                     return;
                 }
+
+                // Global Top 10
+                data.slice(0, 10).forEach(item => {
+                    const isBuy = item.side === 'BUY';
+                    ticker.insertAdjacentHTML('beforeend', `
+                        <div class="flex-shrink-0 bg-gray-900 border border-gray-800 p-1.5 rounded min-w-[120px]">
+                            <div class="text-[7px] font-bold ${isBuy?'text-green-500':'text-red-500'} uppercase">${item.side}</div>
+                            <div class="text-[9px] font-bold text-white truncate w-24">${item.title}</div>
+                            <div class="text-[8px] text-blue-400 font-mono">$${parseFloat(item.usdcSize).toFixed(0)}</div>
+                        </div>
+                    `);
+                });
+
+                // Column Feeds
                 data.forEach(item => {
-                    const title = item.title.toLowerCase();
-                    let col = null;
-                    if (title.includes('btc') || title.includes('bitcoin')) col = 'btc';
-                    else if (title.includes('eth') || title.includes('ethereum')) col = 'eth';
-                    else if (title.includes('sol')) col = 'sol';
-                    else if (title.includes('xrp')) col = 'xrp';
+                    const t = item.title.toLowerCase();
+                    let col = t.includes('btc')||t.includes('bitcoin') ? 'btc' : t.includes('eth')||t.includes('ethereum') ? 'eth' : t.includes('sol') ? 'sol' : t.includes('xrp') ? 'xrp' : null;
                     if (col) document.getElementById(`col-${col}`).insertAdjacentHTML('beforeend', createCard(item));
                 });
                 document.getElementById('status-bar').innerText = `UPDATED: ${new Date().toLocaleTimeString()}`;
@@ -226,31 +175,56 @@
 
         function createCard(item) {
             const isBuy = item.side === 'BUY';
-            const val = item.usdcSize ? parseFloat(item.usdcSize).toLocaleString() : "0";
-            return `
-                <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3">
-                    <div class="flex justify-between text-[9px] font-bold mb-2">
-                        <span class="${isBuy ? 'text-green-500' : 'text-red-400'}">${item.side}</span>
-                        <span class="text-gray-500">${new Date(item.timestamp * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                    </div>
-                    <div class="text-[11px] font-bold text-gray-200 mb-2 truncate">${item.title}</div>
-                    <div class="bg-black/40 p-2 rounded flex justify-between items-center">
-                        <span class="text-xs font-black text-blue-400">$${val}</span>
-                        <a href="https://polymarket.com/event/${item.slug}" target="_blank" class="text-gray-600 hover:text-white">→</a>
-                    </div>
-                </div>`;
+            return `<div class="bg-[#161b22] border border-gray-800 rounded-lg p-2.5">
+                <div class="flex justify-between text-[8px] font-black mb-1">
+                    <span class="${isBuy?'text-green-500':'text-red-500'}">${item.side} ${item.type}</span>
+                    <span class="text-gray-500 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
+                </div>
+                <div class="text-[10px] font-bold text-gray-200 mb-2 leading-tight">${item.title}</div>
+                <div class="flex justify-between items-center bg-black/40 p-1.5 rounded">
+                    <span class="text-[10px] font-black text-blue-400">$${parseFloat(item.usdcSize).toLocaleString()}</span>
+                    <a href="https://polymarket.com/event/${item.slug}" target="_blank" class="text-gray-600 hover:text-white">→</a>
+                </div>
+            </div>`;
+        }
+
+        function updateUser(address = null) {
+            const addr = (address || document.getElementById('wallet-input').value).trim().toLowerCase();
+            if (addr.startsWith('0x') && addr.length === 42) {
+                CURRENT_USER = addr; document.getElementById('wallet-input').value = addr;
+                renderFavorites(); updateStarUI(); sync();
+            }
+        }
+
+        function toggleFavorite() {
+            let favs = JSON.parse(localStorage.getItem('poly_favorites') || '[]');
+            if (favs.includes(CURRENT_USER)) favs = favs.filter(a => a !== CURRENT_USER);
+            else favs.push(CURRENT_USER);
+            localStorage.setItem('poly_favorites', JSON.stringify(favs));
+            renderFavorites(); updateStarUI();
+        }
+
+        function renderFavorites() {
+            const list = document.getElementById('favorites-list');
+            list.innerHTML = '';
+            JSON.parse(localStorage.getItem('poly_favorites') || '[]').forEach(addr => {
+                const isActive = addr === CURRENT_USER;
+                const div = document.createElement('div');
+                div.className = `flex items-center bg-gray-900 border ${isActive?'border-blue-500':'border-gray-800'} rounded overflow-hidden`;
+                div.innerHTML = `<button onclick="updateUser('${addr}')" class="px-2 py-1 text-[9px] font-mono ${isActive?'text-white':'text-gray-500'}">${addr.slice(0,4)}...${addr.slice(-4)}</button>`;
+                list.appendChild(div);
+            });
+        }
+
+        function updateStarUI() {
+            const isFav = JSON.parse(localStorage.getItem('poly_favorites') || '[]').includes(CURRENT_USER);
+            document.getElementById('star-icon').setAttribute('fill', isFav ? '#fbbf24' : 'none');
+            document.getElementById('star-icon').setAttribute('stroke', isFav ? '#fbbf24' : 'currentColor');
         }
 
         function openQR() { document.getElementById('qr-modal').classList.remove('hidden'); }
         function closeQR() { document.getElementById('qr-modal').classList.add('hidden'); }
-        function copyDonation() {
-            navigator.clipboard.writeText("0xE54AA4F86317457D6E89250A55BA9982538dA4Eb");
-            const btn = document.getElementById('donation-addr');
-            btn.innerText = "COPIED!";
-            setTimeout(() => btn.innerText = "0xE54...A4Eb", 2000);
-        }
-        function clearInput() { document.getElementById('wallet-input').value = ''; }
-
+        function copyDonation() { navigator.clipboard.writeText("0xE54AA4F86317457D6E89250A55BA9982538dA4Eb"); }
         init();
     </script>
 </body>
