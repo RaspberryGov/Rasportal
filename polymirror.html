@@ -1,3 +1,5 @@
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -196,29 +198,41 @@
             const value = item.usdcSize ? parseFloat(item.usdcSize).toLocaleString(undefined, {minimumFractionDigits: 2}) : "0.00";
             const price = item.price ? parseFloat(item.price).toFixed(3) : "0.000";
             
-            // Extract Duration (e.g., 5 Minute) from Title
-            function getMarketDuration(title) {
+            // Logic for Duration Parsing and Color Coding
+            let durationText = "Trade";
+            let durationColor = "text-gray-500";
+
+            function parseDuration(title) {
                 const timeRegex = /(\d{1,2}:\d{2}\s?[APM]{2})\s?-\s?(\d{1,2}:\d{2}\s?[APM]{2})/i;
                 const match = title.match(timeRegex);
+                
                 if (match) {
                     const start = new Date(`2000/01/01 ${match[1]}`);
                     const end = new Date(`2000/01/01 ${match[2]}`);
                     let diff = (end - start) / 1000 / 60;
-                    if (diff < 0) diff += 1440; // Handle overnight
-                    if (diff >= 60) return `${Math.floor(diff/60)} Hour`;
-                    return `${Math.floor(diff)} Minute`;
+                    if (diff < 0) diff += 1440; // Handle overnight range
+                    
+                    if (diff > 12 && diff < 18) {
+                        durationText = "15 Minute";
+                        durationColor = "text-orange-500";
+                    } else if (diff > 3 && diff < 7) {
+                        durationText = "5 Minute";
+                        durationColor = "text-green-500";
+                    } else {
+                        durationText = `${Math.floor(diff)} Minute`;
+                        durationColor = "text-blue-400";
+                    }
                 }
-                return "Trade";
             }
 
-            const duration = getMarketDuration(item.title);
+            parseDuration(item.title);
             const polyLink = `https://polymarket.com/event/${item.slug}`;
 
             return `
                 <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-gray-500 transition-all group">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[9px] font-bold text-green-500 uppercase tracking-widest">
-                            ${duration}
+                        <span class="text-[9px] font-bold ${durationColor} uppercase tracking-widest">
+                            ${durationText}
                         </span>
                         <span class="text-[9px] text-gray-600 font-mono">${new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
@@ -227,7 +241,7 @@
                         <span class="text-[11px] font-medium text-gray-300 leading-tight">
                             ${item.title}
                         </span>
-                        <a href="${polyLink}" target="_blank" class="text-gray-600 hover:text-blue-400 transition-colors shrink-0" title="View on Polymarket">
+                        <a href="${polyLink}" target="_blank" class="text-gray-600 hover:text-blue-400 transition-colors shrink-0" title="View Market">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
