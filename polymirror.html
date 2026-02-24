@@ -1,5 +1,3 @@
-HTML
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -198,11 +196,8 @@ HTML
             const value = item.usdcSize ? parseFloat(item.usdcSize).toLocaleString(undefined, {minimumFractionDigits: 2}) : "0.00";
             const price = item.price ? parseFloat(item.price).toFixed(3) : "0.000";
             
-            // Logic for Duration Parsing and Color Coding
-            let durationText = "Trade";
-            let durationColor = "text-gray-500";
-
-            function parseDuration(title) {
+            // Fixed Duration Logic: Specifically checking for 5 or 15 Minute windows
+            function getMarketDuration(title) {
                 const timeRegex = /(\d{1,2}:\d{2}\s?[APM]{2})\s?-\s?(\d{1,2}:\d{2}\s?[APM]{2})/i;
                 const match = title.match(timeRegex);
                 
@@ -210,29 +205,24 @@ HTML
                     const start = new Date(`2000/01/01 ${match[1]}`);
                     const end = new Date(`2000/01/01 ${match[2]}`);
                     let diff = (end - start) / 1000 / 60;
-                    if (diff < 0) diff += 1440; // Handle overnight range
+                    if (diff < 0) diff += 1440; // Correction for overnight ranges
                     
-                    if (diff > 12 && diff < 18) {
-                        durationText = "15 Minute";
-                        durationColor = "text-orange-500";
-                    } else if (diff > 3 && diff < 7) {
-                        durationText = "5 Minute";
-                        durationColor = "text-green-500";
-                    } else {
-                        durationText = `${Math.floor(diff)} Minute`;
-                        durationColor = "text-blue-400";
-                    }
+                    // Round to nearest common market interval
+                    if (diff > 12 && diff < 18) return "15 Minute";
+                    if (diff > 3 && diff < 7) return "5 Minute";
+                    return `${Math.floor(diff)} Minute`;
                 }
+                return "Trade";
             }
 
-            parseDuration(item.title);
+            const duration = getMarketDuration(item.title);
             const polyLink = `https://polymarket.com/event/${item.slug}`;
 
             return `
                 <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-gray-500 transition-all group">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[9px] font-bold ${durationColor} uppercase tracking-widest">
-                            ${durationText}
+                        <span class="text-[9px] font-bold text-green-500 uppercase tracking-widest">
+                            ${duration}
                         </span>
                         <span class="text-[9px] text-gray-600 font-mono">${new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
