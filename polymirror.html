@@ -1,3 +1,7 @@
+I've updated the script to include a 1-second interval for the countdown timers. This ensures that the "Time Left" ticks down in real-time, while the data fetch (the API call) still occurs every 10 seconds to keep the interface smooth and respect API limits.
+
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,29 +35,14 @@
                 </div>
 
                 <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-lg p-1 w-full md:w-auto shadow-xl">
-                    <button onclick="toggleFavorite()" id="fav-btn" class="px-2 text-gray-500 hover:text-yellow-400 transition-colors" title="Favorite current address">
+                    <button onclick="toggleFavorite()" id="fav-btn" class="px-2 text-gray-500 hover:text-yellow-400 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="star-icon">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                         </svg>
                     </button>
-                    <input 
-                        type="text" 
-                        id="wallet-input" 
-                        placeholder="Enter Wallet Address (0x...)" 
-                        class="bg-transparent text-[11px] font-mono px-3 py-1.5 w-full md:w-80 outline-none text-blue-400 placeholder:text-gray-600"
-                        value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d"
-                    >
-                    <button onclick="clearInput()" class="px-2 text-gray-600 hover:text-red-400 transition-colors" title="Clear input">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                    <button 
-                        onclick="updateUser()" 
-                        class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-4 py-1.5 rounded transition uppercase tracking-tighter ml-1"
-                    >
-                        Switch
-                    </button>
+                    <input type="text" id="wallet-input" placeholder="Enter Wallet Address (0x...)" class="bg-transparent text-[11px] font-mono px-3 py-1.5 w-full md:w-80 outline-none text-blue-400 placeholder:text-gray-600" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
+                    <button onclick="clearInput()" class="px-2 text-gray-600 hover:text-red-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                    <button onclick="updateUser()" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-4 py-1.5 rounded transition uppercase tracking-tighter ml-1">Switch</button>
                 </div>
             </div>
 
@@ -92,21 +81,18 @@
             renderFavorites();
             updateStarUI();
             sync();
-            setInterval(sync, 10000);
+            setInterval(sync, 10000); // Fetch data every 10s
+            setInterval(updateAllTimers, 1000); // Tick timers every 1s
         }
 
-        function clearInput() {
-            document.getElementById('wallet-input').value = '';
-        }
+        function clearInput() { document.getElementById('wallet-input').value = ''; }
 
         function updateUser(address = null) {
             const newAddress = address || document.getElementById('wallet-input').value.trim();
             if (newAddress.length === 42 && newAddress.startsWith('0x')) {
                 CURRENT_USER = newAddress;
                 document.getElementById('wallet-input').value = newAddress;
-                ASSETS.forEach(id => {
-                    document.getElementById(`col-${id}`).innerHTML = `<div class="animate-pulse mt-10 text-center text-[10px] text-gray-600">SYNCING...</div>`;
-                });
+                ASSETS.forEach(id => { document.getElementById(`col-${id}`).innerHTML = `<div class="animate-pulse mt-10 text-center text-[10px] text-gray-600">SYNCING...</div>`; });
                 updateStarUI();
                 sync();
             }
@@ -115,29 +101,24 @@
         function toggleFavorite() {
             const addr = CURRENT_USER.toLowerCase();
             const index = favorites.indexOf(addr);
-            if (index > -1) favorites.splice(index, 1);
-            else favorites.push(addr);
+            if (index > -1) favorites.splice(index, 1); else favorites.push(addr);
             localStorage.setItem('poly_favorites', JSON.stringify(favorites));
-            renderFavorites();
-            updateStarUI();
+            renderFavorites(); updateStarUI();
         }
 
         function removeFavorite(addr, e) {
             e.stopPropagation();
             favorites = favorites.filter(a => a !== addr);
             localStorage.setItem('poly_favorites', JSON.stringify(favorites));
-            renderFavorites();
-            updateStarUI();
+            renderFavorites(); updateStarUI();
         }
 
         function updateStarUI() {
             const star = document.getElementById('star-icon');
             if (favorites.includes(CURRENT_USER.toLowerCase())) {
-                star.setAttribute('fill', '#fbbf24');
-                star.setAttribute('stroke', '#fbbf24');
+                star.setAttribute('fill', '#fbbf24'); star.setAttribute('stroke', '#fbbf24');
             } else {
-                star.setAttribute('fill', 'none');
-                star.setAttribute('stroke', 'currentColor');
+                star.setAttribute('fill', 'none'); star.setAttribute('stroke', 'currentColor');
             }
         }
 
@@ -148,17 +129,41 @@
                 const short = addr.slice(0, 4) + '...' + addr.slice(-4);
                 const chip = document.createElement('div');
                 chip.className = `flex items-center bg-gray-900 border ${addr === CURRENT_USER.toLowerCase() ? 'border-blue-500' : 'border-gray-800'} rounded overflow-hidden`;
-                chip.innerHTML = `
-                    <button onclick="updateUser('${addr}')" class="px-2 py-1 text-[10px] font-mono text-gray-400 hover:text-white transition-colors">
-                        ${short}
-                    </button>
+                chip.innerHTML = `<button onclick="updateUser('${addr}')" class="px-2 py-1 text-[10px] font-mono text-gray-400 hover:text-white">${short}</button>
                     <button onclick="removeFavorite('${addr}', event)" class="px-1.5 py-1 bg-gray-800/50 hover:bg-red-900/30 text-gray-600 hover:text-red-400 border-l border-gray-800 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>`;
                 list.appendChild(chip);
             });
+        }
+
+        function updateAllTimers() {
+            document.querySelectorAll('[data-expiry-title]').forEach(el => {
+                const title = el.getAttribute('data-expiry-title');
+                const result = getCountdown(title);
+                el.innerText = result.text;
+                el.className = `text-[10px] font-black uppercase tracking-tighter ${result.color}`;
+            });
+        }
+
+        function getCountdown(title) {
+            const timeRegex = /-\s?(\d{1,2}:\d{2}\s?[APM]{2})\s?ET/i;
+            const match = title.match(timeRegex);
+            if (match) {
+                const endStr = match[1];
+                const now = new Date();
+                const dateET = now.toLocaleDateString('en-US', { timeZone: 'America/New_York' });
+                const endDateTime = new Date(`${dateET} ${endStr}`);
+                const nowET = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                const diffMs = endDateTime - nowET;
+                if (diffMs <= 0) return { text: "EXPIRED", color: "text-red-500" };
+                const totalSecs = Math.floor(diffMs / 1000);
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                const color = mins < 2 ? "text-orange-400" : "text-green-500";
+                return { text: `${mins}:${secs.toString().padStart(2, '0')} LEFT`, color: color };
+            }
+            return { text: "LIVE", color: "text-blue-400" };
         }
 
         async function sync() {
@@ -192,71 +197,28 @@
             if (item.outcomeIndex === "0" || outcome === "yes") direction = "UP";
             else if (item.outcomeIndex === "1" || outcome === "no") direction = "DOWN";
             else if (item.outcome) direction = item.outcome.toUpperCase();
-
+            
             const value = item.usdcSize ? parseFloat(item.usdcSize).toLocaleString(undefined, {minimumFractionDigits: 2}) : "0.00";
             const price = item.price ? parseFloat(item.price).toFixed(3) : "0.000";
-            
-            // --- Helper to extract duration from title ---
-            function getMarketDuration(title) {
-                // Matches patterns like "10:20PM-10:25PM"
-                const timeRegex = /(\d{1,2}:\d{2}\s?[APM]{2})\s?-\s?(\d{1,2}:\d{2}\s?[APM]{2})/i;
-                const match = title.match(timeRegex);
-                
-                if (match) {
-                    const startStr = match[1];
-                    const endStr = match[2];
-                    
-                    // Create dummy dates to calculate difference
-                    const dummyDate = "2026-01-01 ";
-                    const startTime = new Date(dummyDate + startStr);
-                    const endTime = new Date(dummyDate + endStr);
-                    
-                    const diffMs = endTime - startTime;
-                    const diffMins = Math.round(diffMs / 60000);
-                    
-                    // Adjust for midnight wrap-around if necessary
-                    const finalMins = diffMins < 0 ? diffMins + 1440 : diffMins;
-                    
-                    if (finalMins === 5) return { text: "5 Minute Market", color: "text-green-500" };
-                    if (finalMins === 15) return { text: "15 Minute Market", color: "text-orange-500" };
-                    return { text: `${finalMins} Minute Market`, color: "text-blue-400" };
-                }
-                return { text: "Unknown Duration", color: "text-gray-500" };
-            }
-
-            const durationInfo = getMarketDuration(item.title);
-            const polyLink = `https://polymarket.com/event/${item.slug}`;
+            const timer = getCountdown(item.title);
 
             return `
                 <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-gray-500 transition-all group">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[9px] font-bold ${durationInfo.color} uppercase tracking-widest">
-                            ${durationInfo.text}
+                        <span data-expiry-title="${item.title}" class="text-[10px] font-black ${timer.color} uppercase tracking-tighter">
+                            ${timer.text}
                         </span>
                         <span class="text-[9px] text-gray-600 font-mono">${new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
-                    
                     <div class="flex items-start justify-between gap-2 mb-3">
-                        <span class="text-[11px] font-medium text-gray-300 leading-tight">
-                            ${item.title}
-                        </span>
-                        <a href="${polyLink}" target="_blank" class="text-gray-600 hover:text-blue-400 transition-colors shrink-0" title="View Market">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
+                        <span class="text-[11px] font-medium text-gray-300 leading-tight">${item.title}</span>
+                        <a href="https://polymarket.com/event/${item.slug}" target="_blank" class="text-gray-600 hover:text-blue-400 shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         </a>
                     </div>
-
                     <div class="flex justify-between items-end bg-black/40 p-2 rounded border border-gray-800/50">
-                        <div>
-                            <div class="text-[8px] text-gray-500 uppercase font-bold tracking-widest">Position</div>
-                            <div class="text-sm font-black ${direction === 'UP' ? 'text-green-400' : 'text-red-400'}">${direction}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-[8px] text-gray-500 uppercase font-bold tracking-widest">Value</div>
-                            <div class="text-xs font-mono font-bold text-white">$${value}</div>
-                            <div class="text-[9px] text-gray-600 font-mono">$${price}</div>
-                        </div>
+                        <div><div class="text-[8px] text-gray-500 uppercase font-bold tracking-widest">Position</div><div class="text-sm font-black ${direction === 'UP' ? 'text-green-400' : 'text-red-400'}">${direction}</div></div>
+                        <div class="text-right"><div class="text-[8px] text-gray-500 uppercase font-bold tracking-widest">Value</div><div class="text-xs font-mono font-bold text-white">$${value}</div><div class="text-[9px] text-gray-600 font-mono">$${price}</div></div>
                     </div>
                 </div>`;
         }
