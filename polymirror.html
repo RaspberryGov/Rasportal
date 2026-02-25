@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poly Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -12,42 +13,57 @@
         .flash-red { animation: flash 1s infinite; color: #ff4444 !important; }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         body { font-size: 12px; line-height: 1.2; }
-        .wallet-tab { cursor: pointer; font-size: 10px; transition: 0.2s; white-space: nowrap; }
+        .wallet-tab { cursor: pointer; font-size: 10px; transition: 0.2s; white-space: nowrap; border: 1px solid #30363d; }
         .active-tab { background: #238636 !important; color: white; border-color: #2ea043; }
         #qrcode img { margin: 0 auto; border: 4px solid white; border-radius: 4px; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 12px; max-width: 320px; width: 100%; text-align: center; }
     </style>
 </head>
 <body class="bg-[#0b0e14] text-slate-200 font-sans p-3">
+
+    <div id="supportModal" class="modal-overlay">
+        <div class="modal-content shadow-2xl">
+            <h3 class="text-white font-black uppercase text-sm mb-4 italic tracking-tight">Support Development</h3>
+            <div id="qrcode" class="mb-4 flex justify-center cursor-pointer" onclick="copyAddr()"></div>
+            <div class="text-[10px] font-mono text-blue-400 break-all mb-3 p-2 bg-black/30 rounded border border-gray-800 cursor-pointer" onclick="copyAddr()">
+                0xE54AA4F86317457D6E89250A55BA9982538dA4Eb
+            </div>
+            <p class="text-[9px] font-bold text-orange-500 uppercase leading-tight mb-4 px-2">
+                Only send ETH, USDT or USDC on Ethereum to this address!
+            </p>
+            <div id="copy-msg" class="text-[8px] text-green-500 font-bold uppercase mb-4 opacity-0 transition-opacity">Address Copied!</div>
+            <button onclick="toggleSupport(false)" class="w-full py-2 bg-gray-800 hover:bg-gray-700 text-white text-[10px] font-black uppercase rounded transition-colors">Close</button>
+        </div>
+    </div>
 
     <div class="max-w-4xl mx-auto">
         <header class="flex flex-col items-center mb-3 text-center">
             <h1 class="text-xl font-black text-white italic uppercase tracking-tighter">Poly Monitor</h1>
             <p class="text-[8px] text-gray-500 uppercase tracking-[0.3em] -mt-1">developed by Freeberry</p>
             
-            <div class="flex mt-2 w-full max-w-sm bg-[#161b22] border border-gray-700 rounded p-0.5">
+            <div class="flex mt-2 w-full max-w-sm bg-[#161b22] border border-gray-700 rounded p-0.5 shadow-xl">
                 <input type="text" id="wallet" class="bg-transparent px-2 py-1 text-[11px] font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="saveWallet()" class="px-2 text-gray-400 hover:text-yellow-500 text-base" title="Favorite">★</button>
-                <button onclick="sync()" class="bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-500 ml-1">Track</button>
+                <button onclick="saveWallet()" class="px-2 text-gray-400 hover:text-yellow-500 text-base transition-colors" title="Favorite">★</button>
+                <button onclick="sync()" class="bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-500 ml-1 transition-colors">Track</button>
             </div>
 
-            <div id="favorites-bar" class="flex flex-wrap gap-1.5 mt-2 justify-center"></div>
+            <div id="favorites-bar" class="flex flex-wrap gap-1.5 mt-2 justify-center min-h-[24px]"></div>
 
-            <div class="mt-3 p-3 bg-[#161b22] border border-gray-800 rounded-lg max-w-xs w-full">
-                <div id="qrcode" class="mb-2 flex justify-center cursor-pointer" onclick="copyAddr()" title="Click to copy address"></div>
-                <div class="text-[9px] font-mono text-blue-400 break-all mb-1 cursor-pointer" onclick="copyAddr()" id="devAddr">0xE54AA4F86317457D6E89250A55BA9982538dA4Eb</div>
-                <p class="text-[8px] font-bold text-orange-500 uppercase leading-tight">Only send ETH, USDT or USDC on Ethereum to this address!</p>
-                <div id="copy-msg" class="text-[7px] text-green-500 font-bold uppercase mt-1 opacity-0 transition-opacity">Address Copied!</div>
-            </div>
+            <button onclick="toggleSupport(true)" class="mt-2 bg-[#238636] hover:bg-[#2ea043] text-white text-[8px] font-bold py-1 px-4 rounded-full uppercase tracking-wider transition-all inline-flex items-center gap-1.5 shadow-lg">
+                ☕ Support Development
+            </button>
         </header>
 
         <div class="grid grid-cols-2 gap-3 mb-3">
             <div class="space-y-2">
-                <h2 class="bg-orange-600 text-black text-[9px] font-black py-0.5 rounded text-center uppercase tracking-tighter">Bitcoin Monitor</h2>
+                <h2 class="bg-orange-600 text-black text-[9px] font-black py-0.5 rounded text-center uppercase tracking-tighter shadow-md">Bitcoin Monitor</h2>
                 <div id="btc-5m-box"></div>
                 <div id="btc-15m-box"></div>
             </div>
             <div class="space-y-2">
-                <h2 class="bg-blue-600 text-black text-[9px] font-black py-0.5 rounded text-center uppercase tracking-tighter">Ethereum Monitor</h2>
+                <h2 class="bg-blue-600 text-black text-[9px] font-black py-0.5 rounded text-center uppercase tracking-tighter shadow-md">Ethereum Monitor</h2>
                 <div id="eth-5m-box"></div>
                 <div id="eth-15m-box"></div>
             </div>
@@ -56,8 +72,8 @@
         <hr class="border-gray-800/50 mb-3">
 
         <div class="grid grid-cols-2 gap-3">
-            <div id="feed-btc" class="h-[40vh] overflow-y-auto custom-scrollbar space-y-1 pr-1"></div>
-            <div id="feed-eth" class="h-[40vh] overflow-y-auto custom-scrollbar space-y-1 pr-1"></div>
+            <div id="feed-btc" class="h-[48vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1"></div>
+            <div id="feed-eth" class="h-[48vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1"></div>
         </div>
     </div>
 
@@ -68,15 +84,14 @@
         const ASSETS = ['btc', 'eth'];
         let favorites = JSON.parse(localStorage.getItem('poly_favorites') || '[]');
 
-        // Generate QR Code
-        new QRCode(document.getElementById("qrcode"), {
-            text: DONATION_ADDR,
-            width: 80,
-            height: 80,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+        // QR Library Initialization
+        const qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: DONATION_ADDR, width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
         });
+
+        function toggleSupport(show) {
+            document.getElementById('supportModal').style.display = show ? 'flex' : 'none';
+        }
 
         function copyAddr() {
             navigator.clipboard.writeText(DONATION_ADDR);
@@ -90,11 +105,14 @@
             const msInWindow = mins * 60 * 1000;
             const timeRemaining = msInWindow - (now.getTime() % msInWindow);
             const totalSecs = Math.floor(timeRemaining / 1000);
-            return { str: `${Math.floor(totalSecs / 60)}:${(totalSecs % 60).toString().padStart(2,'0')}`, isCritical: totalSecs <= 10 };
+            return { 
+                str: `${Math.floor(totalSecs / 60)}:${(totalSecs % 60).toString().padStart(2,'0')}`, 
+                isCritical: totalSecs <= 10 
+            };
         }
 
         function saveWallet() {
-            const val = document.getElementById('wallet').value.trim();
+            const val = document.getElementById('wallet').value.trim().toLowerCase();
             if (val && !favorites.includes(val)) {
                 favorites.push(val);
                 localStorage.setItem('poly_favorites', JSON.stringify(favorites));
@@ -112,8 +130,8 @@
         function renderFavorites() {
             const bar = document.getElementById('favorites-bar');
             bar.innerHTML = favorites.map(addr => `
-                <div onclick="switchWallet('${addr}')" class="wallet-tab flex items-center gap-1.5 px-2 py-0.5 bg-[#161b22] border border-gray-700 rounded ${addr === CURRENT_WALLET ? 'active-tab' : 'text-gray-400'}">
-                    <span>${addr.substring(0,6)}...</span>
+                <div onclick="switchWallet('${addr}')" class="wallet-tab flex items-center gap-1.5 px-2 py-0.5 bg-[#161b22] rounded ${addr.toLowerCase() === CURRENT_WALLET.toLowerCase() ? 'active-tab' : 'text-gray-400'}">
+                    <span class="font-mono">${addr.substring(0,6)}...${addr.substring(addr.length-4)}</span>
                     <span onclick="removeFavorite('${addr}', event)" class="hover:text-red-500 font-bold px-0.5">×</span>
                 </div>
             `).join('');
@@ -128,13 +146,18 @@
 
         function initData() {
             ASSETS.forEach(a => {
-                DATA[a] = { "5m": { activeId: null, upC: 0, upV: 0, downC: 0, downV: 0 }, "15m": { activeId: null, upC: 0, upV: 0, downC: 0, downV: 0 } };
+                DATA[a] = { 
+                    "5m": { activeId: null, upC: 0, upV: 0, downC: 0, downV: 0 }, 
+                    "15m": { activeId: null, upC: 0, upV: 0, downC: 0, downV: 0 } 
+                };
             });
         }
 
         async function sync() {
-            CURRENT_WALLET = document.getElementById('wallet').value.trim();
-            if(!CURRENT_WALLET) return;
+            const inputVal = document.getElementById('wallet').value.trim();
+            if(!inputVal) return;
+            CURRENT_WALLET = inputVal;
+            
             try {
                 const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_WALLET}&limit=100`);
                 const trades = await res.json();
@@ -149,6 +172,7 @@
                     const marketId = slug.split('-').pop();
 
                     if (!DATA[asset][tf].activeId) DATA[asset][tf].activeId = marketId;
+                    
                     if (marketId === DATA[asset][tf].activeId) {
                         const isDown = (t.outcomeIndex == "1") || (t.outcome?.toLowerCase().includes('no') || t.outcome?.toLowerCase().includes('down'));
                         const vol = parseFloat(t.usdcSize) || 0;
@@ -158,7 +182,7 @@
                     renderRow(asset, t);
                 });
                 updateUI();
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Sync Error:", err); }
         }
 
         function updateUI() {
@@ -166,22 +190,21 @@
                 ['5m', '15m'].forEach(tf => {
                     const d = DATA[a][tf];
                     const cd = getCountdownData(tf === '5m' ? 5 : 15);
-                    const container = document.getElementById(`${a}-${tf}-box`);
-                    if(!container) return;
-                    container.innerHTML = `
-                        <div class="stat-card">
-                            <div class="flex justify-between items-center mb-1 text-[8px] font-mono uppercase">
-                                <span class="text-blue-400 font-bold">${tf} Window</span>
-                                <span class="${cd.isCritical ? 'flash-red' : 'text-yellow-500'} font-bold">RESET: ${cd.str}</span>
+                    const el = document.getElementById(`${a}-${tf}-box`);
+                    if(el) el.innerHTML = `
+                        <div class="stat-card shadow-sm">
+                            <div class="flex justify-between items-center mb-1 text-[8px] font-mono uppercase font-bold">
+                                <span class="text-blue-400">${tf} Window</span>
+                                <span class="${cd.isCritical ? 'flash-red' : 'text-yellow-500'}">RESET: ${cd.str}</span>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600">
-                                    <div class="text-[7px] text-gray-500 font-bold uppercase">UP</div>
-                                    <div class="text-lg font-black text-green-400">${d.upC} <span class="text-[9px] text-gray-600 font-normal ml-1">$${Math.round(d.upV)}</span></div>
+                                    <div class="text-[7px] text-gray-500 uppercase">UP</div>
+                                    <div class="text-lg font-black text-green-400 leading-none">${d.upC} <span class="text-[9px] text-gray-600 font-normal ml-0.5">$${Math.round(d.upV)}</span></div>
                                 </div>
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600">
-                                    <div class="text-[7px] text-gray-500 font-bold uppercase">DOWN</div>
-                                    <div class="text-lg font-black text-red-400">${d.downC} <span class="text-[9px] text-gray-600 font-normal ml-1">$${Math.round(d.downV)}</span></div>
+                                    <div class="text-[7px] text-gray-500 uppercase">DOWN</div>
+                                    <div class="text-lg font-black text-red-400 leading-none">${d.downC} <span class="text-[9px] text-gray-600 font-normal ml-0.5">$${Math.round(d.downV)}</span></div>
                                 </div>
                             </div>
                         </div>`;
@@ -194,10 +217,10 @@
             const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
             const is15m = t.slug.includes('15m') || t.title.toLowerCase().includes('15 min');
             const html = `
-                <div class="bg-[#161b22] border border-gray-800 rounded p-1.5 text-[9px]">
+                <div class="bg-[#161b22] border border-gray-800 rounded p-1.5 text-[9px] hover:border-gray-600 transition-colors">
                     <div class="flex justify-between text-[7px] text-gray-500 mb-0.5 font-mono uppercase font-bold">
                         <span>${is15m?'15M':'5M'}</span>
-                        <span>${new Date(t.timestamp*1000).toLocaleTimeString([], {hour12:false})}</span>
+                        <span>${new Date(t.timestamp*1000).toLocaleTimeString([], {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'})}</span>
                     </div>
                     <div class="truncate font-bold text-gray-300 mb-1 text-[11px] tracking-tight">${t.title}</div>
                     <div class="flex justify-between items-center bg-black/30 p-1 rounded">
@@ -209,6 +232,7 @@
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
         }
 
+        // Startup
         renderFavorites();
         setInterval(sync, 8000); 
         setInterval(updateUI, 1000); 
