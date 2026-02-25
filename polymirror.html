@@ -33,19 +33,19 @@
 
         <div id="grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="flex flex-col h-[75vh]">
-                <h2 class="bg-orange-500 text-black text-[10px] font-black p-2 mb-2 rounded text-center uppercase">Bitcoin (5M/15M)</h2>
+                <h2 class="bg-orange-500 text-black text-[10px] font-black p-2 mb-2 rounded text-center uppercase tracking-wider">Bitcoin</h2>
                 <div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
             </div>
             <div class="flex flex-col h-[75vh]">
-                <h2 class="bg-blue-500 text-black text-[10px] font-black p-2 mb-2 rounded text-center uppercase">Ethereum (5M/15M)</h2>
+                <h2 class="bg-blue-500 text-black text-[10px] font-black p-2 mb-2 rounded text-center uppercase tracking-wider">Ethereum</h2>
                 <div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
             </div>
             <div class="flex flex-col h-[75vh]">
-                <h2 class="bg-purple-500 text-black text-[10px] font-black p-2 mb-2 rounded text-center uppercase">Solana (5M/15M)</h2>
+                <h2 class="bg-purple-500 text-black text-[10px] font-black p-2 mb-2 rounded text-center uppercase tracking-wider">Solana</h2>
                 <div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
             </div>
             <div class="flex flex-col h-[75vh]">
-                <h2 class="bg-teal-500 text-black text-[10px] font-black p-2 mb-2 rounded text-center uppercase">XRP (5M/15M)</h2>
+                <h2 class="bg-teal-500 text-black text-[10px] font-black p-2 mb-2 rounded text-center uppercase tracking-wider">XRP</h2>
                 <div id="col-xrp" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
             </div>
         </div>
@@ -55,9 +55,15 @@
         let CURRENT_USER = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
         const ASSETS = ['btc', 'eth', 'sol', 'xrp'];
 
+        // Regex to find time windows like "9:25PM-9:30PM"
+        function extractTimeWindow(title) {
+            const timeRegex = /(\d{1,2}:\d{2}(?:AM|PM|am|pm)-\d{1,2}:\d{2}(?:AM|PM|am|pm))/;
+            const match = title.match(timeRegex);
+            return match ? match[0] : "SHORT-TERM";
+        }
+
         async function sync() {
             try {
-                // Fetch more activity to ensure we find matches after filtering
                 const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_USER}&limit=100`);
                 const data = await res.json();
                 
@@ -69,71 +75,80 @@
                 }
 
                 data.forEach(item => {
-                    const title = item.title.toLowerCase();
+                    const title = item.title;
+                    const lowerTitle = title.toLowerCase();
                     
-                    // Filter 1: Check if it's an "Up or Down" short-term market
-                    const isUpDown = title.includes('up or down');
+                    // Filter specifically for 5M and 15M markets
+                    const is5M = lowerTitle.includes('5 min') || lowerTitle.includes('5-min');
+                    const is15M = lowerTitle.includes('15 min') || lowerTitle.includes('15-min');
+                    const isUpDown = lowerTitle.includes('up or down');
                     
-                    // Filter 2: Detect timeframe (5M vs 15M)
-                    let timeframe = "";
-                    if (title.includes('5 min') || title.includes('5-min') || title.includes('5 minute')) timeframe = "5 MIN";
-                    else if (title.includes('15 min') || title.includes('15-min') || title.includes('15 minute')) timeframe = "15 MIN";
+                    if (!is5M && !is15M && !isUpDown) return;
 
-                    // Only proceed if it's a short-term market
-                    if (!timeframe && !isUpDown) return;
-                    if (!timeframe) timeframe = "SHORT-TERM"; // Fallback label
-
-                    // Filter 3: Identify Asset
                     let assetKey = null;
-                    if (title.includes('btc') || title.includes('bitcoin')) assetKey = 'btc';
-                    else if (title.includes('eth') || title.includes('ethereum')) assetKey = 'eth';
-                    else if (title.includes('sol')) assetKey = 'sol';
-                    else if (title.includes('xrp')) assetKey = 'xrp';
+                    if (lowerTitle.includes('btc') || lowerTitle.includes('bitcoin')) assetKey = 'btc';
+                    else if (lowerTitle.includes('eth') || lowerTitle.includes('ethereum')) assetKey = 'eth';
+                    else if (lowerTitle.includes('sol')) assetKey = 'sol';
+                    else if (lowerTitle.includes('xrp')) assetKey = 'xrp';
                     
                     if (assetKey) {
-                        renderCard(assetKey, item, timeframe);
+                        const timeWindow = extractTimeWindow(title);
+                        renderCard(assetKey, item, timeWindow);
                     }
                 });
                 
                 document.getElementById('status-bar').innerText = `UPDATED: ${new Date().toLocaleTimeString()}`;
             } catch (e) { 
-                console.error(e);
                 document.getElementById('status-bar').innerText = "CONNECTION ERROR"; 
             }
         }
 
-        function renderCard(columnId, item, timeframe) {
-            const side = item.side === 'BUY' ? 'BOUGHT' : 'SOLD';
-            const color = item.side === 'BUY' ? 'text-green-400' : 'text-red-400';
-            const price = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
-            
-            // Determine if betting UP (Yes) or DOWN (No)
-            let prediction = "UNKNOWN";
-            if (item.outcomeIndex === "0" || item.outcome?.toLowerCase() === 'yes') prediction = "UP";
-            else if (item.outcomeIndex === "1" || item.outcome?.toLowerCase() === 'no') prediction = "DOWN";
+        function renderCard(columnId, item, timeWindow) {
+            // Determine Market Direction: outcomeIndex 0 is UP (Yes), 1 is DOWN (No)
+            let direction = "UNKNOWN";
+            const outcome = item.outcome?.toLowerCase();
+            if (item.outcomeIndex === "0" || outcome === 'yes') direction = "UP";
+            else if (item.outcomeIndex === "1" || outcome === 'no') direction = "DOWN";
+
+            const isBuy = item.side === 'BUY';
+            const actionColor = isBuy ? 'text-green-400' : 'text-red-400';
+            const directionColor = direction === 'UP' ? 'text-green-500' : 'text-red-500';
+
+            // Fixed Price Calculation: usdcSize is total $ spent, size is number of shares
+            const sharePrice = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
 
             const html = `
                 <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-blue-500/50 transition-all shadow-lg">
                     <div class="flex justify-between items-center mb-2">
-                        <span class="text-[9px] font-black bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20">${timeframe}</span>
-                        <span class="text-[10px] text-gray-500 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                        <span class="text-[9px] font-black bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 uppercase tracking-tighter">${timeWindow}</span>
+                        <span class="text-[10px] text-gray-400 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                     </div>
-                    <div class="text-[12px] font-bold text-white mb-3 line-clamp-2">${item.title}</div>
-                    <div class="flex justify-between items-center bg-black/40 p-2 rounded border border-gray-800/50">
-                        <div class="text-center">
-                            <div class="text-[8px] text-gray-500 uppercase font-bold">Side</div>
-                            <div class="text-[11px] font-black ${color}">${side}</div>
+                    
+                    <div class="text-[12px] font-bold text-white mb-3">
+                        ${item.title}
+                        <a href="https://polymarket.com/event/${item.slug}" target="_blank" class="inline-block ml-1 text-blue-500 hover:text-blue-300">
+                            <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1 bg-black/40 p-2 rounded border border-gray-800/50">
+                        <div class="text-center border-r border-gray-800">
+                            <div class="text-[8px] text-gray-500 uppercase font-bold">Position</div>
+                            <div class="text-[11px] font-black ${directionColor}">${direction}</div>
                         </div>
-                        <div class="text-center">
-                            <div class="text-[8px] text-gray-500 uppercase font-bold">Bet</div>
-                            <div class="text-[11px] font-black ${prediction === 'UP' ? 'text-green-500' : 'text-red-500'}">${prediction}</div>
+                        <div class="text-center border-r border-gray-800">
+                            <div class="text-[8px] text-gray-500 uppercase font-bold">Price</div>
+                            <div class="text-[11px] font-mono font-bold text-yellow-500">${sharePrice}¢</div>
                         </div>
                         <div class="text-center">
                             <div class="text-[8px] text-gray-500 uppercase font-bold">Size</div>
                             <div class="text-[11px] font-mono font-bold text-blue-400">$${Math.round(item.usdcSize)}</div>
                         </div>
                     </div>
-                    <a href="https://polymarket.com/event/${item.slug}" target="_blank" class="text-[9px] text-gray-600 hover:text-white block mt-2 text-right italic">View Market →</a>
+                    
+                    <div class="mt-2 text-[9px] font-bold text-center tracking-widest ${actionColor} opacity-80 uppercase">
+                        ${item.side} ACTION
+                    </div>
                 </div>
             `;
             document.getElementById(`col-${columnId}`).insertAdjacentHTML('beforeend', html);
@@ -147,9 +162,8 @@
             }
         }
 
-        // Initialize and Set Interval
         sync();
-        setInterval(sync, 15000); // Refresh every 15 seconds
+        setInterval(sync, 15000);
     </script>
 </body>
 </html>
