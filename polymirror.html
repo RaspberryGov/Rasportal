@@ -16,7 +16,6 @@
         .wallet-tab { cursor: pointer; font-size: 10px; transition: 0.2s; white-space: nowrap; border: 1px solid #30363d; }
         .active-tab { background: #238636 !important; color: white; border-color: #2ea043; }
         #qrcode img { margin: 0 auto; border: 4px solid white; border-radius: 4px; }
-        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 12px; max-width: 320px; width: 100%; text-align: center; }
     </style>
@@ -45,12 +44,10 @@
             
             <div class="flex mt-2 w-full max-w-sm bg-[#161b22] border border-gray-700 rounded p-0.5 shadow-xl">
                 <input type="text" id="wallet" class="bg-transparent px-2 py-1 text-[11px] font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="saveWallet()" class="px-2 text-gray-400 hover:text-yellow-500 text-base transition-colors" title="Favorite">★</button>
+                <button onclick="saveWallet()" class="px-2 text-gray-400 hover:text-yellow-500 text-base transition-colors">★</button>
                 <button onclick="sync()" class="bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-500 ml-1 transition-colors">Track</button>
             </div>
-
             <div id="favorites-bar" class="flex flex-wrap gap-1.5 mt-2 justify-center min-h-[24px]"></div>
-
             <button onclick="toggleSupport(true)" class="mt-2 bg-[#238636] hover:bg-[#2ea043] text-white text-[8px] font-bold py-1 px-4 rounded-full uppercase tracking-wider transition-all inline-flex items-center gap-1.5 shadow-lg">
                 ☕ Support Development
             </button>
@@ -70,7 +67,6 @@
         </div>
 
         <hr class="border-gray-800/50 mb-3">
-
         <div class="grid grid-cols-2 gap-3">
             <div id="feed-btc" class="h-[48vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1"></div>
             <div id="feed-eth" class="h-[48vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1"></div>
@@ -84,71 +80,38 @@
         const ASSETS = ['btc', 'eth'];
         let favorites = JSON.parse(localStorage.getItem('poly_favorites') || '[]');
 
-        // QR Library Initialization
         const qrcode = new QRCode(document.getElementById("qrcode"), {
             text: DONATION_ADDR, width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
         });
 
-        function toggleSupport(show) {
-            document.getElementById('supportModal').style.display = show ? 'flex' : 'none';
-        }
-
-        function copyAddr() {
-            navigator.clipboard.writeText(DONATION_ADDR);
-            const msg = document.getElementById('copy-msg');
-            msg.style.opacity = '1';
-            setTimeout(() => msg.style.opacity = '0', 2000);
-        }
+        function toggleSupport(show) { document.getElementById('supportModal').style.display = show ? 'flex' : 'none'; }
+        function copyAddr() { navigator.clipboard.writeText(DONATION_ADDR); document.getElementById('copy-msg').style.opacity = '1'; setTimeout(() => document.getElementById('copy-msg').style.opacity = '0', 2000); }
 
         function getCountdownData(mins) {
             const now = new Date();
             const msInWindow = mins * 60 * 1000;
             const timeRemaining = msInWindow - (now.getTime() % msInWindow);
             const totalSecs = Math.floor(timeRemaining / 1000);
-            return { 
-                str: `${Math.floor(totalSecs / 60)}:${(totalSecs % 60).toString().padStart(2,'0')}`, 
-                isCritical: totalSecs <= 10 
-            };
+            return { str: `${Math.floor(totalSecs / 60)}:${(totalSecs % 60).toString().padStart(2,'0')}`, isCritical: totalSecs <= 10 };
         }
 
         function saveWallet() {
             const val = document.getElementById('wallet').value.trim().toLowerCase();
-            if (val && !favorites.includes(val)) {
-                favorites.push(val);
-                localStorage.setItem('poly_favorites', JSON.stringify(favorites));
-                renderFavorites();
-            }
-        }
-
-        function removeFavorite(addr, e) {
-            e.stopPropagation();
-            favorites = favorites.filter(f => f !== addr);
-            localStorage.setItem('poly_favorites', JSON.stringify(favorites));
-            renderFavorites();
+            if (val && !favorites.includes(val)) { favorites.push(val); localStorage.setItem('poly_favorites', JSON.stringify(favorites)); renderFavorites(); }
         }
 
         function renderFavorites() {
             const bar = document.getElementById('favorites-bar');
-            bar.innerHTML = favorites.map(addr => `
-                <div onclick="switchWallet('${addr}')" class="wallet-tab flex items-center gap-1.5 px-2 py-0.5 bg-[#161b22] rounded ${addr.toLowerCase() === CURRENT_WALLET.toLowerCase() ? 'active-tab' : 'text-gray-400'}">
-                    <span class="font-mono">${addr.substring(0,6)}...${addr.substring(addr.length-4)}</span>
-                    <span onclick="removeFavorite('${addr}', event)" class="hover:text-red-500 font-bold px-0.5">×</span>
-                </div>
-            `).join('');
+            bar.innerHTML = favorites.map(addr => `<div onclick="switchWallet('${addr}')" class="wallet-tab flex items-center gap-1.5 px-2 py-0.5 bg-[#161b22] rounded ${addr.toLowerCase() === CURRENT_WALLET.toLowerCase() ? 'active-tab' : 'text-gray-400'}"><span class="font-mono">${addr.substring(0,6)}...${addr.substring(addr.length-4)}</span><span onclick="event.stopPropagation(); favorites=favorites.filter(f=>f!=='${addr}'); localStorage.setItem('poly_favorites', JSON.stringify(favorites)); renderFavorites();" class="hover:text-red-500 font-bold px-0.5">×</span></div>`).join('');
         }
 
-        function switchWallet(addr) {
-            CURRENT_WALLET = addr;
-            document.getElementById('wallet').value = addr;
-            renderFavorites();
-            sync();
-        }
+        function switchWallet(addr) { CURRENT_WALLET = addr; document.getElementById('wallet').value = addr; renderFavorites(); sync(); }
 
         function initData() {
             ASSETS.forEach(a => {
                 DATA[a] = { 
-                    "5m": { activeId: null, upC: 0, upV: 0, downC: 0, downV: 0 }, 
-                    "15m": { activeId: null, upC: 0, upV: 0, downC: 0, downV: 0 } 
+                    "5m": { activeId: null, upC: 0, upV: 0, downC: 0, downV: 0, upShares: 0, downShares: 0, upSpent: 0, downSpent: 0 }, 
+                    "15m": { activeId: null, upC: 0, upV: 0, downC: 0, downV: 0, upShares: 0, downShares: 0, upSpent: 0, downSpent: 0 } 
                 };
             });
         }
@@ -176,8 +139,19 @@
                     if (marketId === DATA[asset][tf].activeId) {
                         const isDown = (t.outcomeIndex == "1") || (t.outcome?.toLowerCase().includes('no') || t.outcome?.toLowerCase().includes('down'));
                         const vol = parseFloat(t.usdcSize) || 0;
-                        if (isDown) { DATA[asset][tf].downC++; DATA[asset][tf].downV += vol; }
-                        else { DATA[asset][tf].upC++; DATA[asset][tf].upV += vol; }
+                        const shares = parseFloat(t.size) || 0;
+                        
+                        if (isDown) { 
+                            DATA[asset][tf].downC++; 
+                            DATA[asset][tf].downV += vol;
+                            DATA[asset][tf].downShares += shares;
+                            DATA[asset][tf].downSpent += vol;
+                        } else { 
+                            DATA[asset][tf].upC++; 
+                            DATA[asset][tf].upV += vol;
+                            DATA[asset][tf].upShares += shares;
+                            DATA[asset][tf].upSpent += vol;
+                        }
                     }
                     renderRow(asset, t);
                 });
@@ -190,6 +164,14 @@
                 ['5m', '15m'].forEach(tf => {
                     const d = DATA[a][tf];
                     const cd = getCountdownData(tf === '5m' ? 5 : 15);
+                    
+                    // Simple P&L Logic: (Current Share Value - Amount Spent)
+                    // Note: In Polymarket activity, usdcSize is what they paid. 
+                    // Current value per share is essentially the market price, but since we are tracking 
+                    // historical activity, we represent P&L as the difference between size and cost if it closed.
+                    const upPL = (d.upShares - d.upSpent).toFixed(2);
+                    const downPL = (d.downShares - d.downSpent).toFixed(2);
+
                     const el = document.getElementById(`${a}-${tf}-box`);
                     if(el) el.innerHTML = `
                         <div class="stat-card shadow-sm">
@@ -199,11 +181,11 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600">
-                                    <div class="text-[7px] text-gray-500 uppercase">UP</div>
+                                    <div class="flex justify-between items-center"><div class="text-[7px] text-gray-500 uppercase">UP</div> <div class="text-[7px] ${upPL >= 0 ? 'text-green-400' : 'text-red-400'} font-bold">P&L: $${upPL}</div></div>
                                     <div class="text-lg font-black text-green-400 leading-none">${d.upC} <span class="text-[9px] text-gray-600 font-normal ml-0.5">$${Math.round(d.upV)}</span></div>
                                 </div>
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600">
-                                    <div class="text-[7px] text-gray-500 uppercase">DOWN</div>
+                                    <div class="flex justify-between items-center"><div class="text-[7px] text-gray-500 uppercase">DOWN</div> <div class="text-[7px] ${downPL >= 0 ? 'text-green-400' : 'text-red-400'} font-bold">P&L: $${downPL}</div></div>
                                     <div class="text-lg font-black text-red-400 leading-none">${d.downC} <span class="text-[9px] text-gray-600 font-normal ml-0.5">$${Math.round(d.downV)}</span></div>
                                 </div>
                             </div>
@@ -232,7 +214,6 @@
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
         }
 
-        // Startup
         renderFavorites();
         setInterval(sync, 8000); 
         setInterval(updateUI, 1000); 
