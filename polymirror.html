@@ -102,18 +102,20 @@
         }
 
         function renderCard(columnId, item, timeWindow) {
-            // Determine Direction
-            let direction = "UP"; // Default to Yes/UP
+            // FIX: Correctly determine Direction (UP/DOWN)
+            // Polymarket: outcomeIndex "0" is usually YES/UP, "1" is NO/DOWN
+            let direction = "UP";
             const outcome = item.outcome?.toLowerCase();
-            if (item.outcomeIndex === "1" || outcome === 'no') direction = "DOWN";
+            if (item.outcomeIndex === "1" || outcome === 'no') {
+                direction = "DOWN";
+            }
 
-            // Price Calculation
-            const priceVal = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
-            const posString = `$${priceVal}/${direction}`;
-            
             const isBuy = item.side === 'BUY';
             const actionColor = isBuy ? 'text-green-400' : 'text-red-400';
-            const posColor = direction === 'UP' ? 'text-green-500' : 'text-red-500';
+            const dirColor = direction === 'UP' ? 'text-green-500' : 'text-red-500';
+
+            // Price Calculation (e.g., 0.65)
+            const sharePrice = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
 
             const html = `
                 <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-blue-500/50 transition-all shadow-lg">
@@ -129,14 +131,18 @@
                         </a>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 bg-black/40 p-2 rounded border border-gray-800/50">
+                    <div class="grid grid-cols-3 gap-1 bg-black/40 p-2 rounded border border-gray-800/50">
                         <div class="text-center border-r border-gray-800">
                             <div class="text-[8px] text-gray-500 uppercase font-bold mb-1">Position</div>
-                            <div class="text-[12px] font-black ${posColor}">${posString}</div>
+                            <div class="text-[11px] font-black ${dirColor}">${direction}</div>
+                        </div>
+                        <div class="text-center border-r border-gray-800">
+                            <div class="text-[8px] text-gray-500 uppercase font-bold mb-1">Price</div>
+                            <div class="text-[11px] font-mono font-bold text-yellow-500">${sharePrice}¢</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-[8px] text-gray-500 uppercase font-bold mb-1">Total Value</div>
-                            <div class="text-[12px] font-mono font-black text-blue-400">$${Math.round(item.usdcSize)}</div>
+                            <div class="text-[8px] text-gray-500 uppercase font-bold mb-1">Total</div>
+                            <div class="text-[11px] font-mono font-bold text-blue-400">$${Math.round(item.usdcSize)}</div>
                         </div>
                     </div>
                     
