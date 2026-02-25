@@ -10,6 +10,8 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #1a1c23; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
         .stat-box { background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 4px; }
+        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .timer-active { animation: flash 2s infinite; }
     </style>
 </head>
 <body class="bg-[#0b0e14] text-slate-200 font-sans p-2">
@@ -24,8 +26,7 @@
             <div id="status-bar" class="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Awaiting Live Feed...</div>
         </header>
 
-        <div id="analytics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-            </div>
+        <div id="analytics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6"></div>
 
         <hr class="border-gray-800/50 mb-6">
 
@@ -45,25 +46,38 @@
         function resetStats() {
             ASSETS.forEach(a => {
                 stats[a] = {
-                    "5 MINUTE": { upCount: 0, upVol: 0, downCount: 0, downVol: 0 },
-                    "15 MINUTE": { upCount: 0, upVol: 0, downCount: 0, downVol: 0 }
+                    "5 MINUTE": { upCount: 0, upVol: 0, downCount: 0, downVol: 0, timer: "00:00" },
+                    "15 MINUTE": { upCount: 0, upVol: 0, downCount: 0, downVol: 0, timer: "00:00" }
                 };
             });
         }
 
-        function getDurationLabel(title) {
+        // Logic to get time remaining for the specific market intervals
+        function getMarketTimer(interval) {
+            const now = new Date();
+            const mins = now.getMinutes();
+            const secs = now.getSeconds();
+            const nextMark = Math.ceil((mins + 0.1) / interval) * interval;
+            let remMins = nextMark - mins - 1;
+            let remSecs = 60 - secs;
+            if (remSecs === 60) { remSecs = 0; remMins++; }
+            return `${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
+        }
+
+        function isCurrentMarket(title, interval) {
             const timeRegex = /(\d{1,2}):(\d{2})(AM|PM|am|pm)-(\d{1,2}):(\d{2})(AM|PM|am|pm)/;
             const match = title.match(timeRegex);
-            if (match) {
-                let h1 = parseInt(match[1]); let m1 = parseInt(match[2]); let p1 = match[3].toLowerCase();
-                let h2 = parseInt(match[4]); let m2 = parseInt(match[5]); let p2 = match[6].toLowerCase();
-                if (p1 === 'pm' && h1 < 12) h1 += 12; if (p1 === 'am' && h1 === 12) h1 = 0;
-                if (p2 === 'pm' && h2 < 12) h2 += 12; if (p2 === 'am' && h2 === 12) h2 = 0;
-                let diff = (new Date(0,0,0,h2,m2) - new Date(0,0,0,h1,m1)) / 60000;
-                if (diff < 0) diff += 1440;
-                return `${diff} MINUTE`;
-            }
-            return "5 MINUTE"; 
+            if (!match) return false;
+            
+            // Extract the end time of the market from title
+            let h2 = parseInt(match[4]); const m2 = parseInt(match[5]); const p2 = match[6].toLowerCase();
+            if (p2 === 'pm' && h2 < 12) h2 += 12; if (p2 === 'am' && h2 === 12) h2 = 0;
+
+            const now = new Date();
+            const marketEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h2, m2);
+            
+            // If the market end time is in the past, it's not the live market
+            return marketEnd > now;
         }
 
         async function sync() {
@@ -78,37 +92,35 @@
                     if (!title.toLowerCase().includes('up or down')) return;
 
                     let assetKey = null;
-                    if (title.toLowerCase().includes('btc') || title.toLowerCase().includes('bitcoin')) assetKey = 'btc';
-                    else if (title.toLowerCase().includes('eth') || title.toLowerCase().includes('ethereum')) assetKey = 'eth';
+                    if (title.toLowerCase().includes('btc')) assetKey = 'btc';
+                    else if (title.toLowerCase().includes('eth')) assetKey = 'eth';
                     else if (title.toLowerCase().includes('sol')) assetKey = 'sol';
                     else if (title.toLowerCase().includes('xrp')) assetKey = 'xrp';
 
                     if (assetKey) {
-                        const duration = getDurationLabel(title);
-                        
-                        // FIX: Detect DOWN correctly via index string/number OR outcome name
-                        const isDown = (item.outcomeIndex == "1") || 
-                                       (item.outcome?.toLowerCase() === 'no') || 
-                                       (item.outcome?.toLowerCase() === 'down');
-                        
-                        const direction = isDown ? "DOWN" : "UP";
-                        const vol = parseFloat(item.usdcSize) || 0;
+                        const is5m = title.includes('5 min');
+                        const interval = is5m ? 5 : 15;
+                        const durationLabel = is5m ? "5 MINUTE" : "15 MINUTE";
 
-                        if (stats[assetKey][duration]) {
+                        // ONLY count if this market is the currently active one
+                        if (isCurrentMarket(title, interval)) {
+                            const isDown = (item.outcomeIndex == "1") || (item.outcome?.toLowerCase() === 'no') || (item.outcome?.toLowerCase() === 'down');
+                            const direction = isDown ? "DOWN" : "UP";
+                            const vol = parseFloat(item.usdcSize) || 0;
+
                             if (direction === "UP") { 
-                                stats[assetKey][duration].upCount++; 
-                                stats[assetKey][duration].upVol += vol; 
+                                stats[assetKey][durationLabel].upCount++; 
+                                stats[assetKey][durationLabel].upVol += vol; 
                             } else { 
-                                stats[assetKey][duration].downCount++; 
-                                stats[assetKey][duration].downVol += vol; 
+                                stats[assetKey][durationLabel].downCount++; 
+                                stats[assetKey][durationLabel].downVol += vol; 
                             }
                         }
-                        renderCard(assetKey, item, duration, direction);
+                        renderCard(assetKey, item, durationLabel);
                     }
                 });
                 renderAnalytics();
-                document.getElementById('status-bar').innerText = `LAST SYNC: ${new Date().toLocaleTimeString()}`;
-            } catch (e) { document.getElementById('status-bar').innerText = "CONNECTION ERROR"; }
+            } catch (e) { console.error(e); }
         }
 
         function renderAnalytics() {
@@ -119,47 +131,44 @@
                 const div = document.createElement('div');
                 div.className = "bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden shadow-lg";
                 div.innerHTML = `
-                    <div class="bg-${color} text-black text-[9px] font-black py-1 px-3 uppercase tracking-widest">${a} Stats</div>
+                    <div class="bg-${color} text-black text-[9px] font-black py-1 px-3 flex justify-between uppercase">
+                        <span>${a} LIVE STATS</span>
+                    </div>
                     <div class="p-2 space-y-3">
-                        <div>
-                            <div class="text-[8px] text-gray-500 font-black mb-1 border-b border-gray-800/50 pb-1 uppercase tracking-tighter">5 MINUTE MARKET</div>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <div class="stat-box border-l-2 border-green-500/50">
-                                    <div class="text-[7px] text-gray-400 uppercase font-bold">Buy UP</div>
-                                    <div class="text-[10px] font-black text-green-400">${stats[a]["5 MINUTE"].upCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["5 MINUTE"].upVol)}</span></div>
-                                </div>
-                                <div class="stat-box border-l-2 border-red-500/50">
-                                    <div class="text-[7px] text-gray-400 uppercase font-bold">Buy DOWN</div>
-                                    <div class="text-[10px] font-black text-red-400">${stats[a]["5 MINUTE"].downCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["5 MINUTE"].downVol)}</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="text-[8px] text-gray-500 font-black mb-1 border-b border-gray-800/50 pb-1 uppercase tracking-tighter">15 MINUTE MARKET</div>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <div class="stat-box border-l-2 border-green-500/50">
-                                    <div class="text-[7px] text-gray-400 uppercase font-bold">Buy UP</div>
-                                    <div class="text-[10px] font-black text-green-400">${stats[a]["15 MINUTE"].upCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["15 MINUTE"].upVol)}</span></div>
-                                </div>
-                                <div class="stat-box border-l-2 border-red-500/50">
-                                    <div class="text-[7px] text-gray-400 uppercase font-bold">Buy DOWN</div>
-                                    <div class="text-[10px] font-black text-red-400">${stats[a]["15 MINUTE"].downCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["15 MINUTE"].downVol)}</span></div>
-                                </div>
-                            </div>
-                        </div>
+                        ${renderMarketBlock(a, "5 MINUTE", 5)}
+                        ${renderMarketBlock(a, "15 MINUTE", 15)}
                     </div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        function renderCard(columnId, item, duration, direction) {
-            const side = item.side ? item.side.toUpperCase() : "UNKNOWN";
-            let typeColor = "text-gray-400";
-            if (side === 'BUY') typeColor = "text-green-400";
-            else if (side === 'SELL') typeColor = "text-red-400";
-            else if (['MERGE', 'REDEEM', 'REDEEMED'].includes(side)) typeColor = "text-purple-400";
+        function renderMarketBlock(asset, label, interval) {
+            const data = stats[asset][label];
+            const timer = getMarketTimer(interval);
+            return `
+                <div>
+                    <div class="flex justify-between items-center border-b border-gray-800/50 pb-1 mb-1">
+                        <span class="text-[8px] text-gray-500 font-black uppercase">${label}</span>
+                        <span class="text-[9px] font-mono text-yellow-500 timer-active">ENDS IN: ${timer}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="stat-box border-l-2 border-green-500/50">
+                            <div class="text-[7px] text-gray-400 font-bold uppercase">Buy UP</div>
+                            <div class="text-[10px] font-black text-green-400">${data.upCount} <span class="text-[8px] text-gray-500 ml-1">$${Math.round(data.upVol)}</span></div>
+                        </div>
+                        <div class="stat-box border-l-2 border-red-500/50">
+                            <div class="text-[7px] text-gray-400 font-bold uppercase">Buy DOWN</div>
+                            <div class="text-[10px] font-black text-red-400">${data.downCount} <span class="text-[8px] text-gray-500 ml-1">$${Math.round(data.downVol)}</span></div>
+                        </div>
+                    </div>
+                </div>`;
+        }
 
+        function renderCard(columnId, item, duration) {
+            const isDown = (item.outcomeIndex == "1") || (item.outcome?.toLowerCase() === 'no') || (item.outcome?.toLowerCase() === 'down');
+            const direction = isDown ? "DOWN" : "UP";
+            const side = item.side?.toUpperCase() || "UNKNOWN";
             const sharePrice = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
             const html = `
                 <div class="bg-[#161b22] border border-gray-800 rounded p-2 hover:border-blue-500/40 transition-all shadow-md">
@@ -167,13 +176,12 @@
                         <span class="text-[8px] font-black text-blue-400 bg-blue-500/10 px-1 rounded uppercase">${duration}</span>
                         <span class="text-[9px] text-gray-500 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
                     </div>
-                    <div class="text-[11px] font-bold text-gray-100 mb-2 leading-tight">${item.title}</div>
-                    <div class="grid grid-cols-3 gap-1 bg-black/30 p-1.5 rounded border border-gray-800/50 text-center">
-                        <div><div class="text-[7px] text-gray-500 uppercase">POS</div><div class="text-[10px] font-black ${direction==='UP'?'text-green-500':'text-red-500'}">${direction}</div></div>
-                        <div><div class="text-[7px] text-gray-500 uppercase">PRICE</div><div class="text-[10px] font-mono text-yellow-500">${sharePrice}¢</div></div>
-                        <div><div class="text-[7px] text-gray-500 uppercase">TOTAL</div><div class="text-[10px] font-mono text-blue-400">$${Math.round(item.usdcSize)}</div></div>
+                    <div class="text-[10px] font-bold text-gray-300 truncate">${item.title}</div>
+                    <div class="grid grid-cols-3 gap-1 bg-black/30 p-1 mt-2 rounded text-center border border-gray-800/50">
+                        <div><div class="text-[6px] text-gray-500">POS</div><div class="text-[9px] font-black ${direction==='UP'?'text-green-500':'text-red-500'}">${direction}</div></div>
+                        <div><div class="text-[6px] text-gray-500">PRC</div><div class="text-[9px] font-mono text-yellow-500">${sharePrice}¢</div></div>
+                        <div><div class="text-[6px] text-gray-500">VOL</div><div class="text-[9px] font-mono text-blue-400">$${Math.round(item.usdcSize)}</div></div>
                     </div>
-                    <div class="mt-2 text-[8px] font-black text-center ${typeColor} border-t border-gray-800 pt-1 tracking-[0.15em] opacity-80 uppercase">${side}</div>
                 </div>`;
             document.getElementById(`col-${columnId}`).insertAdjacentHTML('beforeend', html);
         }
@@ -183,8 +191,10 @@
             if (val.length === 42) { CURRENT_USER = val; sync(); }
         }
 
+        // Initialize and Timers
+        setInterval(sync, 10000); 
+        setInterval(renderAnalytics, 1000); // Smooth countdown update every second
         sync();
-        setInterval(sync, 15000); // Polls every 15 seconds
     </script>
 </body>
 </html>
