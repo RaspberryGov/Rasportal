@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Polymarket Hard-Sync Monitor</title>
+    <title>Polymarket Quant Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
-        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 6px; position: relative; }
+        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 6px; }
+        .flash-red { animation: flash 1s infinite; color: #ef4444 !important; }
+        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         body { font-size: 10px; }
     </style>
 </head>
@@ -15,7 +17,7 @@
 
     <div class="max-w-4xl mx-auto">
         <header class="flex flex-col items-center mb-3 text-center">
-            <h1 class="text-sm font-black text-white italic uppercase tracking-tighter">BTC · ETH <span class="text-blue-500 text-xs">Sync</span></h1>
+            <h1 class="text-sm font-black text-white italic uppercase tracking-tighter">BTC · ETH <span class="text-blue-500 text-xs">Quant Sync</span></h1>
             <div class="flex mt-1 w-full max-w-[280px] bg-[#161b22] border border-gray-800 rounded p-0.5">
                 <input type="text" id="wallet" class="bg-transparent px-2 py-1 text-[9px] font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
                 <button onclick="sync()" class="bg-blue-600 text-white px-2 py-1 rounded text-[8px] font-black uppercase hover:bg-blue-500">Track</button>
@@ -47,14 +49,17 @@
         let DATA = {};
         const ASSETS = ['btc', 'eth'];
 
-        function getCountdown(mins) {
+        function getCountdownData(mins) {
             const now = new Date();
             const msInWindow = mins * 60 * 1000;
-            const timeElapsed = now.getTime() % msInWindow;
-            const timeRemaining = msInWindow - timeElapsed;
-            const s = Math.floor(timeRemaining / 1000) % 60;
-            const m = Math.floor(timeRemaining / 60000);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
+            const timeRemaining = msInWindow - (now.getTime() % msInWindow);
+            const totalSecs = Math.floor(timeRemaining / 1000);
+            const s = totalSecs % 60;
+            const m = Math.floor(totalSecs / 60);
+            return { 
+                str: `${m}:${s < 10 ? '0' : ''}${s}`, 
+                isCritical: totalSecs <= 10 
+            };
         }
 
         function initData() {
@@ -76,9 +81,12 @@
 
                 trades.forEach(t => {
                     const slug = t.slug || "";
-                    const asset = ASSETS.find(a => slug.startsWith(a));
+                    const asset = ASSETS.find(a => slug.toLowerCase().includes(a));
                     if (!asset) return;
-                    const tf = slug.includes('5m') ? '5m' : '15m';
+
+                    // Improved 15m detection for different slug formats
+                    const is15m = slug.includes('15m') || t.title.toLowerCase().includes('15 min');
+                    const tf = is15m ? '15m' : '5m';
                     const marketId = slug.split('-').pop();
 
                     if (!DATA[asset][tf].activeId) DATA[asset][tf].activeId = marketId;
@@ -99,12 +107,14 @@
             ASSETS.forEach(a => {
                 ['5m', '15m'].forEach(tf => {
                     const d = DATA[a][tf];
-                    const timer = getCountdown(tf === '5m' ? 5 : 15);
+                    const cd = getCountdownData(tf === '5m' ? 5 : 15);
+                    const timerClass = cd.isCritical ? 'flash-red' : 'text-yellow-500';
+                    
                     document.getElementById(`${a}-${tf}-box`).innerHTML = `
                         <div class="stat-card">
                             <div class="flex justify-between items-center mb-1 text-[7px] font-mono uppercase">
                                 <span class="text-blue-400 font-bold">${tf} Window</span>
-                                <span class="text-yellow-500 font-bold">RESET: ${timer}</span>
+                                <span class="${timerClass} font-bold">RESET: ${cd.str}</span>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div class="bg-black/20 p-1.5 rounded border-l-2 border-green-600">
@@ -124,10 +134,11 @@
         function renderRow(asset, t) {
             const isDown = (t.outcomeIndex == "1") || (t.outcome?.toLowerCase().includes('no') || t.outcome?.toLowerCase().includes('down'));
             const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
+            const is15m = t.slug.includes('15m') || t.title.toLowerCase().includes('15 min');
             const html = `
                 <div class="bg-[#161b22] border border-gray-800 rounded p-1 text-[8px]">
                     <div class="flex justify-between text-[6px] text-gray-600 mb-0.5 font-mono uppercase">
-                        <span>${t.slug.includes('5m')?'5M':'15M'}</span>
+                        <span>${is15m?'15M':'5M'}</span>
                         <span>${new Date(t.timestamp*1000).toLocaleTimeString([], {hour12:false})}</span>
                     </div>
                     <div class="truncate font-bold text-gray-400 mb-1 tracking-tighter">${t.title}</div>
@@ -140,8 +151,8 @@
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
         }
 
-        setInterval(sync, 10000);
-        setInterval(updateUI, 1000); // Smooth countdown update
+        setInterval(sync, 8000); 
+        setInterval(updateUI, 1000); 
         sync();
     </script>
 </body>
