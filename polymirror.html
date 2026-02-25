@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Pro Quant Monitor</title>
+    <title>Polymarket Quant Pro v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1a1c23; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
-        .stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 6px; }
-        @keyframes pulse-red { 0% { color: #ef4444; } 50% { color: #7f1d1d; } 100% { color: #ef4444; } }
+        .stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 6px; }
+        @keyframes pulse-red { 0%, 100% { color: #ef4444; } 50% { color: #7f1d1d; } }
         .timer-warning { animation: pulse-red 1s infinite; }
     </style>
 </head>
@@ -18,12 +18,12 @@
 
     <div class="max-w-[1600px] mx-auto">
         <header class="flex flex-col mb-4 gap-2 items-center text-center">
-            <h1 class="text-xl font-black text-white italic tracking-tighter">POLY <span class="text-blue-500">QUANT PRO</span></h1>
+            <h1 class="text-xl font-black text-white italic tracking-tighter uppercase">Poly <span class="text-blue-500">Analytics Live</span></h1>
             <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-lg p-1 w-full max-w-md shadow-2xl">
                 <input type="text" id="wallet-input" class="bg-transparent text-xs font-mono px-3 py-1.5 w-full outline-none text-blue-400" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="updateUser()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded uppercase hover:bg-blue-500 transition-all">Track Wallet</button>
+                <button onclick="updateUser()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded uppercase hover:bg-blue-500 transition-all">Sync Wallet</button>
             </div>
-            <div id="status-bar" class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">System Live</div>
+            <div id="status-bar" class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">Feed: Active</div>
         </header>
 
         <div id="analytics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6"></div>
@@ -31,9 +31,9 @@
         <hr class="border-gray-800/50 mb-6">
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="flex flex-col h-[55vh]"><h2 class="bg-orange-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">BTC</h2><div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div class="flex flex-col h-[55vh]"><h2 class="bg-blue-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">ETH</h2><div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div class="flex flex-col h-[55vh]"><h2 class="bg-purple-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">SOL</h2><div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-orange-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">BITCOIN</h2><div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-blue-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">ETHEREUM</h2><div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-purple-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">SOLANA</h2><div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
             <div class="flex flex-col h-[55vh]"><h2 class="bg-teal-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">XRP</h2><div id="col-xrp" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
         </div>
     </div>
@@ -41,18 +41,18 @@
     <script>
         let CURRENT_USER = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
         const ASSETS = ['btc', 'eth', 'sol', 'xrp'];
-        let stats = {};
+        let globalStats = {};
 
         function initStats() {
             ASSETS.forEach(a => {
-                stats[a] = {
-                    "5 MIN": { upCount: 0, upVol: 0, downCount: 0, downVol: 0, currentMarketTitle: "" },
-                    "15 MIN": { upCount: 0, upVol: 0, downCount: 0, downVol: 0, currentMarketTitle: "" }
+                globalStats[a] = {
+                    "5m": { upC: 0, upV: 0, downC: 0, downV: 0 },
+                    "15m": { upC: 0, upV: 0, downC: 0, downV: 0 }
                 };
             });
         }
 
-        function getMarketEndTimer(interval) {
+        function getTimer(interval) {
             const now = new Date();
             const ms = now.getTime();
             const intervalMs = interval * 60 * 1000;
@@ -67,61 +67,51 @@
                 const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_USER}&limit=100`);
                 const data = await res.json();
                 
-                initStats(); // Refresh stats on every sync
+                initStats();
                 ASSETS.forEach(id => document.getElementById(`col-${id}`).innerHTML = '');
 
-                // 1. Identify "Current" Live Market Titles from the feed first
-                data.forEach(item => {
-                    const title = item.title.toLowerCase();
-                    if (!title.includes('up or down')) return;
-                    
-                    let aKey = ASSETS.find(a => title.includes(a) || (a==='btc' && title.includes('bitcoin')) || (a==='eth' && title.includes('ethereum')));
-                    if (!aKey) return;
-
-                    const label = title.includes('5 min') ? "5 MIN" : "15 MIN";
-                    // If we haven't picked a "live" title for this slot, pick the first (newest) one we see
-                    if (!stats[aKey][label].currentMarketTitle) {
-                        stats[aKey][label].currentMarketTitle = item.title;
-                    }
-                });
-
-                // 2. Aggregate only for those specific "Live" titles
                 data.forEach(item => {
                     const title = item.title;
                     const titleL = title.toLowerCase();
                     if (!titleL.includes('up or down')) return;
 
-                    let aKey = ASSETS.find(a => titleL.includes(a) || (a==='btc' && titleL.includes('bitcoin')) || (a==='eth' && titleL.includes('ethereum')));
+                    // 1. Determine Asset
+                    let aKey = null;
+                    if (titleL.includes('btc') || titleL.includes('bitcoin')) aKey = 'btc';
+                    else if (titleL.includes('eth') || titleL.includes('ethereum')) aKey = 'eth';
+                    else if (titleL.includes('sol')) aKey = 'sol';
+                    else if (titleL.includes('xrp')) aKey = 'xrp';
                     if (!aKey) return;
 
-                    const label = titleL.includes('5 min') ? "5 MIN" : "15 MIN";
+                    // 2. Determine Interval (5m vs 15m)
+                    const is5m = titleL.includes('5 min');
+                    const label = is5m ? "5m" : "15m";
 
-                    // Robust Direction Detection
+                    // 3. Determine Direction (Comprehensive Check)
                     const isDown = (item.outcomeIndex == "1") || 
+                                   (item.outcomeIndex === 1) ||
                                    (item.outcome?.toLowerCase() === 'no') || 
                                    (item.outcome?.toLowerCase() === 'down');
                     
                     const direction = isDown ? "DOWN" : "UP";
                     const vol = parseFloat(item.usdcSize) || 0;
 
-                    // Update Feed Column
-                    renderCard(aKey, item, label, direction);
-
-                    // Update Global Stats ONLY if it matches the identified current market
-                    if (title === stats[aKey][label].currentMarketTitle) {
-                        if (direction === "UP") {
-                            stats[aKey][label].upCount++;
-                            stats[aKey][label].upVol += vol;
-                        } else {
-                            stats[aKey][label].downCount++;
-                            stats[aKey][label].downVol += vol;
-                        }
+                    // 4. Update Stats (Current Activity only)
+                    if (direction === "UP") {
+                        globalStats[aKey][label].upC++;
+                        globalStats[aKey][label].upV += vol;
+                    } else {
+                        globalStats[aKey][label].downC++;
+                        globalStats[aKey][label].downV += vol;
                     }
+
+                    // 5. Render Feed Card
+                    renderCard(aKey, item, is5m ? "5 MIN" : "15 MIN", direction);
                 });
 
                 renderAnalytics();
-                document.getElementById('status-bar').innerText = `UPDATED: ${new Date().toLocaleTimeString()}`;
-            } catch (e) { console.error("Sync Error:", e); }
+                document.getElementById('status-bar').innerText = `Sync: ${new Date().toLocaleTimeString()}`;
+            } catch (e) { console.error(e); }
         }
 
         function renderAnalytics() {
@@ -132,51 +122,50 @@
                 const div = document.createElement('div');
                 div.className = "bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden";
                 div.innerHTML = `
-                    <div class="bg-${color} text-black text-[10px] font-black py-1 px-3 uppercase tracking-widest">${a} Current Market</div>
+                    <div class="bg-${color} text-black text-[10px] font-black py-1 px-3 uppercase tracking-widest">${a} Markets</div>
                     <div class="p-2 space-y-4">
-                        ${renderStatRow(a, "5 MIN", 5)}
-                        ${renderStatRow(a, "15 MIN", 15)}
+                        ${renderStatRow(a, "5m", 5)}
+                        ${renderStatRow(a, "15m", 15)}
                     </div>`;
                 container.appendChild(div);
             });
         }
 
         function renderStatRow(asset, label, interval) {
-            const d = stats[asset][label];
-            const timer = getMarketEndTimer(interval);
-            const isClosing = parseInt(timer.split(':')[0]) === 0 && parseInt(timer.split(':')[1]) < 30;
-            
+            const d = globalStats[asset][label];
+            const timerStr = getTimer(interval);
+            const isCritical = timerStr.startsWith("00:");
+
             return `
                 <div>
-                    <div class="flex justify-between items-center mb-1 border-b border-gray-800 pb-1">
-                        <span class="text-[8px] text-gray-500 font-bold">${label}UTE</span>
-                        <span class="text-[9px] font-mono ${isClosing?'timer-warning':'text-blue-400'}">RESET: ${timer}</span>
+                    <div class="flex justify-between items-center mb-1 border-b border-gray-800/50 pb-1">
+                        <span class="text-[8px] text-gray-500 font-black">${interval} MINUTE</span>
+                        <span class="text-[9px] font-mono ${isCritical?'timer-warning':'text-blue-500'}">RESET: ${timerStr}</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="stat-box border-l-2 border-green-500">
-                            <div class="text-[7px] text-gray-500 uppercase font-black">BUY UP</div>
-                            <div class="text-[11px] font-black text-green-400">${d.upCount} <span class="text-[8px] text-gray-600 ml-1 font-normal">$${Math.round(d.upVol)}</span></div>
+                            <div class="text-[7px] text-gray-400 font-bold uppercase">BUY UP</div>
+                            <div class="text-[11px] font-black text-green-400">${d.upC} <span class="text-[8px] text-gray-600 ml-1 font-normal">$${Math.round(d.upV)}</span></div>
                         </div>
                         <div class="stat-box border-l-2 border-red-500">
-                            <div class="text-[7px] text-gray-500 uppercase font-black">BUY DOWN</div>
-                            <div class="text-[11px] font-black text-red-400">${d.downCount} <span class="text-[8px] text-gray-600 ml-1 font-normal">$${Math.round(d.downVol)}</span></div>
+                            <div class="text-[7px] text-gray-400 font-bold uppercase">BUY DOWN</div>
+                            <div class="text-[11px] font-black text-red-400">${d.downC} <span class="text-[8px] text-gray-600 ml-1 font-normal">$${Math.round(d.downV)}</span></div>
                         </div>
                     </div>
                 </div>`;
         }
 
-        function renderCard(col, item, label, direction) {
-            const side = item.side?.toUpperCase() || "TRADE";
+        function renderCard(col, item, label, dir) {
             const price = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
             const html = `
-                <div class="bg-[#161b22] border border-gray-800 rounded p-2 shadow-sm">
+                <div class="bg-[#161b22] border border-gray-800 rounded p-2">
                     <div class="flex justify-between text-[8px] mb-1">
-                        <span class="text-blue-500 font-bold">${label}</span>
-                        <span class="text-gray-500">${new Date(item.timestamp*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>
+                        <span class="text-blue-500 font-bold uppercase">${label}</span>
+                        <span class="text-gray-500 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString()}</span>
                     </div>
-                    <div class="text-[10px] text-gray-200 font-medium truncate mb-2">${item.title}</div>
-                    <div class="grid grid-cols-3 bg-black/40 rounded p-1 border border-gray-800/50 text-center">
-                        <div><div class="text-[6px] text-gray-500 uppercase">Pos</div><div class="text-[9px] font-bold ${direction==='UP'?'text-green-500':'text-red-500'}">${direction}</div></div>
+                    <div class="text-[10px] text-gray-200 truncate mb-2 font-medium">${item.title}</div>
+                    <div class="grid grid-cols-3 bg-black/40 rounded p-1.5 border border-gray-800/50 text-center">
+                        <div><div class="text-[6px] text-gray-500 uppercase">Pos</div><div class="text-[9px] font-bold ${dir==='UP'?'text-green-500':'text-red-500'}">${dir}</div></div>
                         <div><div class="text-[6px] text-gray-500 uppercase">Price</div><div class="text-[9px] font-mono text-yellow-500">${price}¢</div></div>
                         <div><div class="text-[6px] text-gray-500 uppercase">Size</div><div class="text-[9px] font-mono text-blue-400">$${Math.round(item.usdcSize)}</div></div>
                     </div>
