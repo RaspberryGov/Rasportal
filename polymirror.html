@@ -120,7 +120,6 @@
             const inputVal = document.getElementById('wallet').value.trim();
             if(!inputVal) return;
             CURRENT_WALLET = inputVal;
-            
             try {
                 const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_WALLET}&limit=100`);
                 const trades = await res.json();
@@ -135,7 +134,6 @@
                     const marketId = slug.split('-').pop();
 
                     if (!DATA[asset][tf].activeId) DATA[asset][tf].activeId = marketId;
-                    
                     if (marketId === DATA[asset][tf].activeId) {
                         const isDown = (t.outcomeIndex == "1") || (t.outcome?.toLowerCase().includes('no') || t.outcome?.toLowerCase().includes('down'));
                         const vol = parseFloat(t.usdcSize) || 0;
@@ -165,12 +163,12 @@
                     const d = DATA[a][tf];
                     const cd = getCountdownData(tf === '5m' ? 5 : 15);
                     
-                    // Simple P&L Logic: (Current Share Value - Amount Spent)
-                    // Note: In Polymarket activity, usdcSize is what they paid. 
-                    // Current value per share is essentially the market price, but since we are tracking 
-                    // historical activity, we represent P&L as the difference between size and cost if it closed.
                     const upPL = (d.upShares - d.upSpent).toFixed(2);
                     const downPL = (d.downShares - d.downSpent).toFixed(2);
+
+                    // Average Price Calculation (cents)
+                    const avgUp = d.upShares > 0 ? ((d.upSpent / d.upShares) * 100).toFixed(1) : "0.0";
+                    const avgDown = d.downShares > 0 ? ((d.downSpent / d.downShares) * 100).toFixed(1) : "0.0";
 
                     const el = document.getElementById(`${a}-${tf}-box`);
                     if(el) el.innerHTML = `
@@ -181,12 +179,20 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600">
-                                    <div class="flex justify-between items-center"><div class="text-[7px] text-gray-500 uppercase">UP</div> <div class="text-[7px] ${upPL >= 0 ? 'text-green-400' : 'text-red-400'} font-bold">P&L: $${upPL}</div></div>
+                                    <div class="flex justify-between items-center text-[7px] uppercase font-bold mb-1">
+                                        <div class="text-gray-500">UP</div> 
+                                        <div class="${upPL >= 0 ? 'text-green-400' : 'text-red-400'}">P&L: $${upPL}</div>
+                                    </div>
                                     <div class="text-lg font-black text-green-400 leading-none">${d.upC} <span class="text-[9px] text-gray-600 font-normal ml-0.5">$${Math.round(d.upV)}</span></div>
+                                    <div class="text-[8px] text-gray-400 font-mono mt-1">AVG ENTRY: <span class="text-white">${avgUp}¢</span></div>
                                 </div>
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600">
-                                    <div class="flex justify-between items-center"><div class="text-[7px] text-gray-500 uppercase">DOWN</div> <div class="text-[7px] ${downPL >= 0 ? 'text-green-400' : 'text-red-400'} font-bold">P&L: $${downPL}</div></div>
+                                    <div class="flex justify-between items-center text-[7px] uppercase font-bold mb-1">
+                                        <div class="text-gray-500">DOWN</div> 
+                                        <div class="${downPL >= 0 ? 'text-green-400' : 'text-red-400'}">P&L: $${downPL}</div>
+                                    </div>
                                     <div class="text-lg font-black text-red-400 leading-none">${d.downC} <span class="text-[9px] text-gray-600 font-normal ml-0.5">$${Math.round(d.downV)}</span></div>
+                                    <div class="text-[8px] text-gray-400 font-mono mt-1">AVG ENTRY: <span class="text-white">${avgDown}¢</span></div>
                                 </div>
                             </div>
                         </div>`;
