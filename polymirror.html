@@ -9,21 +9,21 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1a1c23; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
-        .stat-box { background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 4px; }
-        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .timer-active { animation: flash 2s infinite; }
+        .stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 6px; }
+        @keyframes pulse-red { 0% { color: #ef4444; } 50% { color: #7f1d1d; } 100% { color: #ef4444; } }
+        .timer-warning { animation: pulse-red 1s infinite; }
     </style>
 </head>
 <body class="bg-[#0b0e14] text-slate-200 font-sans p-2">
 
     <div class="max-w-[1600px] mx-auto">
         <header class="flex flex-col mb-4 gap-2 items-center text-center">
-            <h1 class="text-xl font-black text-white italic tracking-tighter">POLY <span class="text-blue-500">QUANT DASHBOARD</span></h1>
-            <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-lg p-1 w-full max-w-md shadow-xl">
+            <h1 class="text-xl font-black text-white italic tracking-tighter">POLY <span class="text-blue-500">QUANT PRO</span></h1>
+            <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-lg p-1 w-full max-w-md shadow-2xl">
                 <input type="text" id="wallet-input" class="bg-transparent text-xs font-mono px-3 py-1.5 w-full outline-none text-blue-400" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="updateUser()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded uppercase hover:bg-blue-500 transition-colors">Sync</button>
+                <button onclick="updateUser()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded uppercase hover:bg-blue-500 transition-all">Track Wallet</button>
             </div>
-            <div id="status-bar" class="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Awaiting Live Feed...</div>
+            <div id="status-bar" class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">System Live</div>
         </header>
 
         <div id="analytics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6"></div>
@@ -31,10 +31,10 @@
         <hr class="border-gray-800/50 mb-6">
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="flex flex-col h-[55vh]"><h2 class="bg-orange-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">BTC LIVE</h2><div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div class="flex flex-col h-[55vh]"><h2 class="bg-blue-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">ETH LIVE</h2><div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div class="flex flex-col h-[55vh]"><h2 class="bg-purple-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">SOL LIVE</h2><div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div class="flex flex-col h-[55vh]"><h2 class="bg-teal-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">XRP LIVE</h2><div id="col-xrp" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-orange-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">BTC</h2><div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-blue-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">ETH</h2><div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-purple-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">SOL</h2><div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-teal-600 text-white text-[10px] font-black p-1.5 mb-2 rounded text-center">XRP</h2><div id="col-xrp" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
         </div>
     </div>
 
@@ -43,84 +43,85 @@
         const ASSETS = ['btc', 'eth', 'sol', 'xrp'];
         let stats = {};
 
-        function resetStats() {
+        function initStats() {
             ASSETS.forEach(a => {
                 stats[a] = {
-                    "5 MINUTE": { upCount: 0, upVol: 0, downCount: 0, downVol: 0, timer: "00:00" },
-                    "15 MINUTE": { upCount: 0, upVol: 0, downCount: 0, downVol: 0, timer: "00:00" }
+                    "5 MIN": { upCount: 0, upVol: 0, downCount: 0, downVol: 0, currentMarketTitle: "" },
+                    "15 MIN": { upCount: 0, upVol: 0, downCount: 0, downVol: 0, currentMarketTitle: "" }
                 };
             });
         }
 
-        // Logic to get time remaining for the specific market intervals
-        function getMarketTimer(interval) {
+        function getMarketEndTimer(interval) {
             const now = new Date();
-            const mins = now.getMinutes();
-            const secs = now.getSeconds();
-            const nextMark = Math.ceil((mins + 0.1) / interval) * interval;
-            let remMins = nextMark - mins - 1;
-            let remSecs = 60 - secs;
-            if (remSecs === 60) { remSecs = 0; remMins++; }
-            return `${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
-        }
-
-        function isCurrentMarket(title, interval) {
-            const timeRegex = /(\d{1,2}):(\d{2})(AM|PM|am|pm)-(\d{1,2}):(\d{2})(AM|PM|am|pm)/;
-            const match = title.match(timeRegex);
-            if (!match) return false;
-            
-            // Extract the end time of the market from title
-            let h2 = parseInt(match[4]); const m2 = parseInt(match[5]); const p2 = match[6].toLowerCase();
-            if (p2 === 'pm' && h2 < 12) h2 += 12; if (p2 === 'am' && h2 === 12) h2 = 0;
-
-            const now = new Date();
-            const marketEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h2, m2);
-            
-            // If the market end time is in the past, it's not the live market
-            return marketEnd > now;
+            const ms = now.getTime();
+            const intervalMs = interval * 60 * 1000;
+            const remaining = intervalMs - (ms % intervalMs);
+            const rMin = Math.floor(remaining / 60000);
+            const rSec = Math.floor((remaining % 60000) / 1000);
+            return `${String(rMin).padStart(2, '0')}:${String(rSec).padStart(2, '0')}`;
         }
 
         async function sync() {
             try {
                 const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_USER}&limit=100`);
                 const data = await res.json();
-                resetStats();
+                
+                initStats(); // Refresh stats on every sync
                 ASSETS.forEach(id => document.getElementById(`col-${id}`).innerHTML = '');
 
+                // 1. Identify "Current" Live Market Titles from the feed first
                 data.forEach(item => {
-                    const title = item.title;
-                    if (!title.toLowerCase().includes('up or down')) return;
+                    const title = item.title.toLowerCase();
+                    if (!title.includes('up or down')) return;
+                    
+                    let aKey = ASSETS.find(a => title.includes(a) || (a==='btc' && title.includes('bitcoin')) || (a==='eth' && title.includes('ethereum')));
+                    if (!aKey) return;
 
-                    let assetKey = null;
-                    if (title.toLowerCase().includes('btc')) assetKey = 'btc';
-                    else if (title.toLowerCase().includes('eth')) assetKey = 'eth';
-                    else if (title.toLowerCase().includes('sol')) assetKey = 'sol';
-                    else if (title.toLowerCase().includes('xrp')) assetKey = 'xrp';
-
-                    if (assetKey) {
-                        const is5m = title.includes('5 min');
-                        const interval = is5m ? 5 : 15;
-                        const durationLabel = is5m ? "5 MINUTE" : "15 MINUTE";
-
-                        // ONLY count if this market is the currently active one
-                        if (isCurrentMarket(title, interval)) {
-                            const isDown = (item.outcomeIndex == "1") || (item.outcome?.toLowerCase() === 'no') || (item.outcome?.toLowerCase() === 'down');
-                            const direction = isDown ? "DOWN" : "UP";
-                            const vol = parseFloat(item.usdcSize) || 0;
-
-                            if (direction === "UP") { 
-                                stats[assetKey][durationLabel].upCount++; 
-                                stats[assetKey][durationLabel].upVol += vol; 
-                            } else { 
-                                stats[assetKey][durationLabel].downCount++; 
-                                stats[assetKey][durationLabel].downVol += vol; 
-                            }
-                        }
-                        renderCard(assetKey, item, durationLabel);
+                    const label = title.includes('5 min') ? "5 MIN" : "15 MIN";
+                    // If we haven't picked a "live" title for this slot, pick the first (newest) one we see
+                    if (!stats[aKey][label].currentMarketTitle) {
+                        stats[aKey][label].currentMarketTitle = item.title;
                     }
                 });
+
+                // 2. Aggregate only for those specific "Live" titles
+                data.forEach(item => {
+                    const title = item.title;
+                    const titleL = title.toLowerCase();
+                    if (!titleL.includes('up or down')) return;
+
+                    let aKey = ASSETS.find(a => titleL.includes(a) || (a==='btc' && titleL.includes('bitcoin')) || (a==='eth' && titleL.includes('ethereum')));
+                    if (!aKey) return;
+
+                    const label = titleL.includes('5 min') ? "5 MIN" : "15 MIN";
+
+                    // Robust Direction Detection
+                    const isDown = (item.outcomeIndex == "1") || 
+                                   (item.outcome?.toLowerCase() === 'no') || 
+                                   (item.outcome?.toLowerCase() === 'down');
+                    
+                    const direction = isDown ? "DOWN" : "UP";
+                    const vol = parseFloat(item.usdcSize) || 0;
+
+                    // Update Feed Column
+                    renderCard(aKey, item, label, direction);
+
+                    // Update Global Stats ONLY if it matches the identified current market
+                    if (title === stats[aKey][label].currentMarketTitle) {
+                        if (direction === "UP") {
+                            stats[aKey][label].upCount++;
+                            stats[aKey][label].upVol += vol;
+                        } else {
+                            stats[aKey][label].downCount++;
+                            stats[aKey][label].downVol += vol;
+                        }
+                    }
+                });
+
                 renderAnalytics();
-            } catch (e) { console.error(e); }
+                document.getElementById('status-bar').innerText = `UPDATED: ${new Date().toLocaleTimeString()}`;
+            } catch (e) { console.error("Sync Error:", e); }
         }
 
         function renderAnalytics() {
@@ -129,61 +130,58 @@
             ASSETS.forEach(a => {
                 const color = a === 'btc' ? 'orange-500' : a === 'eth' ? 'blue-500' : a === 'sol' ? 'purple-500' : 'teal-500';
                 const div = document.createElement('div');
-                div.className = "bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden shadow-lg";
+                div.className = "bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden";
                 div.innerHTML = `
-                    <div class="bg-${color} text-black text-[9px] font-black py-1 px-3 flex justify-between uppercase">
-                        <span>${a} LIVE STATS</span>
-                    </div>
-                    <div class="p-2 space-y-3">
-                        ${renderMarketBlock(a, "5 MINUTE", 5)}
-                        ${renderMarketBlock(a, "15 MINUTE", 15)}
-                    </div>
-                `;
+                    <div class="bg-${color} text-black text-[10px] font-black py-1 px-3 uppercase tracking-widest">${a} Current Market</div>
+                    <div class="p-2 space-y-4">
+                        ${renderStatRow(a, "5 MIN", 5)}
+                        ${renderStatRow(a, "15 MIN", 15)}
+                    </div>`;
                 container.appendChild(div);
             });
         }
 
-        function renderMarketBlock(asset, label, interval) {
-            const data = stats[asset][label];
-            const timer = getMarketTimer(interval);
+        function renderStatRow(asset, label, interval) {
+            const d = stats[asset][label];
+            const timer = getMarketEndTimer(interval);
+            const isClosing = parseInt(timer.split(':')[0]) === 0 && parseInt(timer.split(':')[1]) < 30;
+            
             return `
                 <div>
-                    <div class="flex justify-between items-center border-b border-gray-800/50 pb-1 mb-1">
-                        <span class="text-[8px] text-gray-500 font-black uppercase">${label}</span>
-                        <span class="text-[9px] font-mono text-yellow-500 timer-active">ENDS IN: ${timer}</span>
+                    <div class="flex justify-between items-center mb-1 border-b border-gray-800 pb-1">
+                        <span class="text-[8px] text-gray-500 font-bold">${label}UTE</span>
+                        <span class="text-[9px] font-mono ${isClosing?'timer-warning':'text-blue-400'}">RESET: ${timer}</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div class="stat-box border-l-2 border-green-500/50">
-                            <div class="text-[7px] text-gray-400 font-bold uppercase">Buy UP</div>
-                            <div class="text-[10px] font-black text-green-400">${data.upCount} <span class="text-[8px] text-gray-500 ml-1">$${Math.round(data.upVol)}</span></div>
+                        <div class="stat-box border-l-2 border-green-500">
+                            <div class="text-[7px] text-gray-500 uppercase font-black">BUY UP</div>
+                            <div class="text-[11px] font-black text-green-400">${d.upCount} <span class="text-[8px] text-gray-600 ml-1 font-normal">$${Math.round(d.upVol)}</span></div>
                         </div>
-                        <div class="stat-box border-l-2 border-red-500/50">
-                            <div class="text-[7px] text-gray-400 font-bold uppercase">Buy DOWN</div>
-                            <div class="text-[10px] font-black text-red-400">${data.downCount} <span class="text-[8px] text-gray-500 ml-1">$${Math.round(data.downVol)}</span></div>
+                        <div class="stat-box border-l-2 border-red-500">
+                            <div class="text-[7px] text-gray-500 uppercase font-black">BUY DOWN</div>
+                            <div class="text-[11px] font-black text-red-400">${d.downCount} <span class="text-[8px] text-gray-600 ml-1 font-normal">$${Math.round(d.downVol)}</span></div>
                         </div>
                     </div>
                 </div>`;
         }
 
-        function renderCard(columnId, item, duration) {
-            const isDown = (item.outcomeIndex == "1") || (item.outcome?.toLowerCase() === 'no') || (item.outcome?.toLowerCase() === 'down');
-            const direction = isDown ? "DOWN" : "UP";
-            const side = item.side?.toUpperCase() || "UNKNOWN";
-            const sharePrice = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
+        function renderCard(col, item, label, direction) {
+            const side = item.side?.toUpperCase() || "TRADE";
+            const price = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
             const html = `
-                <div class="bg-[#161b22] border border-gray-800 rounded p-2 hover:border-blue-500/40 transition-all shadow-md">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[8px] font-black text-blue-400 bg-blue-500/10 px-1 rounded uppercase">${duration}</span>
-                        <span class="text-[9px] text-gray-500 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
+                <div class="bg-[#161b22] border border-gray-800 rounded p-2 shadow-sm">
+                    <div class="flex justify-between text-[8px] mb-1">
+                        <span class="text-blue-500 font-bold">${label}</span>
+                        <span class="text-gray-500">${new Date(item.timestamp*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>
                     </div>
-                    <div class="text-[10px] font-bold text-gray-300 truncate">${item.title}</div>
-                    <div class="grid grid-cols-3 gap-1 bg-black/30 p-1 mt-2 rounded text-center border border-gray-800/50">
-                        <div><div class="text-[6px] text-gray-500">POS</div><div class="text-[9px] font-black ${direction==='UP'?'text-green-500':'text-red-500'}">${direction}</div></div>
-                        <div><div class="text-[6px] text-gray-500">PRC</div><div class="text-[9px] font-mono text-yellow-500">${sharePrice}¢</div></div>
-                        <div><div class="text-[6px] text-gray-500">VOL</div><div class="text-[9px] font-mono text-blue-400">$${Math.round(item.usdcSize)}</div></div>
+                    <div class="text-[10px] text-gray-200 font-medium truncate mb-2">${item.title}</div>
+                    <div class="grid grid-cols-3 bg-black/40 rounded p-1 border border-gray-800/50 text-center">
+                        <div><div class="text-[6px] text-gray-500 uppercase">Pos</div><div class="text-[9px] font-bold ${direction==='UP'?'text-green-500':'text-red-500'}">${direction}</div></div>
+                        <div><div class="text-[6px] text-gray-500 uppercase">Price</div><div class="text-[9px] font-mono text-yellow-500">${price}¢</div></div>
+                        <div><div class="text-[6px] text-gray-500 uppercase">Size</div><div class="text-[9px] font-mono text-blue-400">$${Math.round(item.usdcSize)}</div></div>
                     </div>
                 </div>`;
-            document.getElementById(`col-${columnId}`).insertAdjacentHTML('beforeend', html);
+            document.getElementById(`col-${col}`).insertAdjacentHTML('beforeend', html);
         }
 
         function updateUser() {
@@ -191,9 +189,9 @@
             if (val.length === 42) { CURRENT_USER = val; sync(); }
         }
 
-        // Initialize and Timers
+        initStats();
         setInterval(sync, 10000); 
-        setInterval(renderAnalytics, 1000); // Smooth countdown update every second
+        setInterval(renderAnalytics, 1000); 
         sync();
     </script>
 </body>
