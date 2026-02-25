@@ -1,10 +1,6 @@
-I've updated the Analytics Dashboard to provide the granular breakdown you need. Each market (5M and 15M) now splits the data into four specific metrics:
+Here is the complete, robust code ready for upload.
 
-UP Trades: Count and Volume ($) for "YES" positions.
-
-DOWN Trades: Count and Volume ($) for "NO" positions.
-
-This allows you to see if the volume is heavily skewed toward a specific direction (e.g., 10 "UP" buys totaling $5k vs 2 "DOWN" buys totaling $100).
+I have integrated the Enhanced Direction Logic to fix the issue where "DOWN" positions were showing as 0. This version checks both the numeric outcomeIndex and the literal text outcome (e.g., "No") to ensure transactions are correctly categorized regardless of how the API formats that specific market's data.
 
 HTML
 
@@ -27,11 +23,11 @@ HTML
     <div class="max-w-[1600px] mx-auto">
         <header class="flex flex-col mb-4 gap-2 items-center text-center">
             <h1 class="text-xl font-black text-white italic tracking-tighter">POLY <span class="text-blue-500">QUANT DASHBOARD</span></h1>
-            <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-lg p-1 w-full max-w-md">
+            <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-lg p-1 w-full max-w-md shadow-xl">
                 <input type="text" id="wallet-input" class="bg-transparent text-xs font-mono px-3 py-1.5 w-full outline-none text-blue-400" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="updateUser()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded uppercase hover:bg-blue-500">Sync</button>
+                <button onclick="updateUser()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded uppercase hover:bg-blue-500 transition-colors">Sync</button>
             </div>
-            <div id="status-bar" class="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Awaiting Data...</div>
+            <div id="status-bar" class="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Awaiting Live Feed...</div>
         </header>
 
         <div id="analytics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
@@ -73,7 +69,7 @@ HTML
                 if (diff < 0) diff += 1440;
                 return `${diff} MINUTE`;
             }
-            return "5 MINUTE"; // Default fallback
+            return "5 MINUTE"; 
         }
 
         async function sync() {
@@ -95,12 +91,23 @@ HTML
 
                     if (assetKey) {
                         const duration = getDurationLabel(title);
-                        const direction = (item.outcomeIndex === "1" || item.outcome?.toLowerCase() === 'no') ? "DOWN" : "UP";
-                        const vol = parseFloat(item.usdcSize);
+                        
+                        // FIX: Detect DOWN correctly via index string/number OR outcome name
+                        const isDown = (item.outcomeIndex == "1") || 
+                                       (item.outcome?.toLowerCase() === 'no') || 
+                                       (item.outcome?.toLowerCase() === 'down');
+                        
+                        const direction = isDown ? "DOWN" : "UP";
+                        const vol = parseFloat(item.usdcSize) || 0;
 
                         if (stats[assetKey][duration]) {
-                            if (direction === "UP") { stats[assetKey][duration].upCount++; stats[assetKey][duration].upVol += vol; }
-                            else { stats[assetKey][duration].downCount++; stats[assetKey][duration].downVol += vol; }
+                            if (direction === "UP") { 
+                                stats[assetKey][duration].upCount++; 
+                                stats[assetKey][duration].upVol += vol; 
+                            } else { 
+                                stats[assetKey][duration].downCount++; 
+                                stats[assetKey][duration].downVol += vol; 
+                            }
                         }
                         renderCard(assetKey, item, duration, direction);
                     }
@@ -116,31 +123,31 @@ HTML
             ASSETS.forEach(a => {
                 const color = a === 'btc' ? 'orange-500' : a === 'eth' ? 'blue-500' : a === 'sol' ? 'purple-500' : 'teal-500';
                 const div = document.createElement('div');
-                div.className = "bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden";
+                div.className = "bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden shadow-lg";
                 div.innerHTML = `
                     <div class="bg-${color} text-black text-[9px] font-black py-1 px-3 uppercase tracking-widest">${a} Stats</div>
                     <div class="p-2 space-y-3">
                         <div>
-                            <div class="text-[8px] text-gray-500 font-black mb-1 border-b border-gray-800 pb-1">5 MINUTE MARKET</div>
+                            <div class="text-[8px] text-gray-500 font-black mb-1 border-b border-gray-800/50 pb-1 uppercase tracking-tighter">5 MINUTE MARKET</div>
                             <div class="grid grid-cols-2 gap-2 mt-1">
-                                <div class="stat-box border-l-2 border-green-500">
+                                <div class="stat-box border-l-2 border-green-500/50">
                                     <div class="text-[7px] text-gray-400 uppercase font-bold">Buy UP</div>
                                     <div class="text-[10px] font-black text-green-400">${stats[a]["5 MINUTE"].upCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["5 MINUTE"].upVol)}</span></div>
                                 </div>
-                                <div class="stat-box border-l-2 border-red-500">
+                                <div class="stat-box border-l-2 border-red-500/50">
                                     <div class="text-[7px] text-gray-400 uppercase font-bold">Buy DOWN</div>
                                     <div class="text-[10px] font-black text-red-400">${stats[a]["5 MINUTE"].downCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["5 MINUTE"].downVol)}</span></div>
                                 </div>
                             </div>
                         </div>
                         <div>
-                            <div class="text-[8px] text-gray-500 font-black mb-1 border-b border-gray-800 pb-1">15 MINUTE MARKET</div>
+                            <div class="text-[8px] text-gray-500 font-black mb-1 border-b border-gray-800/50 pb-1 uppercase tracking-tighter">15 MINUTE MARKET</div>
                             <div class="grid grid-cols-2 gap-2 mt-1">
-                                <div class="stat-box border-l-2 border-green-500">
+                                <div class="stat-box border-l-2 border-green-500/50">
                                     <div class="text-[7px] text-gray-400 uppercase font-bold">Buy UP</div>
                                     <div class="text-[10px] font-black text-green-400">${stats[a]["15 MINUTE"].upCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["15 MINUTE"].upVol)}</span></div>
                                 </div>
-                                <div class="stat-box border-l-2 border-red-500">
+                                <div class="stat-box border-l-2 border-red-500/50">
                                     <div class="text-[7px] text-gray-400 uppercase font-bold">Buy DOWN</div>
                                     <div class="text-[10px] font-black text-red-400">${stats[a]["15 MINUTE"].downCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["15 MINUTE"].downVol)}</span></div>
                                 </div>
@@ -153,21 +160,26 @@ HTML
         }
 
         function renderCard(columnId, item, duration, direction) {
-            const side = item.side.toUpperCase();
+            const side = item.side ? item.side.toUpperCase() : "UNKNOWN";
+            let typeColor = "text-gray-400";
+            if (side === 'BUY') typeColor = "text-green-400";
+            else if (side === 'SELL') typeColor = "text-red-400";
+            else if (['MERGE', 'REDEEM', 'REDEEMED'].includes(side)) typeColor = "text-purple-400";
+
             const sharePrice = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
             const html = `
-                <div class="bg-[#161b22] border border-gray-800 rounded p-2 hover:border-gray-600 transition-all shadow-md">
+                <div class="bg-[#161b22] border border-gray-800 rounded p-2 hover:border-blue-500/40 transition-all shadow-md">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[8px] font-black text-blue-400 bg-blue-500/10 px-1 rounded">${duration}</span>
+                        <span class="text-[8px] font-black text-blue-400 bg-blue-500/10 px-1 rounded uppercase">${duration}</span>
                         <span class="text-[9px] text-gray-500 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
                     </div>
-                    <div class="text-[11px] font-bold text-gray-200 mb-2 truncate">${item.title}</div>
-                    <div class="grid grid-cols-3 gap-1 bg-black/30 p-1 rounded border border-gray-800/50 text-center">
+                    <div class="text-[11px] font-bold text-gray-100 mb-2 leading-tight">${item.title}</div>
+                    <div class="grid grid-cols-3 gap-1 bg-black/30 p-1.5 rounded border border-gray-800/50 text-center">
                         <div><div class="text-[7px] text-gray-500 uppercase">POS</div><div class="text-[10px] font-black ${direction==='UP'?'text-green-500':'text-red-500'}">${direction}</div></div>
                         <div><div class="text-[7px] text-gray-500 uppercase">PRICE</div><div class="text-[10px] font-mono text-yellow-500">${sharePrice}¢</div></div>
                         <div><div class="text-[7px] text-gray-500 uppercase">TOTAL</div><div class="text-[10px] font-mono text-blue-400">$${Math.round(item.usdcSize)}</div></div>
                     </div>
-                    <div class="mt-2 text-[8px] font-black text-center ${side==='BUY'?'text-green-400':'text-red-400'} border-t border-gray-800 pt-1 tracking-widest">${side}</div>
+                    <div class="mt-2 text-[8px] font-black text-center ${typeColor} border-t border-gray-800 pt-1 tracking-[0.15em] opacity-80 uppercase">${side}</div>
                 </div>`;
             document.getElementById(`col-${columnId}`).insertAdjacentHTML('beforeend', html);
         }
@@ -178,7 +190,7 @@ HTML
         }
 
         sync();
-        setInterval(sync, 15000);
+        setInterval(sync, 15000); // Polls every 15 seconds
     </script>
 </body>
 </html>
