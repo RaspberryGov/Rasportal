@@ -55,10 +55,24 @@
         let CURRENT_USER = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
         const ASSETS = ['btc', 'eth', 'sol', 'xrp'];
 
-        function extractTimeWindow(title) {
-            const timeRegex = /(\d{1,2}:\d{2}(?:AM|PM|am|pm)-\d{1,2}:\d{2}(?:AM|PM|am|pm))/;
+        function getDurationLabel(title) {
+            const timeRegex = /(\d{1,2}):(\d{2})(AM|PM|am|pm)-(\d{1,2}):(\d{2})(AM|PM|am|pm)/;
             const match = title.match(timeRegex);
-            return match ? match[0] : "SHORT-TERM";
+            
+            if (match) {
+                let h1 = parseInt(match[1]); const m1 = parseInt(match[2]); const p1 = match[3].toLowerCase();
+                let h2 = parseInt(match[4]); const m2 = parseInt(match[5]); const p2 = match[6].toLowerCase();
+
+                if (p1 === 'pm' && h1 < 12) h1 += 12; if (p1 === 'am' && h1 === 12) h1 = 0;
+                if (p2 === 'pm' && h2 < 12) h2 += 12; if (p2 === 'am' && h2 === 12) h2 = 0;
+
+                const date1 = new Date(0, 0, 0, h1, m1);
+                const date2 = new Date(0, 0, 0, h2, m2);
+                let diff = (date2 - date1) / 1000 / 60;
+                if (diff < 0) diff += 1440; 
+                return `${diff} MINUTE`;
+            }
+            return "SHORT-TERM";
         }
 
         async function sync() {
@@ -76,12 +90,8 @@
                 data.forEach(item => {
                     const title = item.title;
                     const lowerTitle = title.toLowerCase();
-                    
-                    const is5M = lowerTitle.includes('5 min') || lowerTitle.includes('5-min');
-                    const is15M = lowerTitle.includes('15 min') || lowerTitle.includes('15-min');
                     const isUpDown = lowerTitle.includes('up or down');
-                    
-                    if (!is5M && !is15M && !isUpDown) return;
+                    if (!isUpDown) return;
 
                     let assetKey = null;
                     if (lowerTitle.includes('btc') || lowerTitle.includes('bitcoin')) assetKey = 'btc';
@@ -90,8 +100,8 @@
                     else if (lowerTitle.includes('xrp')) assetKey = 'xrp';
                     
                     if (assetKey) {
-                        const timeWindow = extractTimeWindow(title);
-                        renderCard(assetKey, item, timeWindow);
+                        const duration = getDurationLabel(title);
+                        renderCard(assetKey, item, duration);
                     }
                 });
                 
@@ -101,26 +111,25 @@
             }
         }
 
-        function renderCard(columnId, item, timeWindow) {
-            // FIX: Correctly determine Direction (UP/DOWN)
-            // Polymarket: outcomeIndex "0" is usually YES/UP, "1" is NO/DOWN
+        function renderCard(columnId, item, duration) {
             let direction = "UP";
             const outcome = item.outcome?.toLowerCase();
-            if (item.outcomeIndex === "1" || outcome === 'no') {
-                direction = "DOWN";
-            }
+            if (item.outcomeIndex === "1" || outcome === 'no') direction = "DOWN";
 
-            const isBuy = item.side === 'BUY';
-            const actionColor = isBuy ? 'text-green-400' : 'text-red-400';
+            // Transaction Type & Dynamic Coloring
+            const transType = item.side ? item.side.toUpperCase() : "UNKNOWN";
+            let typeColor = "text-gray-400";
+            if (transType === 'BUY') typeColor = "text-green-400";
+            else if (transType === 'SELL') typeColor = "text-red-400";
+            else if (transType === 'MERGE' || transType === 'REDEEM' || transType === 'REDEEMED') typeColor = "text-purple-400";
+
             const dirColor = direction === 'UP' ? 'text-green-500' : 'text-red-500';
-
-            // Price Calculation (e.g., 0.65)
-            const sharePrice = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
+            const sharePrice = item.size && item.size !== "0" ? (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2) : "0.00";
 
             const html = `
                 <div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-blue-500/50 transition-all shadow-lg">
                     <div class="flex justify-between items-center mb-2">
-                        <span class="text-[9px] font-black bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 uppercase tracking-tighter">${timeWindow}</span>
+                        <span class="text-[9px] font-black bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 uppercase tracking-widest">${duration}</span>
                         <span class="text-[10px] text-gray-400 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                     </div>
                     
@@ -142,12 +151,12 @@
                         </div>
                         <div class="text-center">
                             <div class="text-[8px] text-gray-500 uppercase font-bold mb-1">Total</div>
-                            <div class="text-[11px] font-mono font-bold text-blue-400">$${Math.round(item.usdcSize)}</div>
+                            <div class="text-[11px] font-mono font-black text-blue-400">$${Math.round(item.usdcSize)}</div>
                         </div>
                     </div>
                     
-                    <div class="mt-2 text-[9px] font-black text-center tracking-widest ${actionColor} opacity-70 uppercase">
-                        TRANS TYPE: ${item.side}
+                    <div class="mt-2 text-[10px] font-black text-center tracking-[0.2em] ${typeColor} opacity-90 uppercase border-t border-gray-800/50 pt-2">
+                        ${transType}
                     </div>
                 </div>
             `;
