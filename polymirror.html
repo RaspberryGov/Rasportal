@@ -5,58 +5,56 @@
     <title>Poly Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
-        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
+        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 10px; }
         .flash-red { animation: flash 1s infinite; color: #ff4444 !important; }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        /* Global font size increase */
-        body { font-size: 16px; }
-        .wallet-tab { transition: all 0.2s; cursor: pointer; font-size: 13px; }
-        .wallet-tab:hover { background: #238636; color: white; }
-        .active-tab { background: #238636; color: white; border-color: #2ea043; }
+        body { font-size: 13px; }
+        .wallet-tab { cursor: pointer; font-size: 11px; transition: 0.2s; }
+        .active-tab { background: #238636 !important; color: white; border-color: #2ea043; }
     </style>
 </head>
-<body class="bg-[#0b0e14] text-slate-200 font-sans p-6">
+<body class="bg-[#0b0e14] text-slate-200 font-sans p-4">
 
-    <div class="max-w-5xl mx-auto">
-        <header class="flex flex-col items-center mb-8 text-center">
-            <h1 class="text-4xl font-black text-white italic uppercase tracking-tighter">Poly Monitor</h1>
-            <p class="text-[12px] text-gray-500 uppercase tracking-[0.3em] mt-1">developed by Freeberry</p>
+    <div class="max-w-4xl mx-auto">
+        <header class="flex flex-col items-center mb-5 text-center">
+            <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter">Poly Monitor</h1>
+            <p class="text-[9px] text-gray-500 uppercase tracking-[0.3em]">developed by Freeberry</p>
             
-            <div class="flex mt-6 w-full max-w-xl bg-[#161b22] border border-gray-700 rounded p-1.5 shadow-2xl">
-                <input type="text" id="wallet" class="bg-transparent px-4 py-2 text-base font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="saveWallet()" class="px-4 text-gray-400 hover:text-yellow-500 text-xl transition-colors" title="Favorite Wallet">★</button>
-                <button onclick="sync()" class="bg-blue-600 text-white px-6 py-2 rounded text-sm font-black uppercase hover:bg-blue-500 ml-2">Track</button>
+            <div class="flex mt-3 w-full max-w-md bg-[#161b22] border border-gray-700 rounded p-1">
+                <input type="text" id="wallet" class="bg-transparent px-3 py-1.5 text-xs font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
+                <button onclick="saveWallet()" class="px-2 text-gray-400 hover:text-yellow-500 text-lg" title="Favorite">★</button>
+                <button onclick="sync()" class="bg-blue-600 text-white px-4 py-1.5 rounded text-[10px] font-black uppercase hover:bg-blue-500 ml-1">Track</button>
             </div>
 
-            <div id="favorites-bar" class="flex flex-wrap gap-3 mt-4 justify-center"></div>
+            <div id="favorites-bar" class="flex flex-wrap gap-2 mt-3 justify-center"></div>
 
-            <div class="mt-6">
-                <a href="https://etherscan.io/address/0xf6963d4CdbB6F26D753bDa303e9513132AFB1b7d" target="_blank" class="bg-[#238636] hover:bg-[#2ea043] text-white text-xs font-bold py-2 px-6 rounded-full uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-lg">
+            <div class="mt-3">
+                <a href="https://etherscan.io/address/0xf6963d4CdbB6F26D753bDa303e9513132AFB1b7d" target="_blank" class="bg-[#238636] hover:bg-[#2ea043] text-white text-[9px] font-bold py-1 px-3 rounded-full uppercase tracking-wider inline-flex items-center gap-2">
                     <span>☕ Support Development</span>
                 </a>
             </div>
         </header>
 
-        <div class="grid grid-cols-2 gap-8 mb-8">
-            <div class="space-y-6">
-                <h2 class="bg-orange-600 text-black text-sm font-black p-2.5 rounded text-center uppercase tracking-widest">Bitcoin Monitor</h2>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="space-y-3">
+                <h2 class="bg-orange-600 text-black text-[10px] font-black p-1 rounded text-center uppercase">Bitcoin Monitor</h2>
                 <div id="btc-5m-box"></div>
                 <div id="btc-15m-box"></div>
             </div>
-            <div class="space-y-6">
-                <h2 class="bg-blue-600 text-black text-sm font-black p-2.5 rounded text-center uppercase tracking-widest">Ethereum Monitor</h2>
+            <div class="space-y-3">
+                <h2 class="bg-blue-600 text-black text-[10px] font-black p-1 rounded text-center uppercase">Ethereum Monitor</h2>
                 <div id="eth-5m-box"></div>
                 <div id="eth-15m-box"></div>
             </div>
         </div>
 
-        <hr class="border-gray-800 mb-8">
+        <hr class="border-gray-800/50 mb-4">
 
-        <div class="grid grid-cols-2 gap-8">
-            <div id="feed-btc" class="h-[50vh] overflow-y-auto custom-scrollbar space-y-3 pr-2"></div>
-            <div id="feed-eth" class="h-[50vh] overflow-y-auto custom-scrollbar space-y-3 pr-2"></div>
+        <div class="grid grid-cols-2 gap-4">
+            <div id="feed-btc" class="h-[42vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1"></div>
+            <div id="feed-eth" class="h-[42vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1"></div>
         </div>
     </div>
 
@@ -71,10 +69,7 @@
             const msInWindow = mins * 60 * 1000;
             const timeRemaining = msInWindow - (now.getTime() % msInWindow);
             const totalSecs = Math.floor(timeRemaining / 1000);
-            return { 
-                str: `${Math.floor(totalSecs / 60)}:${(totalSecs % 60).toString().padStart(2,'0')}`, 
-                isCritical: totalSecs <= 10 
-            };
+            return { str: `${Math.floor(totalSecs / 60)}:${(totalSecs % 60).toString().padStart(2,'0')}`, isCritical: totalSecs <= 10 };
         }
 
         function saveWallet() {
@@ -96,9 +91,9 @@
         function renderFavorites() {
             const bar = document.getElementById('favorites-bar');
             bar.innerHTML = favorites.map(addr => `
-                <div onclick="switchWallet('${addr}')" class="wallet-tab flex items-center gap-2 px-4 py-1.5 bg-[#161b22] border border-gray-700 rounded-md font-mono ${addr === CURRENT_WALLET ? 'active-tab shadow-lg' : 'text-gray-400'}">
-                    <span>${addr.substring(0,6)}...${addr.substring(38)}</span>
-                    <span onclick="removeFavorite('${addr}', event)" class="hover:text-red-500 ml-1 text-lg font-bold">×</span>
+                <div onclick="switchWallet('${addr}')" class="wallet-tab flex items-center gap-2 px-2 py-1 bg-[#161b22] border border-gray-700 rounded ${addr === CURRENT_WALLET ? 'active-tab' : 'text-gray-400'}">
+                    <span>${addr.substring(0,6)}...</span>
+                    <span onclick="removeFavorite('${addr}', event)" class="hover:text-red-500 font-bold">×</span>
                 </div>
             `).join('');
         }
@@ -118,7 +113,6 @@
 
         async function sync() {
             CURRENT_WALLET = document.getElementById('wallet').value.trim();
-            if (!CURRENT_WALLET) return;
             try {
                 const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_WALLET}&limit=100`);
                 const trades = await res.json();
@@ -150,23 +144,20 @@
                 ['5m', '15m'].forEach(tf => {
                     const d = DATA[a][tf];
                     const cd = getCountdownData(tf === '5m' ? 5 : 15);
-                    const timerClass = cd.isCritical ? 'flash-red' : 'text-yellow-500';
                     document.getElementById(`${a}-${tf}-box`).innerHTML = `
-                        <div class="stat-card shadow-xl">
-                            <div class="flex justify-between items-center mb-3 text-xs font-mono uppercase">
-                                <span class="text-blue-400 font-black text-sm">${tf} Window</span>
-                                <span class="${timerClass} font-black text-sm">RESET: ${cd.str}</span>
+                        <div class="stat-card">
+                            <div class="flex justify-between items-center mb-2 text-[8px] font-mono uppercase">
+                                <span class="text-blue-400 font-bold">${tf} Window</span>
+                                <span class="${cd.isCritical ? 'flash-red' : 'text-yellow-500'} font-bold">RESET: ${cd.str}</span>
                             </div>
-                            <div class="grid grid-cols-2 gap-5">
-                                <div class="bg-black/40 p-4 rounded border-l-4 border-green-600">
-                                    <div class="text-[10px] text-gray-500 font-bold uppercase mb-1">UP Positions</div>
-                                    <div class="text-3xl font-black text-green-400">${d.upC}</div>
-                                    <div class="text-sm text-gray-500 mt-1 font-mono font-bold">$${Math.round(d.upV).toLocaleString()}</div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-black/40 p-2 rounded border-l-2 border-green-600">
+                                    <div class="text-[7px] text-gray-500 font-bold uppercase mb-0.5">UP</div>
+                                    <div class="text-xl font-black text-green-400">${d.upC} <span class="text-[10px] text-gray-600 font-normal ml-1">$${Math.round(d.upV)}</span></div>
                                 </div>
-                                <div class="bg-black/40 p-4 rounded border-l-4 border-red-600">
-                                    <div class="text-[10px] text-gray-500 font-bold uppercase mb-1">DOWN Positions</div>
-                                    <div class="text-3xl font-black text-red-400">${d.downC}</div>
-                                    <div class="text-sm text-gray-500 mt-1 font-mono font-bold">$${Math.round(d.downV).toLocaleString()}</div>
+                                <div class="bg-black/40 p-2 rounded border-l-2 border-red-600">
+                                    <div class="text-[7px] text-gray-500 font-bold uppercase mb-0.5">DOWN</div>
+                                    <div class="text-xl font-black text-red-400">${d.downC} <span class="text-[10px] text-gray-600 font-normal ml-1">$${Math.round(d.downV)}</span></div>
                                 </div>
                             </div>
                         </div>`;
@@ -179,16 +170,16 @@
             const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
             const is15m = t.slug.includes('15m') || t.title.toLowerCase().includes('15 min');
             const html = `
-                <div class="bg-[#161b22] border border-gray-800 rounded p-4 shadow-sm hover:border-gray-600 transition-all">
-                    <div class="flex justify-between text-[11px] text-gray-500 mb-2 font-mono uppercase font-bold">
-                        <span>${is15m?'15-MINUTE':'5-MINUTE'}</span>
+                <div class="bg-[#161b22] border border-gray-800 rounded p-2 text-[10px]">
+                    <div class="flex justify-between text-[7px] text-gray-500 mb-1 font-mono uppercase font-bold">
+                        <span>${is15m?'15M':'5M'}</span>
                         <span>${new Date(t.timestamp*1000).toLocaleTimeString([], {hour12:false})}</span>
                     </div>
-                    <div class="truncate font-black text-gray-100 mb-3 tracking-tight text-base">${t.title}</div>
-                    <div class="flex justify-between items-center bg-black/40 p-3 rounded">
-                        <span class="${isDown?'text-red-500':'text-green-500'} font-black uppercase text-sm">${isDown?'Down':'Up'}</span>
-                        <span class="text-yellow-500 font-mono font-black text-lg">${price}¢</span>
-                        <span class="text-blue-400 font-mono font-black text-lg">$${Math.round(t.usdcSize).toLocaleString()}</span>
+                    <div class="truncate font-bold text-gray-300 mb-1 text-xs tracking-tight">${t.title}</div>
+                    <div class="flex justify-between items-center bg-black/30 p-1.5 rounded">
+                        <span class="${isDown?'text-red-500':'text-green-500'} font-black uppercase text-[9px]">${isDown?'Down':'Up'}</span>
+                        <span class="text-yellow-500 font-mono font-bold text-xs">${price}¢</span>
+                        <span class="text-blue-400 font-mono font-bold text-xs">$${Math.round(t.usdcSize)}</span>
                     </div>
                 </div>`;
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
