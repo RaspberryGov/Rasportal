@@ -1,80 +1,87 @@
+I've updated the Analytics Dashboard to provide the granular breakdown you need. Each market (5M and 15M) now splits the data into four specific metrics:
+
+UP Trades: Count and Volume ($) for "YES" positions.
+
+DOWN Trades: Count and Volume ($) for "NO" positions.
+
+This allows you to see if the volume is heavily skewed toward a specific direction (e.g., 10 "UP" buys totaling $5k vs 2 "DOWN" buys totaling $100).
+
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Pro Monitor</title>
+    <title>Polymarket Pro Quant Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1a1c23; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
-        .grid-header { background: linear-gradient(to bottom, #1e222d, #161b22); }
+        .stat-box { background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 4px; }
     </style>
 </head>
 <body class="bg-[#0b0e14] text-slate-200 font-sans p-2">
 
     <div class="max-w-[1600px] mx-auto">
         <header class="flex flex-col mb-4 gap-2 items-center text-center">
-            <h1 class="text-xl font-black text-white italic tracking-tighter">POLY <span class="text-blue-500">QUANT FEED</span></h1>
+            <h1 class="text-xl font-black text-white italic tracking-tighter">POLY <span class="text-blue-500">QUANT DASHBOARD</span></h1>
             <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-lg p-1 w-full max-w-md">
                 <input type="text" id="wallet-input" class="bg-transparent text-xs font-mono px-3 py-1.5 w-full outline-none text-blue-400" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="updateUser()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded uppercase">Track</button>
+                <button onclick="updateUser()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded uppercase hover:bg-blue-500">Sync</button>
             </div>
-            <div id="status-bar" class="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Initial Sync...</div>
+            <div id="status-bar" class="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Awaiting Data...</div>
         </header>
 
-        <div id="analytics-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 mb-6">
+        <div id="analytics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
             </div>
 
-        <hr class="border-gray-800 mb-6">
+        <hr class="border-gray-800/50 mb-6">
 
-        <div id="grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="flex flex-col h-[60vh]"><h2 class="bg-orange-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">BITCOIN FEED</h2><div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div class="flex flex-col h-[60vh]"><h2 class="bg-blue-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">ETHEREUM FEED</h2><div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div class="flex flex-col h-[60vh]"><h2 class="bg-purple-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">SOLANA FEED</h2><div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
-            <div class="flex flex-col h-[60vh]"><h2 class="bg-teal-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">XRP FEED</h2><div id="col-xrp" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-orange-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">BTC LIVE</h2><div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-blue-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">ETH LIVE</h2><div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-purple-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">SOL LIVE</h2><div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
+            <div class="flex flex-col h-[55vh]"><h2 class="bg-teal-500 text-black text-[10px] font-black p-1.5 mb-2 rounded text-center">XRP LIVE</h2><div id="col-xrp" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div></div>
         </div>
     </div>
 
     <script>
         let CURRENT_USER = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
         const ASSETS = ['btc', 'eth', 'sol', 'xrp'];
-        
-        // Data structure for counters
         let stats = {};
+
         function resetStats() {
             ASSETS.forEach(a => {
                 stats[a] = {
-                    "5 MINUTE": { buyCount: 0, sellCount: 0, volume: 0, lastWindow: "" },
-                    "15 MINUTE": { buyCount: 0, sellCount: 0, volume: 0, lastWindow: "" }
+                    "5 MINUTE": { upCount: 0, upVol: 0, downCount: 0, downVol: 0 },
+                    "15 MINUTE": { upCount: 0, upVol: 0, downCount: 0, downVol: 0 }
                 };
             });
         }
-        resetStats();
 
         function getDurationLabel(title) {
             const timeRegex = /(\d{1,2}):(\d{2})(AM|PM|am|pm)-(\d{1,2}):(\d{2})(AM|PM|am|pm)/;
             const match = title.match(timeRegex);
             if (match) {
-                let h1 = parseInt(match[1]); const m1 = parseInt(match[2]); const p1 = match[3].toLowerCase();
-                let h2 = parseInt(match[4]); const m2 = parseInt(match[5]); const p2 = match[6].toLowerCase();
+                let h1 = parseInt(match[1]); let m1 = parseInt(match[2]); let p1 = match[3].toLowerCase();
+                let h2 = parseInt(match[4]); let m2 = parseInt(match[5]); let p2 = match[6].toLowerCase();
                 if (p1 === 'pm' && h1 < 12) h1 += 12; if (p1 === 'am' && h1 === 12) h1 = 0;
                 if (p2 === 'pm' && h2 < 12) h2 += 12; if (p2 === 'am' && h2 === 12) h2 = 0;
-                const d1 = new Date(0,0,0, h1, m1); const d2 = new Date(0,0,0, h2, m2);
-                let diff = (d2 - d1) / 60000; if (diff < 0) diff += 1440;
-                return { label: `${diff} MINUTE`, window: match[0] };
+                let diff = (new Date(0,0,0,h2,m2) - new Date(0,0,0,h1,m1)) / 60000;
+                if (diff < 0) diff += 1440;
+                return `${diff} MINUTE`;
             }
-            return { label: "SHORT-TERM", window: "" };
+            return "5 MINUTE"; // Default fallback
         }
 
         async function sync() {
             try {
                 const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_USER}&limit=100`);
                 const data = await res.json();
-                
+                resetStats();
                 ASSETS.forEach(id => document.getElementById(`col-${id}`).innerHTML = '');
-                resetStats(); // Reset and recalculate based on current visible feed
 
                 data.forEach(item => {
                     const title = item.title;
@@ -85,50 +92,59 @@
                     else if (title.toLowerCase().includes('eth') || title.toLowerCase().includes('ethereum')) assetKey = 'eth';
                     else if (title.toLowerCase().includes('sol')) assetKey = 'sol';
                     else if (title.toLowerCase().includes('xrp')) assetKey = 'xrp';
-                    
-                    if (assetKey) {
-                        const info = getDurationLabel(title);
-                        const duration = info.label;
-                        
-                        // Update Analytics Stats
-                        if (stats[assetKey][duration]) {
-                            const side = item.side.toUpperCase();
-                            if (side === 'BUY') stats[assetKey][duration].buyCount++;
-                            if (side === 'SELL') stats[assetKey][duration].sellCount++;
-                            stats[assetKey][duration].volume += parseFloat(item.usdcSize);
-                        }
 
-                        renderCard(assetKey, item, duration);
+                    if (assetKey) {
+                        const duration = getDurationLabel(title);
+                        const direction = (item.outcomeIndex === "1" || item.outcome?.toLowerCase() === 'no') ? "DOWN" : "UP";
+                        const vol = parseFloat(item.usdcSize);
+
+                        if (stats[assetKey][duration]) {
+                            if (direction === "UP") { stats[assetKey][duration].upCount++; stats[assetKey][duration].upVol += vol; }
+                            else { stats[assetKey][duration].downCount++; stats[assetKey][duration].downVol += vol; }
+                        }
+                        renderCard(assetKey, item, duration, direction);
                     }
                 });
                 renderAnalytics();
-                document.getElementById('status-bar').innerText = `LIVE: ${new Date().toLocaleTimeString()}`;
-            } catch (e) { document.getElementById('status-bar').innerText = "SYNC ERROR"; }
+                document.getElementById('status-bar').innerText = `LAST SYNC: ${new Date().toLocaleTimeString()}`;
+            } catch (e) { document.getElementById('status-bar').innerText = "CONNECTION ERROR"; }
         }
 
         function renderAnalytics() {
             const container = document.getElementById('analytics-grid');
             container.innerHTML = '';
-            
             ASSETS.forEach(a => {
-                const div = document.createElement('div');
-                div.className = "bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden flex flex-col";
                 const color = a === 'btc' ? 'orange-500' : a === 'eth' ? 'blue-500' : a === 'sol' ? 'purple-500' : 'teal-500';
-                
+                const div = document.createElement('div');
+                div.className = "bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden";
                 div.innerHTML = `
-                    <div class="bg-${color} text-black text-[9px] font-black py-1 px-2 uppercase tracking-tighter">${a} Analytics</div>
-                    <div class="grid grid-cols-2 text-[8px] border-b border-gray-800">
-                        <div class="p-2 border-r border-gray-800">
-                            <div class="text-gray-500 font-bold mb-1 underline">5 MIN MARKET</div>
-                            <div class="flex justify-between"><span>BUYS:</span><span class="text-green-400">${stats[a]["5 MINUTE"].buyCount}</span></div>
-                            <div class="flex justify-between"><span>SELLS:</span><span class="text-red-400">${stats[a]["5 MINUTE"].sellCount}</span></div>
-                            <div class="mt-1 font-mono text-blue-400">$${Math.round(stats[a]["5 MINUTE"].volume)}</div>
+                    <div class="bg-${color} text-black text-[9px] font-black py-1 px-3 uppercase tracking-widest">${a} Stats</div>
+                    <div class="p-2 space-y-3">
+                        <div>
+                            <div class="text-[8px] text-gray-500 font-black mb-1 border-b border-gray-800 pb-1">5 MINUTE MARKET</div>
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <div class="stat-box border-l-2 border-green-500">
+                                    <div class="text-[7px] text-gray-400 uppercase font-bold">Buy UP</div>
+                                    <div class="text-[10px] font-black text-green-400">${stats[a]["5 MINUTE"].upCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["5 MINUTE"].upVol)}</span></div>
+                                </div>
+                                <div class="stat-box border-l-2 border-red-500">
+                                    <div class="text-[7px] text-gray-400 uppercase font-bold">Buy DOWN</div>
+                                    <div class="text-[10px] font-black text-red-400">${stats[a]["5 MINUTE"].downCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["5 MINUTE"].downVol)}</span></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="p-2">
-                            <div class="text-gray-500 font-bold mb-1 underline">15 MIN MARKET</div>
-                            <div class="flex justify-between"><span>BUYS:</span><span class="text-green-400">${stats[a]["15 MINUTE"].buyCount}</span></div>
-                            <div class="flex justify-between"><span>SELLS:</span><span class="text-red-400">${stats[a]["15 MINUTE"].sellCount}</span></div>
-                            <div class="mt-1 font-mono text-blue-400">$${Math.round(stats[a]["15 MINUTE"].volume)}</div>
+                        <div>
+                            <div class="text-[8px] text-gray-500 font-black mb-1 border-b border-gray-800 pb-1">15 MINUTE MARKET</div>
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <div class="stat-box border-l-2 border-green-500">
+                                    <div class="text-[7px] text-gray-400 uppercase font-bold">Buy UP</div>
+                                    <div class="text-[10px] font-black text-green-400">${stats[a]["15 MINUTE"].upCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["15 MINUTE"].upVol)}</span></div>
+                                </div>
+                                <div class="stat-box border-l-2 border-red-500">
+                                    <div class="text-[7px] text-gray-400 uppercase font-bold">Buy DOWN</div>
+                                    <div class="text-[10px] font-black text-red-400">${stats[a]["15 MINUTE"].downCount} <span class="text-[8px] text-gray-500 font-mono ml-1">$${Math.round(stats[a]["15 MINUTE"].downVol)}</span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -136,26 +152,23 @@
             });
         }
 
-        function renderCard(columnId, item, duration) {
-            let direction = (item.outcomeIndex === "1" || item.outcome?.toLowerCase() === 'no') ? "DOWN" : "UP";
+        function renderCard(columnId, item, duration, direction) {
             const side = item.side.toUpperCase();
             const sharePrice = (parseFloat(item.usdcSize) / parseFloat(item.size)).toFixed(2);
-
             const html = `
-                <div class="bg-[#161b22] border border-gray-800 rounded p-2 hover:border-blue-500/50 transition-all shadow-md">
+                <div class="bg-[#161b22] border border-gray-800 rounded p-2 hover:border-gray-600 transition-all shadow-md">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[8px] font-black text-blue-400 bg-blue-500/10 px-1 rounded uppercase">${duration}</span>
-                        <span class="text-[9px] text-gray-500">${new Date(item.timestamp*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                        <span class="text-[8px] font-black text-blue-400 bg-blue-500/10 px-1 rounded">${duration}</span>
+                        <span class="text-[9px] text-gray-500 font-mono">${new Date(item.timestamp*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
                     </div>
                     <div class="text-[11px] font-bold text-gray-200 mb-2 truncate">${item.title}</div>
-                    <div class="grid grid-cols-3 gap-1 bg-black/40 p-1.5 rounded border border-gray-800/50 text-center">
+                    <div class="grid grid-cols-3 gap-1 bg-black/30 p-1 rounded border border-gray-800/50 text-center">
                         <div><div class="text-[7px] text-gray-500 uppercase">POS</div><div class="text-[10px] font-black ${direction==='UP'?'text-green-500':'text-red-500'}">${direction}</div></div>
                         <div><div class="text-[7px] text-gray-500 uppercase">PRICE</div><div class="text-[10px] font-mono text-yellow-500">${sharePrice}¢</div></div>
                         <div><div class="text-[7px] text-gray-500 uppercase">TOTAL</div><div class="text-[10px] font-mono text-blue-400">$${Math.round(item.usdcSize)}</div></div>
                     </div>
-                    <div class="mt-1.5 text-[8px] font-black text-center ${side==='BUY'?'text-green-400':'text-red-400'} opacity-70 border-t border-gray-800 pt-1">TYPE: ${side}</div>
-                </div>
-            `;
+                    <div class="mt-2 text-[8px] font-black text-center ${side==='BUY'?'text-green-400':'text-red-400'} border-t border-gray-800 pt-1 tracking-widest">${side}</div>
+                </div>`;
             document.getElementById(`col-${columnId}`).insertAdjacentHTML('beforeend', html);
         }
 
