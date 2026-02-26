@@ -11,44 +11,44 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
         .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 8px; }
-        .flash-red { animation: flash 1s infinite; color: #ff4444 !important; }
-        .price-up { color: #22c55e; }
-        .price-down { color: #ef4444; }
-        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        body { font-size: 12px; line-height: 1.2; background: #0b0e14; color: #e2e8f0; }
+        .price-up { color: #22c55e; transition: color 0.3s; }
+        .price-down { color: #ef4444; transition: color 0.3s; }
+        body { font-size: 12px; line-height: 1.2; background: #0b0e14; color: #e2e8f0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
         .active-tab { background: #238636 !important; color: white; border-color: #2ea043; }
+        .pulse-blue { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body class="p-3">
 
     <div class="max-w-4xl mx-auto">
         <header class="flex flex-col items-center mb-4 text-center">
-            <h1 class="text-xl font-black text-white italic uppercase tracking-tighter">Poly Monitor <span class="text-blue-500 text-[10px] not-italic font-bold ml-1">ORACLE v4</span></h1>
+            <h1 class="text-xl font-black text-white italic uppercase tracking-tighter">Poly Monitor <span class="text-blue-500 text-[10px] not-italic font-bold ml-1">ORACLE v4.1</span></h1>
             <div class="flex mt-2 w-full max-w-sm bg-[#161b22] border border-gray-700 rounded p-0.5">
-                <input type="text" id="wallet" class="bg-transparent px-2 py-1 text-[11px] font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
+                <input type="text" id="wallet" class="bg-transparent px-2 py-1 text-[11px] w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
                 <button onclick="sync()" class="bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-500 ml-1">Sync</button>
             </div>
         </header>
 
         <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="bg-black/60 border border-orange-500/30 rounded p-2 flex justify-between items-center shadow-lg">
+            <div class="bg-black/60 border border-orange-500/30 rounded p-3 flex justify-between items-center shadow-lg">
                 <div>
-                    <div class="text-[8px] text-orange-500 font-bold uppercase tracking-widest">BTC/USD Chainlink</div>
-                    <div id="btc-price-live" class="text-lg font-black font-mono">Loading...</div>
+                    <div class="text-[8px] text-orange-500 font-bold uppercase tracking-widest mb-1">BTC/USD Chainlink</div>
+                    <div id="btc-price-live" class="text-xl font-black">---.--</div>
                 </div>
                 <div class="text-right text-[8px] text-gray-500">
-                    STATUS: <span id="btc-status" class="text-green-500">LIVE</span><br>
-                    DEV: <span id="btc-deviation">--</span>
+                    FEED: <span id="btc-status" class="text-green-500">CONNECTED</span><br>
+                    TIME: <span id="btc-time">--:--</span>
                 </div>
             </div>
-            <div class="bg-black/60 border border-blue-500/30 rounded p-2 flex justify-between items-center shadow-lg">
+            <div class="bg-black/60 border border-blue-500/30 rounded p-3 flex justify-between items-center shadow-lg">
                 <div>
-                    <div class="text-[8px] text-blue-500 font-bold uppercase tracking-widest">ETH/USD Chainlink</div>
-                    <div id="eth-price-live" class="text-lg font-black font-mono">Loading...</div>
+                    <div class="text-[8px] text-blue-500 font-bold uppercase tracking-widest mb-1">ETH/USD Chainlink</div>
+                    <div id="eth-price-live" class="text-xl font-black">---.--</div>
                 </div>
                 <div class="text-right text-[8px] text-gray-500">
-                    STATUS: <span id="eth-status" class="text-green-500">LIVE</span><br>
-                    DEV: <span id="eth-deviation">--</span>
+                    FEED: <span id="eth-status" class="text-green-500">CONNECTED</span><br>
+                    TIME: <span id="eth-time">--:--</span>
                 </div>
             </div>
         </div>
@@ -56,35 +56,35 @@
         <div class="bg-[#161b22] border border-blue-900/50 rounded-lg p-3 mb-4">
             <div class="flex justify-between items-center mb-2 border-b border-gray-800 pb-1">
                 <h3 class="text-[10px] font-black uppercase text-blue-400 tracking-tighter">Market Decision Engine</h3>
-                <span id="intel-status" class="text-[8px] text-gray-500 font-mono italic">Calibrating...</span>
+                <span id="intel-status" class="text-[8px] text-gray-500 italic">Analysis: Live</span>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div id="btc-intel-box" class="p-2 bg-black/30 rounded border border-gray-800">
-                    <div class="flex justify-between text-[8px] font-bold mb-1"><span>BTC BIAS</span><span id="btc-bias-tag">--</span></div>
+                    <div class="flex justify-between text-[8px] font-bold mb-1"><span class="text-orange-400">BTC SIGNAL</span><span id="btc-bias-tag" class="px-1 rounded bg-gray-800">SCANNING</span></div>
                     <div id="btc-decision" class="text-sm font-black text-center py-1">WAITING</div>
                     <div class="text-[7px] text-gray-500 flex justify-between mt-1">
-                        <span>SKEW: <b id="btc-skew">--</b></span>
-                        <span>ORACLE: <b id="btc-oracle-diff">--</b></span>
+                        <span>CLUSTER: <b id="btc-skew" class="text-white">--</b></span>
+                        <span>CONFIDENCE: <b id="btc-conf" class="text-white">LOW</b></span>
                     </div>
                 </div>
                 <div id="eth-intel-box" class="p-2 bg-black/30 rounded border border-gray-800">
-                    <div class="flex justify-between text-[8px] font-bold mb-1"><span>ETH BIAS</span><span id="eth-bias-tag">--</span></div>
+                    <div class="flex justify-between text-[8px] font-bold mb-1"><span class="text-blue-400">ETH SIGNAL</span><span id="eth-bias-tag" class="px-1 rounded bg-gray-800">SCANNING</span></div>
                     <div id="eth-decision" class="text-sm font-black text-center py-1">WAITING</div>
                     <div class="text-[7px] text-gray-500 flex justify-between mt-1">
-                        <span>SKEW: <b id="eth-skew">--</b></span>
-                        <span>ORACLE: <b id="eth-oracle-diff">--</b></span>
+                        <span>CLUSTER: <b id="eth-skew" class="text-white">--</b></span>
+                        <span>CONFIDENCE: <b id="eth-conf" class="text-white">LOW</b></span>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 mb-3">
-            <div id="btc-monitors" class="space-y-2">
-                <h2 class="bg-orange-600/20 text-orange-500 text-[9px] font-black py-1 border border-orange-500/20 rounded text-center uppercase tracking-tighter">BTC Monitor</h2>
+            <div class="space-y-2">
+                <h2 class="bg-orange-600/10 text-orange-500 text-[9px] font-black py-1 border border-orange-500/20 rounded text-center uppercase">Bitcoin Positions</h2>
                 <div id="btc-5m-box"></div><div id="btc-15m-box"></div>
             </div>
-            <div id="eth-monitors" class="space-y-2">
-                <h2 class="bg-blue-600/20 text-blue-500 text-[9px] font-black py-1 border border-blue-500/20 rounded text-center uppercase tracking-tighter">ETH Monitor</h2>
+            <div class="space-y-2">
+                <h2 class="bg-blue-600/10 text-blue-500 text-[9px] font-black py-1 border border-blue-500/20 rounded text-center uppercase">Ethereum Positions</h2>
                 <div id="eth-5m-box"></div><div id="eth-15m-box"></div>
             </div>
         </div>
@@ -98,35 +98,33 @@
     <script>
         let DATA = {};
         let ORACLE_PRICES = { btc: 0, eth: 0 };
-        let CURRENT_WALLET = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
         const ASSETS = ['btc', 'eth'];
+        const FEEDS = { btc: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c', eth: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419' };
         
-        // Chainlink Aggregator Addresses (Mainnet)
-        const FEEDS = {
-            btc: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
-            eth: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
-        };
-
-        const provider = new ethers.providers.JsonRpcProvider("https://cloudflare-eth.com");
+        // Use a more reliable public provider
+        const provider = new ethers.providers.JsonRpcProvider("https://eth.llamarpc.com");
         const abi = [{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"}];
 
         async function fetchChainlink() {
             for (const asset of ASSETS) {
                 try {
                     const contract = new ethers.Contract(FEEDS[asset], abi, provider);
-                    const [,, , updatedAt, ] = await contract.latestRoundData();
-                    const roundData = await contract.latestRoundData();
-                    const price = parseFloat(ethers.utils.formatUnits(roundData.answer, 8));
+                    const data = await contract.latestRoundData();
+                    const price = parseFloat(ethers.utils.formatUnits(data.answer, 8));
                     
                     const el = document.getElementById(`${asset}-price-live`);
-                    const oldPrice = ORACLE_PRICES[asset];
+                    if (ORACLE_PRICES[asset] > 0) {
+                        if (price > ORACLE_PRICES[asset]) el.className = "text-xl font-black price-up";
+                        else if (price < ORACLE_PRICES[asset]) el.className = "text-xl font-black price-down";
+                    }
                     
-                    if (price > oldPrice) el.className = "text-lg font-black font-mono price-up";
-                    else if (price < oldPrice) el.className = "text-lg font-black font-mono price-down";
-                    
-                    el.innerText = `$${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
                     ORACLE_PRICES[asset] = price;
-                } catch (e) { console.error("Oracle Error:", e); }
+                    el.innerText = `$${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                    document.getElementById(`${asset}-time`).innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+                } catch (e) { 
+                    console.error(`${asset} Oracle Error:`, e); 
+                    document.getElementById(`${asset}-status`).innerText = "RECONNECTING...";
+                }
             }
         }
 
@@ -137,20 +135,23 @@
         }
 
         async function sync() {
-            CURRENT_WALLET = document.getElementById('wallet').value.trim();
+            const wallet = document.getElementById('wallet').value.trim();
+            if(!wallet) return;
             try {
-                const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_WALLET}&limit=50`);
+                const res = await fetch(`https://data-api.polymarket.com/activity?user=${wallet}&limit=60`);
                 const trades = await res.json();
                 initData();
                 ASSETS.forEach(a => document.getElementById(`feed-${a}`).innerHTML = '');
+                
                 trades.forEach(t => {
-                    const slug = t.slug || "";
-                    const asset = ASSETS.find(a => slug.toLowerCase().includes(a));
+                    const slug = (t.slug || "").toLowerCase();
+                    const asset = ASSETS.find(a => slug.includes(a));
                     if (!asset) return;
+                    
                     const tf = slug.includes('15m') ? '15m' : '5m';
-                    const isDown = t.outcomeIndex == "1";
-                    const vol = parseFloat(t.usdcSize);
-                    const shares = parseFloat(t.size);
+                    const isDown = t.outcomeIndex == "1" || (t.outcome || "").toLowerCase().includes("down");
+                    const vol = parseFloat(t.usdcSize || 0);
+                    const shares = parseFloat(t.size || 0);
                     
                     if (isDown) { DATA[asset][tf].downV += vol; DATA[asset][tf].downShares += shares; DATA[asset][tf].downSpent += vol; }
                     else { DATA[asset][tf].upV += vol; DATA[asset][tf].upShares += shares; DATA[asset][tf].upSpent += vol; }
@@ -159,7 +160,7 @@
                 });
                 updateUI();
                 runAnalysis();
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Sync Error:", err); }
         }
 
         function runAnalysis() {
@@ -167,17 +168,24 @@
                 const d = DATA[asset]["5m"];
                 const total = d.upV + d.downV;
                 const skew = total > 0 ? (d.upV / total) : 0.5;
-                const rec = document.getElementById(`${asset}-decision`);
+                const decEl = document.getElementById(`${asset}-decision`);
+                const tagEl = document.getElementById(`${asset}-bias-tag`);
+                const confEl = document.getElementById(`${asset}-conf`);
+
+                let decision = "WAITING", color = "text-gray-500", bias = "SCANNING", confidence = "LOW";
                 
-                let decision = "STAY NEUTRAL";
-                let color = "text-gray-500";
-                
-                if (skew > 0.7) { decision = "BULLISH BIAS"; color = "text-green-500"; }
-                else if (skew < 0.3) { decision = "BEARISH BIAS"; color = "text-red-500"; }
-                
-                rec.innerText = decision;
-                rec.className = `text-sm font-black text-center py-1 ${color}`;
+                if (total > 100) {
+                    if (skew > 0.65) { decision = "BULLISH BIAS"; color = "text-green-500"; bias = "LONG SKEW"; confidence = total > 2000 ? "HIGH" : "MED"; }
+                    else if (skew < 0.35) { decision = "BEARISH BIAS"; color = "text-red-500"; bias = "SHORT SKEW"; confidence = total > 2000 ? "HIGH" : "MED"; }
+                    else { decision = "STAY NEUTRAL"; color = "text-gray-400"; bias = "CHOPPY"; }
+                }
+
+                decEl.innerText = decision;
+                decEl.className = `text-sm font-black text-center py-1 ${color}`;
+                tagEl.innerText = bias;
+                tagEl.className = `px-1 rounded bg-gray-800 ${color} text-[7px] font-bold`;
                 document.getElementById(`${asset}-skew`).innerText = `${Math.round(skew*100)}% UP`;
+                confEl.innerText = confidence;
             });
         }
 
@@ -187,8 +195,8 @@
                     const d = DATA[a][tf];
                     const avgUp = d.upShares > 0 ? (d.upSpent / d.upShares * 100).toFixed(1) : "0.0";
                     const avgDown = d.downShares > 0 ? (d.downSpent / d.downShares * 100).toFixed(1) : "0.0";
-                    const el = document.getElementById(`${a}-${tf}-box`);
-                    if(el) el.innerHTML = `<div class="stat-card mb-2 border-l-2 ${tf==='5m'?'border-blue-500':'border-purple-500'}">
+                    const box = document.getElementById(`${a}-${tf}-box`);
+                    if(box) box.innerHTML = `<div class="stat-card mb-2 border-l-2 ${tf==='5m'?'border-blue-500':'border-purple-500'}">
                         <div class="flex justify-between text-[7px] text-gray-500 font-bold mb-1 uppercase"><span>${tf} Window</span></div>
                         <div class="grid grid-cols-2 gap-2">
                             <div class="bg-black/40 p-1 rounded">
@@ -206,17 +214,18 @@
         }
 
         function renderRow(asset, t) {
-            const isDown = t.outcomeIndex == "1";
+            const isDown = t.outcomeIndex == "1" || (t.outcome || "").toLowerCase().includes("down");
             const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
             const html = `<div class="bg-[#161b22] border border-gray-800 rounded p-1.5 text-[9px]">
-                <div class="flex justify-between text-[7px] text-gray-500 mb-0.5"><span>TRADED</span><span>${new Date(t.timestamp*1000).toLocaleTimeString()}</span></div>
-                <div class="flex justify-between items-center"><span class="${isDown?'text-red-500':'text-green-500'} font-black">${isDown?'DOWN':'UP'}</span><span class="text-white font-mono">${price}¢</span><span class="text-blue-400">$${Math.round(t.usdcSize)}</span></div>
+                <div class="flex justify-between text-[7px] text-gray-500 mb-0.5 font-mono uppercase"><span>TRADED</span><span>${new Date(t.timestamp*1000).toLocaleTimeString()}</span></div>
+                <div class="flex justify-between items-center"><span class="${isDown?'text-red-500':'text-green-500'} font-black">${isDown?'DOWN':'UP'}</span><span class="text-white font-bold">${price}¢</span><span class="text-blue-400 font-bold">$${Math.round(t.usdcSize)}</span></div>
             </div>`;
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
         }
 
-        setInterval(fetchChainlink, 3000); // 3-second oracle update
-        setInterval(sync, 10000); // 10-second whale sync
+        // Initialize and Timers
+        setInterval(fetchChainlink, 4000); 
+        setInterval(sync, 10000); 
         fetchChainlink();
         sync();
     </script>
