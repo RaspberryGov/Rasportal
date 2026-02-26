@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,18 +7,19 @@
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
-        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 8px; transition: opacity 0.3s; }
+        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 8px; position: relative; }
         body { font-size: 12px; line-height: 1.2; background: #0b0e14; color: #cbd5e1; }
         
         #donation-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         
-        /* Pulse for Syncing State */
-        .sync-pulse { animation: pulse 1.5s infinite; opacity: 0.6; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
+        /* Timer States */
+        .timer-badge { font-family: monospace; font-size: 9px; font-weight: 900; padding: 1px 4px; border-radius: 2px; }
+        .state-normal { background: rgba(0,0,0,0.4); color: #94a3b8; }
+        .state-syncing { background: #eab308; color: #000; animation: sync-pulse 1.5s infinite; }
+        .state-critical { background: #ef4444; color: #fff; animation: critical-flash 0.8s infinite; }
 
-        /* Critical Timer Flash */
-        .timer-critical { animation: flash-red 1s infinite; background: #991b1b !important; color: white !important; }
-        @keyframes flash-red { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes sync-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes critical-flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
         .intensity-bar { transition: width 0.8s ease; }
     </style>
@@ -42,7 +42,7 @@
 
         <div id="donation-modal">
             <div class="bg-[#161b22] border border-gray-600 p-8 rounded-lg max-w-sm w-full text-center shadow-2xl">
-                <h2 class="text-white font-black uppercase text-sm mb-2 italic tracking-widest">Support Freeberry</h2>
+                <h2 class="text-white font-black uppercase text-sm mb-2 italic">Support Freeberry</h2>
                 <div class="bg-black/60 p-4 rounded border border-gray-800 break-all font-mono text-blue-400 text-[11px] mb-6 select-all">
                     0xE54AA4F86317457D6E89250A55BA9982538dA4Eb
                 </div>
@@ -52,16 +52,13 @@
         </div>
 
         <div class="mb-4 bg-[#161b22] border border-blue-900/40 rounded-lg p-3">
-            <div class="flex justify-between items-center mb-2 border-b border-gray-800 pb-1">
-                <h3 class="text-[10px] font-black uppercase text-blue-400 tracking-widest">Intelligence Engine</h3>
-            </div>
             <div class="grid grid-cols-2 gap-3">
                 <div class="p-2 bg-black/40 rounded border border-gray-800">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-[8px] font-bold text-orange-500 uppercase">BTC Bias</span>
                         <span id="btc-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black">Scanning...</span>
                     </div>
-                    <div id="btc-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase">Awaiting</div>
+                    <div id="btc-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase italic">Awaiting</div>
                     <div class="mt-2"><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div id="btc-intensity-bar" class="intensity-bar h-full bg-blue-500" style="width: 0%"></div></div></div>
                 </div>
                 <div class="p-2 bg-black/40 rounded border border-gray-800">
@@ -69,7 +66,7 @@
                         <span class="text-[8px] font-bold uppercase">ETH Bias</span>
                         <span id="eth-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black text-gray-300">Scanning...</span>
                     </div>
-                    <div id="eth-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase">Awaiting</div>
+                    <div id="eth-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase italic">Awaiting</div>
                     <div class="mt-2"><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div id="eth-intensity-bar" class="intensity-bar h-full bg-blue-500" style="width: 0%"></div></div></div>
                 </div>
             </div>
@@ -77,22 +74,14 @@
 
         <div class="grid grid-cols-2 gap-3 mb-3">
             <div class="space-y-2">
-                <div class="bg-orange-600 px-2 py-0.5 rounded shadow-md text-black flex justify-between items-center">
-                    <h2 class="text-[9px] font-black uppercase">BTC Monitor</h2>
-                    <span id="btc-timer" class="text-[9px] font-mono font-bold bg-black/20 px-1.5 rounded transition-all italic">00:00</span>
-                </div>
-                <div id="btc-monitor-container" class="space-y-2">
-                    <div id="btc-5m-box"></div><div id="btc-15m-box"></div>
-                </div>
+                <div class="bg-orange-600 px-2 py-0.5 rounded shadow-md text-black font-black uppercase text-[9px]">BTC Monitor</div>
+                <div id="btc-5m-box"></div>
+                <div id="btc-15m-box"></div>
             </div>
             <div class="space-y-2">
-                <div class="bg-blue-600 px-2 py-0.5 rounded shadow-md text-black flex justify-between items-center">
-                    <h2 class="text-[9px] font-black uppercase">ETH Monitor</h2>
-                    <span id="eth-timer" class="text-[9px] font-mono font-bold bg-black/20 px-1.5 rounded transition-all italic">00:00</span>
-                </div>
-                <div id="eth-monitor-container" class="space-y-2">
-                    <div id="eth-5m-box"></div><div id="eth-15m-box"></div>
-                </div>
+                <div class="bg-blue-600 px-2 py-0.5 rounded shadow-md text-black font-black uppercase text-[9px]">ETH Monitor</div>
+                <div id="eth-5m-box"></div>
+                <div id="eth-15m-box"></div>
             </div>
         </div>
 
@@ -111,49 +100,39 @@
         function copyToClipboard() {
             navigator.clipboard.writeText(ADDR).then(() => {
                 const btn = document.getElementById('copy-btn');
-                btn.innerText = "COPIED!"; btn.classList.replace('bg-blue-600', 'bg-green-600');
-                setTimeout(() => { btn.innerText = "COPY ADDRESS"; btn.classList.replace('bg-green-600', 'bg-blue-600'); }, 2000);
+                btn.innerText = "COPIED!";
+                setTimeout(() => { btn.innerText = "COPY ADDRESS"; }, 2000);
             });
         }
 
-        // Timer and State Logic
-        function updateTimers() {
+        function getTimerInfo(mins) {
             const now = new Date();
-            const interval = 5 * 60 * 1000;
-            const msPassed = now.getTime() % interval;
-            const msRemaining = interval - msPassed;
+            const msPassed = now.getTime() % (mins * 60 * 1000);
+            const msRemaining = (mins * 60 * 1000) - msPassed;
+            const sRem = Math.floor(msRemaining / 1000);
+            const m = Math.floor(sRem / 60);
+            const s = sRem % 60;
             
-            const sRemaining = Math.floor(msRemaining / 1000);
-            const m = Math.floor(sRemaining / 60);
-            const s = sRemaining % 60;
-            const timeStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            let label = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            let className = "state-normal";
 
-            ASSETS.forEach(asset => {
-                const timerEl = document.getElementById(`${asset}-timer`);
-                const containerEl = document.getElementById(`${asset}-monitor-container`);
-                
-                // 1. Critical Phase (Last 30s)
-                if (sRemaining <= 30) {
-                    timerEl.innerText = timeStr;
-                    timerEl.className = "text-[9px] font-mono font-bold px-1.5 rounded timer-critical";
-                    containerEl.classList.remove('sync-pulse');
-                } 
-                // 2. Syncing Phase (First 30s of new window)
-                else if (msPassed <= 30000) {
-                    timerEl.innerText = "SYNCING...";
-                    timerEl.className = "text-[9px] font-mono font-bold bg-yellow-500 text-black px-1.5 rounded";
-                    containerEl.classList.add('sync-pulse');
-                } 
-                // 3. Normal Phase
-                else {
-                    timerEl.innerText = timeStr;
-                    timerEl.className = "text-[9px] font-mono font-bold bg-black/20 px-1.5 rounded text-black";
-                    containerEl.classList.remove('sync-pulse');
-                }
+            if (msPassed <= 30000) { label = "SYNCING"; className = "state-syncing"; }
+            else if (sRem <= 30) { className = "state-critical"; }
+
+            return { label, className };
+        }
+
+        function updateAllTimers() {
+            ASSETS.forEach(a => {
+                ['5m', '15m'].forEach(tf => {
+                    const info = getTimerInfo(parseInt(tf));
+                    const el = document.getElementById(`${a}-${tf}-timer`);
+                    if (el) { el.innerText = info.label; el.className = `timer-badge ${info.className}`; }
+                });
             });
         }
 
-        function initData() { ASSETS.forEach(a => { DATA[a] = { "5m": { upV: 0, downV: 0, upShares: 0, downShares: 0, upSpent: 0, downSpent: 0, upC: 0, downC: 0 }, "15m": { upV: 0, downV: 0, upShares: 0, downShares: 0, upSpent: 0, downSpent: 0, upC: 0, downC: 0 } }; }); }
+        function initData() { ASSETS.forEach(a => { DATA[a] = { "5m": { upV: 0, downV: 0, upC: 0, downC: 0 }, "15m": { upV: 0, downV: 0, upC: 0, downC: 0 } }; }); }
 
         async function sync() {
             const wallet = document.getElementById('wallet').value.trim();
@@ -170,47 +149,39 @@
                     const tf = slug.includes('15m') ? '15m' : '5m';
                     const isDown = t.outcomeIndex == "1";
                     const vol = parseFloat(t.usdcSize || 0);
-                    const shares = parseFloat(t.size || 0);
-                    if (isDown) { DATA[asset][tf].downV += vol; DATA[asset][tf].downShares += shares; DATA[asset][tf].downSpent += vol; DATA[asset][tf].downC++; }
-                    else { DATA[asset][tf].upV += vol; DATA[asset][tf].upShares += shares; DATA[asset][tf].upSpent += vol; DATA[asset][tf].upC++; }
+                    if (isDown) { DATA[asset][tf].downV += vol; DATA[asset][tf].downC++; }
+                    else { DATA[asset][tf].upV += vol; DATA[asset][tf].upC++; }
                     renderRow(asset, t);
                 });
-                updateUI(); runAnalysis();
+                updateUI();
             } catch (err) { console.error(err); }
-        }
-
-        function runAnalysis() {
-            ASSETS.forEach(asset => {
-                const d5 = DATA[asset]["5m"]; const d15 = DATA[asset]["15m"];
-                const totalCount = d5.upC + d5.downC + d15.upC + d15.downC;
-                const intensity = Math.min((totalCount / 20) * 100, 100);
-                const bar = document.getElementById(`${asset}-intensity-bar`);
-                bar.style.width = intensity + "%";
-                bar.className = `intensity-bar h-full ${intensity > 75 ? 'bg-red-500 shadow-[0_0_8px_red]' : intensity > 40 ? 'bg-yellow-500' : 'bg-blue-500'}`;
-                
-                const upRatio = (d5.upV + d5.downV) > 0 ? (d5.upV / (d5.upV + d5.downV)) : 0.5;
-                const tag = document.getElementById(`${asset}-bias-tag`);
-                const rec = document.getElementById(`${asset}-recommendation`);
-                let bias = "Neutral", color = "text-gray-400", recText = "SIDEWAYS";
-                if (d5.upV + d5.downV > 500) {
-                    if (upRatio > 0.65) { bias = "BULLISH"; color = "text-green-500"; recText = "EXPECT UP"; }
-                    else if (upRatio < 0.35) { bias = "BEARISH"; color = "text-red-500"; recText = "EXPECT DOWN"; }
-                }
-                tag.innerText = bias; tag.className = `text-[7px] px-1 rounded font-black uppercase ${bias==='BULLISH'?'bg-green-900 text-green-200':bias==='BEARISH'?'bg-red-900 text-red-200':'bg-gray-700 text-gray-300'}`;
-                rec.innerText = recText; rec.className = `text-xs font-black text-center py-1 tracking-widest ${color}`;
-            });
         }
 
         function updateUI() {
             ASSETS.forEach(a => {
                 ['5m', '15m'].forEach(tf => {
                     const d = DATA[a][tf];
-                    const upPL = (d.upShares - d.upSpent).toFixed(2);
-                    const downPL = (d.downShares - d.downSpent).toFixed(2);
                     const el = document.getElementById(`${a}-${tf}-box`);
-                    if(el) el.innerHTML = `<div class="stat-card mb-2 border border-gray-800"><div class="text-[8px] font-mono font-bold text-blue-400 mb-1">${tf}</div><div class="grid grid-cols-2 gap-2"><div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600"><div class="text-[7px] text-gray-500 uppercase font-bold">UP | $${upPL}</div><div class="text-sm font-black text-green-400">${d.upC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.upV)}</span></div></div><div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600"><div class="text-[7px] text-gray-500 uppercase font-bold">DN | $${downPL}</div><div class="text-sm font-black text-red-400">${d.downC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.downV)}</span></div></div></div></div>`;
+                    if(el) el.innerHTML = `
+                        <div class="stat-card border border-gray-800">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[8px] font-black text-blue-400 uppercase tracking-tighter">${tf} WINDOW</span>
+                                <span id="${a}-${tf}-timer" class="timer-badge state-normal">--:--</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600">
+                                    <div class="text-[7px] text-gray-500 font-bold uppercase">UP</div>
+                                    <div class="text-xs font-black text-green-400">${d.upC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.upV)}</span></div>
+                                </div>
+                                <div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600">
+                                    <div class="text-[7px] text-gray-500 font-bold uppercase">DN</div>
+                                    <div class="text-xs font-black text-red-400">${d.downC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.downV)}</span></div>
+                                </div>
+                            </div>
+                        </div>`;
                 });
             });
+            updateAllTimers(); // Immediate refresh after UI build
         }
 
         function renderRow(asset, t) {
@@ -220,7 +191,7 @@
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
         }
 
-        setInterval(updateTimers, 1000);
+        setInterval(updateAllTimers, 1000);
         setInterval(sync, 10000);
         sync();
     </script>
