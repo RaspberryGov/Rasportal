@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +13,16 @@
         
         #donation-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         
-        /* Timer States */
+        .tooltip-container { position: relative; cursor: help; }
+        .tooltip-text { 
+            visibility: hidden; width: 200px; background-color: #1c2128; color: #e2e8f0; 
+            text-align: left; border: 1px solid #444c56; border-radius: 6px; padding: 10px; 
+            position: absolute; z-index: 50; right: 0; top: 25px; font-size: 10px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.2s;
+            pointer-events: none; line-height: 1.4; font-weight: normal; text-transform: none;
+        }
+        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+
         .timer-badge { font-family: monospace; font-size: 9px; font-weight: 900; padding: 1px 4px; border-radius: 2px; }
         .state-normal { background: rgba(0,0,0,0.4); color: #94a3b8; }
         .state-syncing { background: #eab308; color: #000; animation: sync-pulse 1.5s infinite; }
@@ -21,7 +31,7 @@
         @keyframes sync-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes critical-flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-        .intensity-bar { transition: width 0.8s ease; }
+        .intensity-bar { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="bg-[#0b0e14] text-slate-200 p-3">
@@ -52,13 +62,23 @@
         </div>
 
         <div class="mb-4 bg-[#161b22] border border-blue-900/40 rounded-lg p-3">
+            <div class="flex justify-between items-center mb-2 border-b border-gray-800 pb-1">
+                <h3 class="text-[10px] font-black uppercase text-blue-400 tracking-widest">Intelligence Engine</h3>
+                <div class="tooltip-container">
+                    <span class="text-gray-500 border border-gray-700 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">?</span>
+                    <div class="tooltip-text">
+                        <b>BIAS:</b> Aggregated directional flow.<br>
+                        <b>INTENSITY:</b> Frequency of trade executions.
+                    </div>
+                </div>
+            </div>
             <div class="grid grid-cols-2 gap-3">
                 <div class="p-2 bg-black/40 rounded border border-gray-800">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-[8px] font-bold text-orange-500 uppercase">BTC Bias</span>
-                        <span id="btc-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black">Scanning...</span>
+                        <span id="btc-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black text-gray-300">Scanning...</span>
                     </div>
-                    <div id="btc-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase italic">Awaiting</div>
+                    <div id="btc-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase italic">Awaiting Data</div>
                     <div class="mt-2"><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div id="btc-intensity-bar" class="intensity-bar h-full bg-blue-500" style="width: 0%"></div></div></div>
                 </div>
                 <div class="p-2 bg-black/40 rounded border border-gray-800">
@@ -66,7 +86,7 @@
                         <span class="text-[8px] font-bold uppercase">ETH Bias</span>
                         <span id="eth-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black text-gray-300">Scanning...</span>
                     </div>
-                    <div id="eth-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase italic">Awaiting</div>
+                    <div id="eth-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase italic">Awaiting Data</div>
                     <div class="mt-2"><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div id="eth-intensity-bar" class="intensity-bar h-full bg-blue-500" style="width: 0%"></div></div></div>
                 </div>
             </div>
@@ -74,20 +94,32 @@
 
         <div class="grid grid-cols-2 gap-3 mb-3">
             <div class="space-y-2">
-                <div class="bg-orange-600 px-2 py-0.5 rounded shadow-md text-black font-black uppercase text-[9px]">BTC Monitor</div>
+                <div class="bg-orange-600 px-2 py-0.5 rounded shadow-md text-black flex justify-between items-center">
+                    <h2 class="text-[9px] font-black uppercase">BTC Monitor</h2>
+                    <div class="tooltip-container">
+                        <span class="text-black/60 font-bold text-[10px]">?</span>
+                        <div class="tooltip-text text-white">Tracking BTC 5M/15M Outcome Contracts.</div>
+                    </div>
+                </div>
                 <div id="btc-5m-box"></div>
                 <div id="btc-15m-box"></div>
             </div>
             <div class="space-y-2">
-                <div class="bg-blue-600 px-2 py-0.5 rounded shadow-md text-black font-black uppercase text-[9px]">ETH Monitor</div>
+                <div class="bg-blue-600 px-2 py-0.5 rounded shadow-md text-black flex justify-between items-center">
+                    <h2 class="text-[9px] font-black uppercase">ETH Monitor</h2>
+                    <div class="tooltip-container">
+                        <span class="text-black/60 font-bold text-[10px]">?</span>
+                        <div class="tooltip-text text-white">Tracking ETH 5M/15M Outcome Contracts.</div>
+                    </div>
+                </div>
                 <div id="eth-5m-box"></div>
                 <div id="eth-15m-box"></div>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 mb-4">
-            <div id="feed-btc" class="h-[35vh] overflow-y-auto custom-scrollbar space-y-2 pr-1 border-r border-gray-800/30"></div>
-            <div id="feed-eth" class="h-[35vh] overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
+            <div id="feed-btc" class="h-[35vh] overflow-y-auto custom-scrollbar space-y-1 pr-1 border-r border-gray-800/30"></div>
+            <div id="feed-eth" class="h-[35vh] overflow-y-auto custom-scrollbar space-y-1 pr-1"></div>
         </div>
     </div>
 
@@ -112,13 +144,10 @@
             const sRem = Math.floor(msRemaining / 1000);
             const m = Math.floor(sRem / 60);
             const s = sRem % 60;
-            
             let label = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             let className = "state-normal";
-
             if (msPassed <= 30000) { label = "SYNCING"; className = "state-syncing"; }
             else if (sRem <= 30) { className = "state-critical"; }
-
             return { label, className };
         }
 
@@ -132,7 +161,14 @@
             });
         }
 
-        function initData() { ASSETS.forEach(a => { DATA[a] = { "5m": { upV: 0, downV: 0, upC: 0, downC: 0 }, "15m": { upV: 0, downV: 0, upC: 0, downC: 0 } }; }); }
+        function initData() { 
+            ASSETS.forEach(a => { 
+                DATA[a] = { 
+                    "5m": { upV: 0, downV: 0, upC: 0, downC: 0 }, 
+                    "15m": { upV: 0, downV: 0, upC: 0, downC: 0 } 
+                }; 
+            }); 
+        }
 
         async function sync() {
             const wallet = document.getElementById('wallet').value.trim();
@@ -154,7 +190,33 @@
                     renderRow(asset, t);
                 });
                 updateUI();
+                runAnalysis();
             } catch (err) { console.error(err); }
+        }
+
+        function runAnalysis() {
+            ASSETS.forEach(asset => {
+                const d5 = DATA[asset]["5m"];
+                const d15 = DATA[asset]["15m"];
+                const totalVol = d5.upV + d5.downV + d15.upV + d15.downV;
+                const totalCount = d5.upC + d5.downC + d15.upC + d15.downC;
+                const intensity = Math.min((totalCount / 25) * 100, 100);
+                const bar = document.getElementById(`${asset}-intensity-bar`);
+                bar.style.width = intensity + "%";
+                bar.className = `intensity-bar h-full ${intensity > 70 ? 'bg-red-500' : intensity > 35 ? 'bg-yellow-500' : 'bg-blue-500'}`;
+                const upRatio = totalVol > 0 ? ((d5.upV + d15.upV) / totalVol) : 0.5;
+                const tag = document.getElementById(`${asset}-bias-tag`);
+                const rec = document.getElementById(`${asset}-recommendation`);
+                let bias = "Neutral", color = "text-gray-400", recText = "SIDEWAYS";
+                if (totalVol > 200) {
+                    if (upRatio > 0.60) { bias = "BULLISH"; color = "text-green-500"; recText = "EXPECT UP"; }
+                    else if (upRatio < 0.40) { bias = "BEARISH"; color = "text-red-500"; recText = "EXPECT DOWN"; }
+                }
+                tag.innerText = bias;
+                tag.className = `text-[7px] px-1 rounded font-black uppercase ${bias==='BULLISH'?'bg-green-900 text-green-200':bias==='BEARISH'?'bg-red-900 text-red-200':'bg-gray-700 text-gray-300'}`;
+                rec.innerText = recText;
+                rec.className = `text-xs font-black text-center py-1 tracking-widest ${color}`;
+            });
         }
 
         function updateUI() {
@@ -181,13 +243,22 @@
                         </div>`;
                 });
             });
-            updateAllTimers(); // Immediate refresh after UI build
+            updateAllTimers();
         }
 
         function renderRow(asset, t) {
             const isDown = t.outcomeIndex == "1";
             const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
-            const html = `<div class="bg-[#161b22] border border-gray-800 rounded p-2 mb-1 shadow-sm"><div class="text-[7px] text-gray-500 uppercase font-black mb-1 truncate">${t.title || "Market"}</div><div class="flex justify-between items-center"><span class="${isDown?'text-red-500':'text-green-500'} font-black uppercase text-[8px]">${isDown?'Down':'Up'}</span><span class="text-yellow-500 font-bold font-mono text-[9px]">${price}¢</span><span class="text-blue-400 font-bold font-mono text-[9px]">$${Math.round(t.usdcSize)}</span></div></div>`;
+            // Restored original transaction log UI while keeping market title context
+            const html = `
+                <div class="bg-[#161b22] border border-gray-800 rounded px-2 py-1 flex flex-col">
+                    <div class="text-[7px] text-gray-500 font-black uppercase truncate mb-0.5">${t.title || "Market"}</div>
+                    <div class="flex justify-between items-center">
+                        <span class="${isDown?'text-red-500':'text-green-500'} font-black uppercase text-[8px]">${isDown?'Down':'Up'}</span>
+                        <span class="text-yellow-500 font-bold font-mono text-[9px]">${price}¢</span>
+                        <span class="text-blue-400 font-bold font-mono text-[9px]">$${Math.round(t.usdcSize)}</span>
+                    </div>
+                </div>`;
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
         }
 
