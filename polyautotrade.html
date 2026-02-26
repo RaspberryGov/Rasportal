@@ -164,8 +164,8 @@
         function initData() { 
             ASSETS.forEach(a => { 
                 DATA[a] = { 
-                    "5m": { upV: 0, downV: 0, upC: 0, downC: 0 }, 
-                    "15m": { upV: 0, downV: 0, upC: 0, downC: 0 } 
+                    "5m": { upV: 0, downV: 0, upC: 0, downC: 0, upS: 0, downS: 0 }, 
+                    "15m": { upV: 0, downV: 0, upC: 0, downC: 0, upS: 0, downS: 0 } 
                 }; 
             }); 
         }
@@ -185,8 +185,16 @@
                     const tf = slug.includes('15m') ? '15m' : '5m';
                     const isDown = t.outcomeIndex == "1";
                     const vol = parseFloat(t.usdcSize || 0);
-                    if (isDown) { DATA[asset][tf].downV += vol; DATA[asset][tf].downC++; }
-                    else { DATA[asset][tf].upV += vol; DATA[asset][tf].upC++; }
+                    const shares = parseFloat(t.size || 0);
+                    if (isDown) { 
+                        DATA[asset][tf].downV += vol; 
+                        DATA[asset][tf].downC++; 
+                        DATA[asset][tf].downS += shares;
+                    } else { 
+                        DATA[asset][tf].upV += vol; 
+                        DATA[asset][tf].upC++; 
+                        DATA[asset][tf].upS += shares;
+                    }
                     renderRow(asset, t);
                 });
                 updateUI();
@@ -223,6 +231,8 @@
             ASSETS.forEach(a => {
                 ['5m', '15m'].forEach(tf => {
                     const d = DATA[a][tf];
+                    const upPL = (d.upS - d.upV).toFixed(2);
+                    const dnPL = (d.downS - d.downV).toFixed(2);
                     const el = document.getElementById(`${a}-${tf}-box`);
                     if(el) el.innerHTML = `
                         <div class="stat-card border border-gray-800">
@@ -232,11 +242,11 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600">
-                                    <div class="text-[7px] text-gray-500 font-bold uppercase">UP</div>
+                                    <div class="text-[7px] text-gray-500 font-bold uppercase">UP | $${upPL}</div>
                                     <div class="text-xs font-black text-green-400">${d.upC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.upV)}</span></div>
                                 </div>
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600">
-                                    <div class="text-[7px] text-gray-500 font-bold uppercase">DN</div>
+                                    <div class="text-[7px] text-gray-500 font-bold uppercase">DN | $${dnPL}</div>
                                     <div class="text-xs font-black text-red-400">${d.downC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.downV)}</span></div>
                                 </div>
                             </div>
@@ -249,7 +259,6 @@
         function renderRow(asset, t) {
             const isDown = t.outcomeIndex == "1";
             const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
-            // Restored original transaction log UI while keeping market title context
             const html = `
                 <div class="bg-[#161b22] border border-gray-800 rounded px-2 py-1 flex flex-col">
                     <div class="text-[7px] text-gray-500 font-black uppercase truncate mb-0.5">${t.title || "Market"}</div>
