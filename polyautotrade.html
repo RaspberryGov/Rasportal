@@ -117,6 +117,9 @@
             </div>
         </div>
 
+        <div class="bg-slate-700 px-2 py-0.5 rounded shadow-md text-white mb-2">
+            <h2 class="text-[9px] font-black uppercase">Recent Transactions</h2>
+        </div>
         <div class="grid grid-cols-2 gap-3 mb-4">
             <div id="feed-btc" class="h-[35vh] overflow-y-auto custom-scrollbar space-y-1 pr-1 border-r border-gray-800/30"></div>
             <div id="feed-eth" class="h-[35vh] overflow-y-auto custom-scrollbar space-y-1 pr-1"></div>
@@ -186,15 +189,8 @@
                     const isDown = t.outcomeIndex == "1";
                     const vol = parseFloat(t.usdcSize || 0);
                     const shares = parseFloat(t.size || 0);
-                    if (isDown) { 
-                        DATA[asset][tf].downV += vol; 
-                        DATA[asset][tf].downC++; 
-                        DATA[asset][tf].downS += shares;
-                    } else { 
-                        DATA[asset][tf].upV += vol; 
-                        DATA[asset][tf].upC++; 
-                        DATA[asset][tf].upS += shares;
-                    }
+                    if (isDown) { DATA[asset][tf].downV += vol; DATA[asset][tf].downC++; DATA[asset][tf].downS += shares; }
+                    else { DATA[asset][tf].upV += vol; DATA[asset][tf].upC++; DATA[asset][tf].upS += shares; }
                     renderRow(asset, t);
                 });
                 updateUI();
@@ -220,10 +216,8 @@
                     if (upRatio > 0.60) { bias = "BULLISH"; color = "text-green-500"; recText = "EXPECT UP"; }
                     else if (upRatio < 0.40) { bias = "BEARISH"; color = "text-red-500"; recText = "EXPECT DOWN"; }
                 }
-                tag.innerText = bias;
-                tag.className = `text-[7px] px-1 rounded font-black uppercase ${bias==='BULLISH'?'bg-green-900 text-green-200':bias==='BEARISH'?'bg-red-900 text-red-200':'bg-gray-700 text-gray-300'}`;
-                rec.innerText = recText;
-                rec.className = `text-xs font-black text-center py-1 tracking-widest ${color}`;
+                tag.innerText = bias; tag.className = `text-[7px] px-1 rounded font-black uppercase ${bias==='BULLISH'?'bg-green-900 text-green-200':bias==='BEARISH'?'bg-red-900 text-red-200':'bg-gray-700 text-gray-300'}`;
+                rec.innerText = recText; rec.className = `text-xs font-black text-center py-1 tracking-widest ${color}`;
             });
         }
 
@@ -233,6 +227,8 @@
                     const d = DATA[a][tf];
                     const upPL = (d.upS - d.upV).toFixed(2);
                     const dnPL = (d.downS - d.downV).toFixed(2);
+                    const avgUp = d.upS > 0 ? Math.round((d.upV / d.upS) * 100) : 0;
+                    const avgDn = d.downS > 0 ? Math.round((d.downV / d.downS) * 100) : 0;
                     const el = document.getElementById(`${a}-${tf}-box`);
                     if(el) el.innerHTML = `
                         <div class="stat-card border border-gray-800">
@@ -243,11 +239,11 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600">
                                     <div class="text-[7px] text-gray-500 font-bold uppercase">UP | $${upPL}</div>
-                                    <div class="text-xs font-black text-green-400">${d.upC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.upV)}</span></div>
+                                    <div class="text-xs font-black text-green-400">${d.upC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.upV)} @${avgUp}¢</span></div>
                                 </div>
                                 <div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600">
                                     <div class="text-[7px] text-gray-500 font-bold uppercase">DN | $${dnPL}</div>
-                                    <div class="text-xs font-black text-red-400">${d.downC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.downV)}</span></div>
+                                    <div class="text-xs font-black text-red-400">${d.downC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.downV)} @${avgDn}¢</span></div>
                                 </div>
                             </div>
                         </div>`;
@@ -259,15 +255,7 @@
         function renderRow(asset, t) {
             const isDown = t.outcomeIndex == "1";
             const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
-            const html = `
-                <div class="bg-[#161b22] border border-gray-800 rounded px-2 py-1 flex flex-col">
-                    <div class="text-[7px] text-gray-500 font-black uppercase truncate mb-0.5">${t.title || "Market"}</div>
-                    <div class="flex justify-between items-center">
-                        <span class="${isDown?'text-red-500':'text-green-500'} font-black uppercase text-[8px]">${isDown?'Down':'Up'}</span>
-                        <span class="text-yellow-500 font-bold font-mono text-[9px]">${price}¢</span>
-                        <span class="text-blue-400 font-bold font-mono text-[9px]">$${Math.round(t.usdcSize)}</span>
-                    </div>
-                </div>`;
+            const html = `<div class="bg-[#161b22] border border-gray-800 rounded px-2 py-1 flex flex-col"><div class="text-[7px] text-gray-500 font-black uppercase truncate mb-0.5">${t.title || "Market"}</div><div class="flex justify-between items-center"><span class="${isDown?'text-red-500':'text-green-500'} font-black uppercase text-[8px]">${isDown?'Down':'Up'}</span><span class="text-yellow-500 font-bold font-mono text-[9px]">${price}¢</span><span class="text-blue-400 font-bold font-mono text-[9px]">$${Math.round(t.usdcSize)}</span></div></div>`;
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
         }
 
