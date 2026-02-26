@@ -3,174 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Copy-Trade Terminal</title>
+    <title>Poly Monitor | Oracle Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1a1c23; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4451; border-radius: 10px; }
-        @keyframes pulse-border {
-            0% { border-color: rgba(59, 130, 246, 0.5); }
-            50% { border-color: rgba(59, 130, 246, 1); }
-            100% { border-color: rgba(59, 130, 246, 0.5); }
-        }
-        .status-active { animation: pulse-border 2s infinite; }
-        .input-dark { @apply bg-black border border-gray-800 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-blue-500 transition-colors; }
+        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 8px; }
+        .flash-red { animation: flash 1s infinite; color: #ff4444 !important; }
+        .price-up { color: #22c55e; }
+        .price-down { color: #ef4444; }
+        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        body { font-size: 12px; line-height: 1.2; background: #0b0e14; color: #e2e8f0; }
+        .active-tab { background: #238636 !important; color: white; border-color: #2ea043; }
     </style>
 </head>
-<body class="bg-[#0b0e14] text-slate-200 font-sans p-4">
-    <div class="max-w-[1600px] mx-auto">
-        
-        <div class="mb-6 bg-[#161b22] border border-blue-500/30 rounded-xl p-4 shadow-2xl">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2">
-                    <div id="bot-status-dot" class="h-2 w-2 bg-gray-600 rounded-full"></div>
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-blue-400">Copy-Trade Terminal v1.0</h2>
-                </div>
-                <div class="text-[9px] text-gray-500 font-mono">ENCRYPTED LOCAL SESSION</div>
-            </div>
+<body class="p-3">
 
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 items-end">
-                <div class="flex flex-col gap-1">
-                    <label class="text-[8px] uppercase font-bold text-gray-500">API Passphrase</label>
-                    <input type="password" id="api-pass" placeholder="..." class="input-dark bg-black border border-gray-800 rounded px-2 py-1.5 text-[10px]">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-[8px] uppercase font-bold text-gray-500">Take Profit %</label>
-                    <input type="number" id="tp-percent" value="10" class="input-dark bg-black border border-gray-800 rounded px-2 py-1.5 text-[10px]">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-[8px] uppercase font-bold text-gray-500">Stop Loss %</label>
-                    <input type="number" id="sl-percent" value="5" class="input-dark bg-black border border-gray-800 rounded px-2 py-1.5 text-[10px]">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-[8px] uppercase font-bold text-gray-500">Order Size ($)</label>
-                    <input type="number" id="trade-size" value="50" class="input-dark bg-black border border-gray-800 rounded px-2 py-1.5 text-[10px]">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-[8px] uppercase font-bold text-gray-500">Slippage %</label>
-                    <input type="number" id="slippage" value="1" step="0.1" class="input-dark bg-black border border-gray-800 rounded px-2 py-1.5 text-[10px]">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-[8px] uppercase font-bold text-gray-500">Market Target</label>
-                    <select id="market-time" class="input-dark bg-black border border-gray-800 rounded px-2 py-1.5 text-[10px] cursor-pointer">
-                        <option value="5m">BTC 5m Price</option>
-                        <option value="15m" selected>BTC 15m Price</option>
-                    </select>
-                </div>
-                <button id="bot-toggle" onclick="toggleBot()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] py-2 rounded uppercase transition-all">
-                    Start Copying
-                </button>
-            </div>
-        </div>
-
-        <header class="flex flex-col mb-6 gap-4">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-4">
-                    <h1 class="text-xl font-black text-white italic tracking-tighter">@RENAME <span class="text-blue-500">MONITOR</span></h1>
-                    <div id="status-bar" class="text-[9px] font-mono text-gray-500 bg-gray-900 px-3 py-1 rounded-full border border-gray-800 uppercase tracking-widest status-active">
-                        Initializing...
-                    </div>
-                </div>
-
-                <div class="flex items-center bg-[#161b22] border border-gray-800 rounded-lg p-1 w-full md:w-auto shadow-xl">
-                    <button onclick="toggleFavorite()" id="fav-btn" class="px-2 text-gray-500 hover:text-yellow-400 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="star-icon">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                        </svg>
-                    </button>
-                    <input type="text" id="wallet-input" placeholder="0x..." class="bg-transparent text-[11px] font-mono px-3 py-1.5 w-full md:w-80 outline-none text-blue-400" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                    <button onclick="updateUser()" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-4 py-1.5 rounded transition uppercase ml-1">Switch</button>
-                </div>
-            </div>
-            <div id="favorites-container" class="flex flex-wrap items-center gap-2 py-2 border-y border-gray-800/50">
-                <span class="text-[9px] font-bold text-gray-600 uppercase tracking-widest mr-2">Favourited:</span>
-                <div id="favorites-list" class="flex flex-wrap gap-2"></div>
+    <div class="max-w-4xl mx-auto">
+        <header class="flex flex-col items-center mb-4 text-center">
+            <h1 class="text-xl font-black text-white italic uppercase tracking-tighter">Poly Monitor <span class="text-blue-500 text-[10px] not-italic font-bold ml-1">ORACLE v4</span></h1>
+            <div class="flex mt-2 w-full max-w-sm bg-[#161b22] border border-gray-700 rounded p-0.5">
+                <input type="text" id="wallet" class="bg-transparent px-2 py-1 text-[11px] font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
+                <button onclick="sync()" class="bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-500 ml-1">Sync</button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="flex flex-col h-[70vh]">
-                <h2 class="bg-orange-500/10 text-orange-500 text-[10px] font-black p-2 mb-2 rounded border border-orange-500/20 text-center uppercase">Bitcoin</h2>
-                <div id="col-btc" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="bg-black/60 border border-orange-500/30 rounded p-2 flex justify-between items-center shadow-lg">
+                <div>
+                    <div class="text-[8px] text-orange-500 font-bold uppercase tracking-widest">BTC/USD Chainlink</div>
+                    <div id="btc-price-live" class="text-lg font-black font-mono">Loading...</div>
+                </div>
+                <div class="text-right text-[8px] text-gray-500">
+                    STATUS: <span id="btc-status" class="text-green-500">LIVE</span><br>
+                    DEV: <span id="btc-deviation">--</span>
+                </div>
             </div>
-            <div class="flex flex-col h-[70vh]">
-                <h2 class="bg-blue-500/10 text-blue-500 text-[10px] font-black p-2 mb-2 rounded border border-blue-500/20 text-center uppercase">Ethereum</h2>
-                <div id="col-eth" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+            <div class="bg-black/60 border border-blue-500/30 rounded p-2 flex justify-between items-center shadow-lg">
+                <div>
+                    <div class="text-[8px] text-blue-500 font-bold uppercase tracking-widest">ETH/USD Chainlink</div>
+                    <div id="eth-price-live" class="text-lg font-black font-mono">Loading...</div>
+                </div>
+                <div class="text-right text-[8px] text-gray-500">
+                    STATUS: <span id="eth-status" class="text-green-500">LIVE</span><br>
+                    DEV: <span id="eth-deviation">--</span>
+                </div>
             </div>
-            <div class="flex flex-col h-[70vh]">
-                <h2 class="bg-purple-500/10 text-purple-500 text-[10px] font-black p-2 mb-2 rounded border border-purple-500/20 text-center uppercase">Solana</h2>
-                <div id="col-sol" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+        </div>
+
+        <div class="bg-[#161b22] border border-blue-900/50 rounded-lg p-3 mb-4">
+            <div class="flex justify-between items-center mb-2 border-b border-gray-800 pb-1">
+                <h3 class="text-[10px] font-black uppercase text-blue-400 tracking-tighter">Market Decision Engine</h3>
+                <span id="intel-status" class="text-[8px] text-gray-500 font-mono italic">Calibrating...</span>
             </div>
-            <div class="flex flex-col h-[70vh]">
-                <h2 class="bg-teal-500/10 text-teal-500 text-[10px] font-black p-2 mb-2 rounded border border-teal-500/20 text-center uppercase">XRP</h2>
-                <div id="col-xrp" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-1"></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div id="btc-intel-box" class="p-2 bg-black/30 rounded border border-gray-800">
+                    <div class="flex justify-between text-[8px] font-bold mb-1"><span>BTC BIAS</span><span id="btc-bias-tag">--</span></div>
+                    <div id="btc-decision" class="text-sm font-black text-center py-1">WAITING</div>
+                    <div class="text-[7px] text-gray-500 flex justify-between mt-1">
+                        <span>SKEW: <b id="btc-skew">--</b></span>
+                        <span>ORACLE: <b id="btc-oracle-diff">--</b></span>
+                    </div>
+                </div>
+                <div id="eth-intel-box" class="p-2 bg-black/30 rounded border border-gray-800">
+                    <div class="flex justify-between text-[8px] font-bold mb-1"><span>ETH BIAS</span><span id="eth-bias-tag">--</span></div>
+                    <div id="eth-decision" class="text-sm font-black text-center py-1">WAITING</div>
+                    <div class="text-[7px] text-gray-500 flex justify-between mt-1">
+                        <span>SKEW: <b id="eth-skew">--</b></span>
+                        <span>ORACLE: <b id="eth-oracle-diff">--</b></span>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-3">
+            <div id="btc-monitors" class="space-y-2">
+                <h2 class="bg-orange-600/20 text-orange-500 text-[9px] font-black py-1 border border-orange-500/20 rounded text-center uppercase tracking-tighter">BTC Monitor</h2>
+                <div id="btc-5m-box"></div><div id="btc-15m-box"></div>
+            </div>
+            <div id="eth-monitors" class="space-y-2">
+                <h2 class="bg-blue-600/20 text-blue-500 text-[9px] font-black py-1 border border-blue-500/20 rounded text-center uppercase tracking-tighter">ETH Monitor</h2>
+                <div id="eth-5m-box"></div><div id="eth-15m-box"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div id="feed-btc" class="h-[40vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1 border-r border-gray-800/30"></div>
+            <div id="feed-eth" class="h-[40vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1"></div>
         </div>
     </div>
 
     <script>
-        let CURRENT_USER = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
-        let botActive = false;
-        const ASSETS = ['btc', 'eth', 'sol', 'xrp'];
-        let favorites = JSON.parse(localStorage.getItem('poly_favorites') || '[]');
+        let DATA = {};
+        let ORACLE_PRICES = { btc: 0, eth: 0 };
+        let CURRENT_WALLET = "0xf6963d4cdbb6f26d753bda303e9513132afb1b7d";
+        const ASSETS = ['btc', 'eth'];
+        
+        // Chainlink Aggregator Addresses (Mainnet)
+        const FEEDS = {
+            btc: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
+            eth: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
+        };
 
-        function toggleBot() {
-            botActive = !botActive;
-            const btn = document.getElementById('bot-toggle');
-            const dot = document.getElementById('bot-status-dot');
-            if(botActive) {
-                btn.innerText = "Stop Copying";
-                btn.classList.replace('bg-blue-600', 'bg-red-600');
-                dot.classList.replace('bg-gray-600', 'bg-green-500');
-                dot.classList.add('animate-ping');
-            } else {
-                btn.innerText = "Start Copying";
-                btn.classList.replace('bg-red-600', 'bg-blue-600');
-                dot.classList.replace('bg-green-500', 'bg-gray-600');
-                dot.classList.remove('animate-ping');
+        const provider = new ethers.providers.JsonRpcProvider("https://cloudflare-eth.com");
+        const abi = [{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"}];
+
+        async function fetchChainlink() {
+            for (const asset of ASSETS) {
+                try {
+                    const contract = new ethers.Contract(FEEDS[asset], abi, provider);
+                    const [,, , updatedAt, ] = await contract.latestRoundData();
+                    const roundData = await contract.latestRoundData();
+                    const price = parseFloat(ethers.utils.formatUnits(roundData.answer, 8));
+                    
+                    const el = document.getElementById(`${asset}-price-live`);
+                    const oldPrice = ORACLE_PRICES[asset];
+                    
+                    if (price > oldPrice) el.className = "text-lg font-black font-mono price-up";
+                    else if (price < oldPrice) el.className = "text-lg font-black font-mono price-down";
+                    
+                    el.innerText = `$${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                    ORACLE_PRICES[asset] = price;
+                } catch (e) { console.error("Oracle Error:", e); }
             }
         }
 
+        function initData() {
+            ASSETS.forEach(a => {
+                DATA[a] = { "5m": { upV: 0, downV: 0, upShares: 0, downShares: 0, upSpent: 0, downSpent: 0 }, "15m": { upV: 0, downV: 0, upShares: 0, downShares: 0, upSpent: 0, downSpent: 0 } };
+            });
+        }
+
         async function sync() {
+            CURRENT_WALLET = document.getElementById('wallet').value.trim();
             try {
-                const response = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_USER}&limit=10`);
-                const data = await response.json();
-                ASSETS.forEach(id => document.getElementById(`col-${id}`).innerHTML = '');
-                data.forEach(item => {
-                    const title = item.title.toLowerCase();
-                    let targetCol = null;
-                    if (title.includes('btc') || title.includes('bitcoin')) targetCol = 'btc';
-                    else if (title.includes('eth') || title.includes('ethereum')) targetCol = 'eth';
-                    else if (title.includes('solana') || title.includes('sol')) targetCol = 'sol';
-                    else if (title.includes('xrp')) targetCol = 'xrp';
-                    if (targetCol) document.getElementById(`col-${targetCol}`).insertAdjacentHTML('beforeend', createCard(item));
+                const res = await fetch(`https://data-api.polymarket.com/activity?user=${CURRENT_WALLET}&limit=50`);
+                const trades = await res.json();
+                initData();
+                ASSETS.forEach(a => document.getElementById(`feed-${a}`).innerHTML = '');
+                trades.forEach(t => {
+                    const slug = t.slug || "";
+                    const asset = ASSETS.find(a => slug.toLowerCase().includes(a));
+                    if (!asset) return;
+                    const tf = slug.includes('15m') ? '15m' : '5m';
+                    const isDown = t.outcomeIndex == "1";
+                    const vol = parseFloat(t.usdcSize);
+                    const shares = parseFloat(t.size);
+                    
+                    if (isDown) { DATA[asset][tf].downV += vol; DATA[asset][tf].downShares += shares; DATA[asset][tf].downSpent += vol; }
+                    else { DATA[asset][tf].upV += vol; DATA[asset][tf].upShares += shares; DATA[asset][tf].upSpent += vol; }
+                    
+                    renderRow(asset, t);
                 });
-                document.getElementById('status-bar').innerText = `LIVE UPDATED: ${new Date().toLocaleTimeString()}`;
+                updateUI();
+                runAnalysis();
             } catch (err) { console.error(err); }
         }
 
-        function createCard(item) {
-            let direction = (item.outcomeIndex === "0" || item.outcome?.toLowerCase() === "yes") ? "UP" : "DOWN";
-            const isBuy = item.side === 'BUY';
-            const polyLink = `https://polymarket.com/event/${item.slug}`;
-            return `<div class="bg-[#161b22] border border-gray-800 rounded-lg p-3 hover:border-gray-500 transition-all group">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-[9px] font-bold ${isBuy ? 'text-green-500' : 'text-red-400'} uppercase">${item.side}</span>
-                    <span class="text-[9px] text-gray-600">${new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>
-                <a href="${polyLink}" target="_blank" class="block text-[11px] font-medium text-gray-300 mb-3 hover:text-blue-400 transition-colors">${item.title}</a>
-                <div class="flex justify-between items-end bg-black/40 p-2 rounded border border-gray-800/50">
-                    <div><div class="text-[8px] text-gray-500 uppercase font-bold">Pos</div><div class="text-sm font-black ${direction === 'UP' ? 'text-green-400' : 'text-red-400'}">${direction}</div></div>
-                    <div class="text-right"><div class="text-[8px] text-gray-500 uppercase font-bold">Val</div><div class="text-xs font-mono font-bold text-white">$${parseFloat(item.usdcSize).toFixed(2)}</div></div>
-                </div>
-            </div>`;
+        function runAnalysis() {
+            ASSETS.forEach(asset => {
+                const d = DATA[asset]["5m"];
+                const total = d.upV + d.downV;
+                const skew = total > 0 ? (d.upV / total) : 0.5;
+                const rec = document.getElementById(`${asset}-decision`);
+                
+                let decision = "STAY NEUTRAL";
+                let color = "text-gray-500";
+                
+                if (skew > 0.7) { decision = "BULLISH BIAS"; color = "text-green-500"; }
+                else if (skew < 0.3) { decision = "BEARISH BIAS"; color = "text-red-500"; }
+                
+                rec.innerText = decision;
+                rec.className = `text-sm font-black text-center py-1 ${color}`;
+                document.getElementById(`${asset}-skew`).innerText = `${Math.round(skew*100)}% UP`;
+            });
         }
 
-        function init() { renderFavorites(); sync(); setInterval(sync, 10000); }
-        function renderFavorites() { /* Existing logic */ }
-        function updateUser(a) { /* Existing logic */ }
-        init();
+        function updateUI() {
+            ASSETS.forEach(a => {
+                ['5m', '15m'].forEach(tf => {
+                    const d = DATA[a][tf];
+                    const avgUp = d.upShares > 0 ? (d.upSpent / d.upShares * 100).toFixed(1) : "0.0";
+                    const avgDown = d.downShares > 0 ? (d.downSpent / d.downShares * 100).toFixed(1) : "0.0";
+                    const el = document.getElementById(`${a}-${tf}-box`);
+                    if(el) el.innerHTML = `<div class="stat-card mb-2 border-l-2 ${tf==='5m'?'border-blue-500':'border-purple-500'}">
+                        <div class="flex justify-between text-[7px] text-gray-500 font-bold mb-1 uppercase"><span>${tf} Window</span></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-black/40 p-1 rounded">
+                                <div class="text-[7px] text-green-500 font-bold">UP $${Math.round(d.upV)}</div>
+                                <div class="text-xs font-black text-white">${avgUp}¢ avg</div>
+                            </div>
+                            <div class="bg-black/40 p-1 rounded">
+                                <div class="text-[7px] text-red-500 font-bold">DOWN $${Math.round(d.downV)}</div>
+                                <div class="text-xs font-black text-white">${avgDown}¢ avg</div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            });
+        }
+
+        function renderRow(asset, t) {
+            const isDown = t.outcomeIndex == "1";
+            const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
+            const html = `<div class="bg-[#161b22] border border-gray-800 rounded p-1.5 text-[9px]">
+                <div class="flex justify-between text-[7px] text-gray-500 mb-0.5"><span>TRADED</span><span>${new Date(t.timestamp*1000).toLocaleTimeString()}</span></div>
+                <div class="flex justify-between items-center"><span class="${isDown?'text-red-500':'text-green-500'} font-black">${isDown?'DOWN':'UP'}</span><span class="text-white font-mono">${price}¢</span><span class="text-blue-400">$${Math.round(t.usdcSize)}</span></div>
+            </div>`;
+            document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
+        }
+
+        setInterval(fetchChainlink, 3000); // 3-second oracle update
+        setInterval(sync, 10000); // 10-second whale sync
+        fetchChainlink();
+        sync();
     </script>
 </body>
 </html>
