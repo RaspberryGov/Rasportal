@@ -11,50 +11,60 @@
         .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 8px; }
         body { font-size: 12px; line-height: 1.2; background: #0b0e14; color: #cbd5e1; }
         
-        /* Tooltip Logic */
+        /* Modal Style */
+        #donation-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        
+        /* Tooltip Style */
         .tooltip-container { position: relative; cursor: help; }
         .tooltip-text { 
-            visibility: hidden; width: 240px; background-color: #1c2128; color: #e2e8f0; 
-            text-align: left; border: 1px solid #444c56; border-radius: 6px; padding: 12px; 
+            visibility: hidden; width: 220px; background-color: #1c2128; color: #e2e8f0; 
+            text-align: left; border: 1px solid #444c56; border-radius: 6px; padding: 10px; 
             position: absolute; z-index: 50; right: 0; top: 25px; font-size: 10px; 
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.2s;
             pointer-events: none; line-height: 1.4;
         }
         .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
-        
-        .intensity-bar { transition: width 0.8s ease, background-color 0.8s; }
-        .legend-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
+        .intensity-bar { transition: width 0.8s ease; }
     </style>
 </head>
 <body class="bg-[#0b0e14] text-slate-200 p-3">
 
     <div class="max-w-4xl mx-auto">
-        <header class="flex flex-col items-center mb-3 text-center">
+        <header class="flex flex-col items-center mb-4 text-center">
             <h1 class="text-xl font-black text-white italic uppercase tracking-tighter">Poly Monitor</h1>
             <p class="text-[8px] text-gray-500 uppercase tracking-[0.3em] -mt-1">developed by Freeberry</p>
             
-            <div class="flex mt-2 w-full max-w-sm bg-[#161b22] border border-gray-700 rounded p-0.5 shadow-xl">
-                <input type="text" id="wallet" class="bg-transparent px-2 py-1 text-[11px] font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
-                <button onclick="sync()" class="bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-500 ml-1">Track</button>
+            <div class="flex gap-2 mt-4 w-full max-w-lg items-center">
+                <div class="flex flex-1 bg-[#161b22] border border-gray-700 rounded p-0.5 shadow-xl">
+                    <input type="text" id="wallet" class="bg-transparent px-2 py-1 text-[11px] font-mono w-full text-blue-400 outline-none" value="0xf6963d4cdbb6f26d753bda303e9513132afb1b7d">
+                    <button onclick="sync()" class="bg-blue-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-500 ml-1 transition-colors">Track</button>
+                </div>
+                <button onclick="toggleModal(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded text-[9px] font-black uppercase shadow-lg transition-all active:scale-95">Donate</button>
             </div>
         </header>
 
-        <div class="mb-4 bg-[#161b22] border border-blue-900/40 rounded-lg p-3 shadow-inner">
+        <div id="donation-modal">
+            <div class="bg-[#161b22] border border-gray-600 p-8 rounded-lg max-w-sm w-full text-center shadow-2xl">
+                <h2 class="text-white font-black uppercase text-sm mb-2 italic tracking-widest">Support Freeberry</h2>
+                <p class="text-[9px] text-gray-500 mb-4 uppercase font-bold">ETH Address</p>
+                <div id="addr-text" class="bg-black/60 p-4 rounded border border-gray-800 break-all font-mono text-blue-400 text-[11px] mb-6 select-all">
+                    0xE54AA4F86317457D6E89250A55BA9982538dA4Eb
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="copyToClipboard()" id="copy-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded text-[10px] font-black uppercase tracking-wider transition-colors">Copy Address</button>
+                    <button onclick="toggleModal(false)" class="w-full bg-transparent text-gray-500 hover:text-white py-2 rounded text-[9px] font-black uppercase">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4 bg-[#161b22] border border-blue-900/40 rounded-lg p-3">
             <div class="flex justify-between items-center mb-2 border-b border-gray-800 pb-1">
-                <h3 class="text-[10px] font-black uppercase text-blue-400 tracking-widest flex items-center gap-2">
-                    <span class="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                    Behavioral Analysis Engine
-                </h3>
+                <h3 class="text-[10px] font-black uppercase text-blue-400 tracking-widest flex items-center gap-2">Intelligence Engine</h3>
                 <div class="tooltip-container">
-                    <span class="text-gray-500 border border-gray-700 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold hover:bg-gray-700">?</span>
+                    <span class="text-gray-500 border border-gray-700 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">?</span>
                     <div class="tooltip-text">
-                        <b class="text-blue-400">ANALYSIS & INTENSITY:</b><br>
-                        Calculates the <b>Volume Bias</b> (percentage of capital flow) and <b>Velocity</b> (frequency of trades).
-                        <br><br>
-                        <b class="text-gray-300 uppercase text-[9px]">Intensity Legend:</b><br>
-                        <span class="legend-dot bg-blue-500"></span> 0-40%: Cold / Passive Accumulation<br>
-                        <span class="legend-dot bg-yellow-500"></span> 41-75%: Warm / Active Scaling<br>
-                        <span class="legend-dot bg-red-500"></span> 76-100%: Hot / High-Conviction "Aping"
+                        <b>BIAS:</b> Directional capital flow (Bull/Bear).<br><br>
+                        <b>INTENSITY:</b> Transaction frequency. Blue (Passive), Yellow (Active), Red (Aggressive).
                     </div>
                 </div>
             </div>
@@ -62,54 +72,34 @@
                 <div class="p-2 bg-black/40 rounded border border-gray-800">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-[8px] font-bold text-orange-500 uppercase">BTC Bias</span>
-                        <span id="btc-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black text-gray-300">Scanning...</span>
+                        <span id="btc-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black">Scanning...</span>
                     </div>
-                    <div id="btc-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase">Awaiting Data</div>
-                    <div class="mt-2 pt-2 border-t border-gray-800/50">
-                        <div class="flex justify-between text-[7px] font-bold text-gray-500 uppercase mb-1"><span>Intensity</span><span id="btc-intensity-val">0%</span></div>
-                        <div class="w-full bg-gray-900 h-1.5 rounded-full overflow-hidden">
-                            <div id="btc-intensity-bar" class="intensity-bar h-full bg-blue-500" style="width: 0%"></div>
-                        </div>
-                    </div>
+                    <div id="btc-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase">Awaiting</div>
+                    <div class="mt-2"><div class="w-full bg-gray-900 h-1 rounded-full"><div id="btc-intensity-bar" class="intensity-bar h-full bg-blue-500" style="width: 0%"></div></div></div>
                 </div>
                 <div class="p-2 bg-black/40 rounded border border-gray-800">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[8px] font-bold text-blue-500 uppercase">ETH Bias</span>
-                        <span id="eth-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black text-gray-300">Scanning...</span>
+                    <div class="flex justify-between items-center mb-1 text-blue-500">
+                        <span class="text-[8px] font-bold uppercase">ETH Bias</span>
+                        <span id="eth-bias-tag" class="text-[7px] px-1 rounded bg-gray-700 font-black">Scanning...</span>
                     </div>
-                    <div id="eth-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase">Awaiting Data</div>
-                    <div class="mt-2 pt-2 border-t border-gray-800/50">
-                        <div class="flex justify-between text-[7px] font-bold text-gray-500 uppercase mb-1"><span>Intensity</span><span id="eth-intensity-val">0%</span></div>
-                        <div class="w-full bg-gray-900 h-1.5 rounded-full overflow-hidden">
-                            <div id="eth-intensity-bar" class="intensity-bar h-full bg-blue-500" style="width: 0%"></div>
-                        </div>
-                    </div>
+                    <div id="eth-recommendation" class="text-xs font-black text-center py-1 tracking-widest text-gray-500 uppercase">Awaiting</div>
+                    <div class="mt-2"><div class="w-full bg-gray-900 h-1 rounded-full"><div id="eth-intensity-bar" class="intensity-bar h-full bg-blue-500" style="width: 0%"></div></div></div>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 mb-3">
             <div class="space-y-2">
-                <div class="flex justify-between items-center bg-orange-600 px-2 py-0.5 rounded shadow-md">
-                    <h2 class="text-black text-[9px] font-black uppercase tracking-tighter">Bitcoin Monitor</h2>
-                    <div class="tooltip-container">
-                        <span class="text-black/60 font-bold text-[10px]">?</span>
-                        <div class="tooltip-text">
-                            <b class="text-orange-400">MONITOR DATA:</b> Sums all 5M/15M positions. Tracks unrealized P&L and average cost basis (¢).
-                        </div>
-                    </div>
+                <div class="flex justify-between items-center bg-orange-600 px-2 py-0.5 rounded shadow-md text-black">
+                    <h2 class="text-[9px] font-black uppercase">BTC Monitor</h2>
+                    <div class="tooltip-container"><span class="text-black/60 font-bold text-[10px]">?</span><div class="tooltip-text text-white">Aggregates 5M/15M contract positions and cost basis.</div></div>
                 </div>
                 <div id="btc-5m-box"></div><div id="btc-15m-box"></div>
             </div>
             <div class="space-y-2">
-                <div class="flex justify-between items-center bg-blue-600 px-2 py-0.5 rounded shadow-md">
-                    <h2 class="text-black text-[9px] font-black uppercase tracking-tighter">Ethereum Monitor</h2>
-                    <div class="tooltip-container">
-                        <span class="text-black/60 font-bold text-[10px]">?</span>
-                        <div class="tooltip-text">
-                            <b class="text-blue-400">MONITOR DATA:</b> Aggregates ETH outcome contracts to reveal if a whale is hedging or directional.
-                        </div>
-                    </div>
+                <div class="flex justify-between items-center bg-blue-600 px-2 py-0.5 rounded shadow-md text-black">
+                    <h2 class="text-[9px] font-black uppercase">ETH Monitor</h2>
+                    <div class="tooltip-container"><span class="text-black/60 font-bold text-[10px]">?</span><div class="tooltip-text text-white">Analyzes ETH volatility outcomes and capital flow.</div></div>
                 </div>
                 <div id="eth-5m-box"></div><div id="eth-15m-box"></div>
             </div>
@@ -117,37 +107,26 @@
 
         <div class="flex justify-between items-center mb-2 px-1">
             <span class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Live Activity Feed</span>
-            <div class="tooltip-container">
-                <span class="text-gray-600 font-bold text-[10px] cursor-help">?</span>
-                <div class="tooltip-text" style="bottom: 25px; top: auto;">
-                    <b class="text-gray-200">FEED DATA:</b> Parsed execution logs from Polymarket API showing size, outcome, and entry price per trade.
-                </div>
-            </div>
+            <div class="tooltip-container"><span class="text-gray-600 font-bold text-[10px]">?</span><div class="tooltip-text text-white">Raw trade logs filtered for BTC and ETH outcome contracts.</div></div>
         </div>
         <div class="grid grid-cols-2 gap-3 mb-4">
-            <div id="feed-btc" class="h-[30vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1 border-r border-gray-800/30"></div>
-            <div id="feed-eth" class="h-[30vh] overflow-y-auto custom-scrollbar space-y-1.5 pr-1"></div>
+            <div id="feed-btc" class="h-[30vh] overflow-y-auto custom-scrollbar space-y-1 pr-1 border-r border-gray-800/30"></div>
+            <div id="feed-eth" class="h-[30vh] overflow-y-auto custom-scrollbar space-y-1 pr-1"></div>
         </div>
-
-        <footer class="mt-6 pt-4 border-t border-gray-800 text-center">
-            <p class="text-[8px] text-gray-600 uppercase mb-2 tracking-widest font-bold">Support the Developer</p>
-            <div onclick="copyDonation()" id="donation-container" class="inline-flex items-center gap-2 bg-[#161b22] px-3 py-2 rounded-full border border-gray-700 cursor-pointer hover:border-blue-500 transition-all active:scale-95 group">
-                <span id="donation-addr" class="text-[10px] font-mono text-blue-400">0x35607066C0Bf2495A20B70D64A7E00e281B94C85</span>
-                <span id="copy-label" class="bg-blue-600 text-white text-[8px] px-1.5 py-0.5 rounded font-black uppercase group-hover:bg-blue-500">Copy</span>
-            </div>
-        </footer>
     </div>
 
     <script>
+        const ADDR = "0xE54AA4F86317457D6E89250A55BA9982538dA4Eb";
         let DATA = {};
         const ASSETS = ['btc', 'eth'];
 
-        function copyDonation() {
-            const addr = document.getElementById('donation-addr').innerText;
-            const label = document.getElementById('copy-label');
-            navigator.clipboard.writeText(addr).then(() => {
-                label.innerText = "Copied!"; label.classList.replace('bg-blue-600', 'bg-green-600');
-                setTimeout(() => { label.innerText = "Copy"; label.classList.replace('bg-green-600', 'bg-blue-600'); }, 2000);
+        function toggleModal(show) { document.getElementById('donation-modal').style.display = show ? 'flex' : 'none'; }
+        
+        function copyToClipboard() {
+            navigator.clipboard.writeText(ADDR).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.innerText = "COPIED TO CLIPBOARD!"; btn.classList.replace('bg-blue-600', 'bg-green-600');
+                setTimeout(() => { btn.innerText = "COPY ADDRESS"; btn.classList.replace('bg-green-600', 'bg-blue-600'); }, 2000);
             });
         }
 
@@ -184,12 +163,8 @@
                 const totalCount = d5.upC + d5.downC + d15.upC + d15.downC;
                 const intensity = Math.min((totalCount / 20) * 100, 100);
                 const bar = document.getElementById(`${asset}-intensity-bar`);
-                const val = document.getElementById(`${asset}-intensity-val`);
-                
-                bar.style.width = intensity + "%"; val.innerText = Math.round(intensity) + "%";
-                if(intensity > 75) { bar.className = "intensity-bar h-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"; }
-                else if(intensity > 40) { bar.className = "intensity-bar h-full bg-yellow-500"; }
-                else { bar.className = "intensity-bar h-full bg-blue-500"; }
+                bar.style.width = intensity + "%";
+                bar.className = `intensity-bar h-full ${intensity > 75 ? 'bg-red-500' : intensity > 40 ? 'bg-yellow-500' : 'bg-blue-500'}`;
 
                 const upRatio = totalVol > 0 ? (d5.upV / totalVol) : 0.5;
                 const tag = document.getElementById(`${asset}-bias-tag`);
@@ -210,10 +185,8 @@
                     const d = DATA[a][tf];
                     const upPL = (d.upShares - d.upSpent).toFixed(2);
                     const downPL = (d.downShares - d.downSpent).toFixed(2);
-                    const avgUp = d.upShares > 0 ? (d.upSpent / d.upShares * 100).toFixed(1) : "0.0";
-                    const avgDown = d.downShares > 0 ? (d.downSpent / d.downShares * 100).toFixed(1) : "0.0";
                     const el = document.getElementById(`${a}-${tf}-box`);
-                    if(el) el.innerHTML = `<div class="stat-card mb-2"><div class="flex justify-between items-center mb-1 text-[8px] font-mono uppercase font-bold text-blue-400"><span>${tf}</span></div><div class="grid grid-cols-2 gap-2"><div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600"><div class="flex justify-between items-center text-[7px] font-bold mb-1"><div class="text-gray-500 uppercase">UP</div><div class="${upPL>=0?'text-green-400':'text-red-400'}">$${upPL}</div></div><div class="text-lg font-black text-green-400 leading-none">${d.upC} <span class="text-[9px] text-gray-600 font-normal">$${Math.round(d.upV)}</span></div><div class="text-[8px] text-gray-400 font-mono mt-1">${avgUp}¢</div></div><div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600"><div class="flex justify-between items-center text-[7px] font-bold mb-1"><div class="text-gray-500 uppercase">DOWN</div><div class="${downPL>=0?'text-green-400':'text-red-400'}">$${downPL}</div></div><div class="text-lg font-black text-red-400 leading-none">${d.downC} <span class="text-[9px] text-gray-600 font-normal">$${Math.round(d.downV)}</span></div><div class="text-[8px] text-gray-400 font-mono mt-1">${avgDown}¢</div></div></div></div>`;
+                    if(el) el.innerHTML = `<div class="stat-card mb-2 shadow-sm"><div class="text-[8px] font-mono font-bold text-blue-400 mb-1">${tf} Window</div><div class="grid grid-cols-2 gap-2"><div class="bg-black/40 p-1.5 rounded border-l-2 border-green-600"><div class="text-[7px] text-gray-500 uppercase font-bold">UP | $${upPL}</div><div class="text-sm font-black text-green-400">${d.upC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.upV)}</span></div></div><div class="bg-black/40 p-1.5 rounded border-l-2 border-red-600"><div class="text-[7px] text-gray-500 uppercase font-bold">DN | $${downPL}</div><div class="text-sm font-black text-red-400">${d.downC} <span class="text-[8px] text-gray-600 font-normal">$${Math.round(d.downV)}</span></div></div></div></div>`;
                 });
             });
         }
@@ -221,7 +194,7 @@
         function renderRow(asset, t) {
             const isDown = t.outcomeIndex == "1";
             const price = (parseFloat(t.usdcSize) / parseFloat(t.size)).toFixed(2);
-            const html = `<div class="bg-[#161b22] border border-gray-800 rounded p-1.5 text-[9px]"><div class="flex justify-between text-[7px] text-gray-500 mb-0.5 font-mono uppercase"><span>${t.slug.includes('15m')?'15M':'5M'}</span><span>${new Date(t.timestamp*1000).toLocaleTimeString()}</span></div><div class="flex justify-between items-center bg-black/30 p-1 rounded"><span class="${isDown?'text-red-500':'text-green-500'} font-black uppercase">${isDown?'Down':'Up'}</span><span class="text-yellow-500 font-bold">${price}¢</span><span class="text-blue-400 font-bold">$${Math.round(t.usdcSize)}</span></div></div>`;
+            const html = `<div class="bg-[#161b22] border border-gray-800 rounded p-1.5 text-[9px] mb-1"><div class="flex justify-between items-center"><span class="${isDown?'text-red-500':'text-green-500'} font-black uppercase">${isDown?'Down':'Up'}</span><span class="text-yellow-500 font-bold">${price}¢</span><span class="text-blue-400 font-bold">$${Math.round(t.usdcSize)}</span></div></div>`;
             document.getElementById(`feed-${asset}`).insertAdjacentHTML('beforeend', html);
         }
 
