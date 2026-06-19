@@ -1,12 +1,9 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freeberry - Living Off the Land, Within Our Means</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configure Tailwind Colors & Font -->
     <script>
         tailwind.config = {
             theme: {
@@ -38,32 +35,26 @@
 
 <body class="bg-freeberry-light text-freeberry-dark font-sans">
 
-    <!-- Header & Navigation -->
     <header class="bg-freeberry-dark text-white shadow-lg sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <!-- Logo and Title Container -->
             <div class="flex items-center">
-                <!-- Freeberry Emblem/Image -->
                 <img src="images/RASblem.png" alt="Freeberry Emblem" class="w-8 h-8 mr-2 rounded-full" 
                      onerror="this.onerror=null;this.src='https://placehold.co/32x32/EA580C/FFFFFF?text=F'">
-                <!-- Title -->
                 <h1 class="text-2xl font-extrabold text-freeberry-orange">Freeberry</h1>
             </div>
             
             <nav class="space-x-4 hidden md:block">
                 <a href="#mission" class="hover:text-freeberry-orange transition duration-200">Our Mission</a>
-                <a href="#economy" class="hover:text-freeberry-orange transition duration-200">$BERRIES</a>
+                <a href="#economy" class="hover:text-freeberry-orange transition duration-200">$FREEME</a>
                 <a href="#community" class="hover:text-freeberry-orange transition duration-200">Community</a>
                 <a href="https://x.com/raspberrygov" class="px-4 py-2 bg-freeberry-orange text-white rounded-lg font-medium hover:bg-orange-700 transition duration-300">Join Us</a>
             </nav>
-            <!-- Mobile Menu Placeholder (simplified for single file mandate) -->
             <button class="md:hidden text-white hover:text-freeberry-orange focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
         </div>
     </header>
 
-    <!-- Hero Section: Core Message -->
     <section id="hero" class="bg-freeberry-dark text-white pt-20 pb-24 text-center">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6">
@@ -72,14 +63,11 @@
             <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-10">
                 We are a collective rooted in the wisdom of First Nations traditions, prioritizing natural resources for sustenance and skill-sharing over commercial interests.
             </p>
-            <!-- Removed: Discover The Freeberry Way Button -->
-        </div>
+            </div>
     </section>
 
-    <!-- Our Mission: The Freeberry Way -->
     <section id="mission" class="py-16 md:py-24 bg-freeberry-light">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Content now takes up the full width, centered in max-w-4xl -->
             <div>
                 <span class="text-lg font-semibold text-freeberry-orange">OUR PLEDGE</span>
                 <h3 class="mt-2 text-4xl font-bold text-freeberry-dark">
@@ -103,60 +91,53 @@
                     </li>
                 </ul>
             </div>
-            <!-- Removed: Placeholder image representing nature/community -->
-        </div>
+            </div>
     </section>
 
-    <!-- $BERRIES Economy Section -->
     <section id="economy" class="py-16 md:py-24 bg-freeberry-dark text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <span class="text-lg font-semibold text-freeberry-orange">THE FREEBERRY ECONOMY</span>
                 <h3 class="mt-2 text-4xl font-bold">
-                    $BERRIES: A Token of Trust and Participation
+                    $FREEME: A Token of Trust and Participation
                 </h3>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
-                <!-- Card 1: Distribution -->
                 <div class="bg-gray-800 p-6 rounded-xl shadow-xl border-t-4 border-freeberry-orange transform transition duration-300 hover:scale-[1.02]">
                     <div class="text-3xl text-freeberry-orange mb-3">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3 .895-3 2 1.343 2 3 2m-3-4h.01M12 15v2m-3-1l.754-.234M14.246 13L15 13"></path></svg>
                     </div>
                     <h4 class="text-xl font-bold mb-2 text-freeberry-orange">Tokenized Currency</h4>
                     <p class="text-gray-300">
-                        <span class="berries-token">$BERRIES</span> is our utility token, built on the TRON Blockchain. It was distributed **for free** to the founding Freeberry First Nations tribe members to kickstart the economy.
+                        <span class="berries-token">$FREEME</span> is our utility token, built on the SOLANA Blockchain. It wasminted on PumpFun, immediately become accessible to all supporters of the Freeberry First Nations tribe members to kickstart the economy.
                     </p>
                 </div>
 
-                <!-- Card 2: Participation -->
                 <div class="bg-gray-800 p-6 rounded-xl shadow-xl border-t-4 border-freeberry-orange transform transition duration-300 hover:scale-[1.02]">
                     <div class="text-3xl text-freeberry-orange mb-3">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3v-1a3 3 0 00-3-3m15-4h-5.811a2 2 0 00-1.789.789l-3.886 4.711"></path></svg>
                     </div>
                     <h4 class="text-xl font-bold mb-2 text-freeberry-orange">Open Exchange</h4>
                     <p class="text-gray-300">
-                        The public is welcomed! Engage in the Freeberry economy by offering your goods, services, or expertise in exchange for <span class="berries-token">$BERRIES</span>.
+                        The public is welcomed! Engage in the Freeberry economy by offering your goods, services, or expertise in exchange for <span class="berries-token">$FREEME</span>.
                     </p>
                 </div>
 
-                <!-- Card 3: Staking Rewards -->
                 <div class="bg-gray-800 p-6 rounded-xl shadow-xl border-t-4 border-freeberry-orange transform transition duration-300 hover:scale-[1.02]">
                     <div class="text-3xl text-freeberry-orange mb-3">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V4m0 8v4m0 4v1"></path></svg>
                     </div>
-                    <h4 class="text-xl font-bold mb-2 text-freeberry-orange">15% Annual Rewards</h4>
+                    <h4 class="text-xl font-bold mb-2 text-freeberry-orange">Donate to Freeberry</h4>
                     <p class="text-gray-300">
-                        Lock your $BERRIES to participate in the staking mechanism and earn 15% Universal Rewards for supporting the long-term stability of the economy.
+                        Acquire and donate $FREEME to Freeberry to contribute towards future development of the off grid community..
                     </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Community & Location Section -->
     <section id="community" class="py-16 md:py-24 bg-freeberry-light">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <!-- Content now takes up the full width, centered in max-w-4xl -->
             <div>
                 <span class="text-lg font-semibold text-freeberry-orange">WHERE WE ARE</span>
                 <h3 class="mt-2 text-4xl font-bold text-freeberry-dark">
@@ -167,15 +148,13 @@
                 </p>
                 <div class="mt-8 p-6 bg-gray-100 rounded-xl shadow-inner border-l-4 border-freeberry-orange">
                     <p class="text-xl font-medium text-gray-800">
-                        While our physical roots are deep, our economy is not bound by borders. Free-trade is encouraged anywhere individuals can exchange goods, services, and barter using <span class="berries-token">$BERRIES</span>.
+                        While our physical roots are deep, our economy is not bound by borders. Free-trade is encouraged anywhere individuals can exchange goods, services, and barter using <span class="berries-token">$FREEME</span>.
                     </p>
                 </div>
             </div>
-            <!-- Removed: Map Placeholder -->
-        </div>
+            </div>
     </section>
 
-    <!-- Call to Action (Join) -->
     <section id="join" class="bg-freeberry-orange py-16">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
             <h3 class="text-3xl md:text-4xl font-extrabold mb-4">
@@ -190,7 +169,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="bg-freeberry-dark text-gray-400 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
             <p>&copy; 2025 Freeberry First Nations.</p>
