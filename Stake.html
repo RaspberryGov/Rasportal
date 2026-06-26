@@ -426,11 +426,12 @@
             const amountInput = document.getElementById('stake-amount').value;
             if (!amountInput || amountInput <= 0) return alert("Enter a valid amount.");
 
+            // Standard conversion logic matching exact token decimals
             const parsedValue = BigInt(Math.floor(parseFloat(amountInput) * Math.pow(10, decimals)));
             
             try {
-                // Enforcing exact TronScan compiler specification logic
-                const tx = await contract.methods.stake(parsedValue.toString(10)).send({
+                // Matched directly to the clean dynamic execution structure used by endStake()
+                const tx = await contract.stake(parsedValue.toString()).send({
                     feeLimit: 150000000
                 });
                 alert("Stake transaction successfully broadcast! Hash: " + tx);
@@ -444,8 +445,7 @@
             if (!contract) return alert("Please connect wallet first.");
             
             try {
-                // Enforcing exact TronScan compiler specification logic
-                const tx = await contract.methods.endStake().send({
+                const tx = await contract.endStake().send({
                     feeLimit: 150000000
                 });
                 alert("End Stake transaction successfully broadcast! Hash: " + tx);
@@ -459,8 +459,7 @@
             if (!contract) return alert("Please connect wallet first.");
 
             try {
-                // Enforcing exact TronScan compiler specification logic
-                const tx = await contract.methods.withdrawRewards().send({
+                const tx = await contract.withdrawRewards().send({
                     feeLimit: 150000000
                 });
                 alert("Claim Rewards transaction successfully broadcast! Hash: " + tx);
