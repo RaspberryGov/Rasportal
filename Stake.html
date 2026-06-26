@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freeberry Portal - TRC-20 Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f0c;       /* Deep forest charcoal background */
+            --card-bg: #131915;        /* Soft matte dark green/black card fill */
+            --accent-gold: #d4af37;    /* Elegant gold accents */
+            --accent-green: #2e6f40;   /* Deep organic green buttons */
+            --accent-green-hover: #3b8a50;
+            --text-primary: #f0f4f1;   /* Off-white crisp text */
+            --text-secondary: #a3b0a6; /* Muted sage-gray text */
+            --border-color: #222e25;   /* Earthy border framing */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        /* Navigation Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(11, 15, 12, 0.85);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+        }
+
+        .btn-connect {
+            background-color: transparent;
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+            padding: 10px 20px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .btn-connect:hover {
+            background-color: var(--accent-gold);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Dashboard Core Layout */
+        main {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero-section h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .hero-section p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .contract-link {
+            color: var(--accent-gold);
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+
+        /* Live Data Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .info-card h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            word-break: break-all;
+        }
+
+        /* Functions Section Partition */
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            margin: 40px 0 20px 0;
+            color: var(--text-primary);
+            border-left: 3px solid var(--accent-gold);
+            padding-left: 10px;
+        }
+
+        /* Contract Methods Layout */
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 25px;
+        }
+
+        .method-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .method-card h4 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .form-group input {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            border-radius: 2px;
+            transition: border 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .btn-action {
+            background-color: var(--accent-green);
+            color: var(--text-primary);
+            border: none;
+            padding: 12px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 2px;
+        }
+
+        .btn-action:hover {
+            background-color: var(--accent-green-hover);
+        }
+
+        .read-result {
+            margin-top: 12px;
+            font-size: 0.95rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 2px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Status Banner style */
+        #status-banner {
+            background-color: #661d1d;
+            color: #fff;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        /* Responsive UI Adjustments */
+        @media(max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .methods-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="status-banner">Please unlock TronLink and switch to the Nile Testnet ecosystem.</div>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-title">Raspberry Portal</div>
+        </div>
+        <button class="btn-connect" id="connect-btn" onclick="connectWallet()">Connect TronLink</button>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <h1>TRC-20 Asset Panel</h1>
+            <p>Interacting with Nile Contract: <a href="https://nile.tronscan.io/#/contract/TD8PLwBKSRUn2QChMMcjMpWTiYpZj1GjHU/code" target="_blank" class="contract-link">TD8PLwBKSRUn2QChMMcjMpWTiYpZj1GjHU</a></p>
+        </section>
+
+        <section class="info-grid">
+            <div class="info-card">
+                <h3>Token Name</h3>
+                <p id="txt-name">-</p>
+            </div>
+            <div class="info-card">
+                <h3>Token Symbol</h3>
+                <p id="txt-symbol">-</p>
+            </div>
+            <div class="info-card">
+                <h3>Total Supply</h3>
+                <p id="txt-supply">-</p>
+            </div>
+            <div class="info-card">
+                <h3>Your Balance</h3>
+                <p id="txt-balance">-</p>
+            </div>
+        </section>
+
+        <h3 class="section-title">Read Operations</h3>
+        <section class="methods-grid">
+            
+            <div class="method-card">
+                <div>
+                    <h4>balanceOf</h4>
+                    <div class="form-group">
+                        <label>Target Address</label>
+                        <input type="text" id="read-balance-address" placeholder="T...">
+                    </div>
+                </div>
+                <div>
+                    <button class="btn-action" onclick="runBalanceOf()">Query Balance</button>
+                    <div class="read-result" id="res-balanceOf"></div>
+                </div>
+            </div>
+
+            <div class="method-card">
+                <div>
+                    <h4>allowance</h4>
+                    <div class="form-group">
+                        <label>Owner Address</label>
+                        <input type="text" id="read-allowance-owner" placeholder="T...">
+                    </div>
+                    <div class="form-group">
+                        <label>Spender Address</label>
+                        <input type="text" id="read-allowance-spender" placeholder="T...">
+                    </div>
+                </div>
+                <div>
+                    <button class="btn-action" onclick="runAllowance()">Check Allowance</button>
+                    <div class="read-result" id="res-allowance"></div>
+                </div>
+            </div>
+
+        </section>
+
+        <h3 class="section-title">Write Operations</h3>
+        <section class="methods-grid">
+
+            <div class="method-card">
+                <div>
+                    <h4>transfer</h4>
+                    <div class="form-group">
+                        <label>Recipient Address (to)</label>
+                        <input type="text" id="write-transfer-to" placeholder="T...">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="write-transfer-amount" placeholder="0.0">
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runTransfer()">Execute Transfer</button>
+            </div>
+
+            <div class="method-card">
+                <div>
+                    <h4>approve</h4>
+                    <div class="form-group">
+                        <label>Spender Address</label>
+                        <input type="text" id="write-approve-spender" placeholder="T...">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="write-approve-amount" placeholder="0.0">
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runApprove()">Grant Approval</button>
+            </div>
+
+            <div class="method-card">
+                <div>
+                    <h4>transferFrom</h4>
+                    <div class="form-group">
+                        <label>From Address</label>
+                        <input type="text" id="write-from-address" placeholder="T...">
+                    </div>
+                    <div class="form-group">
+                        <label>To Address</label>
+                        <input type="text" id="write-to-address" placeholder="T...">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="write-from-amount" placeholder="0.0">
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runTransferFrom()">Execute TransferFrom</button>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        const CONTRACT_ADDRESS = "TD8PLwBKSRUn2QChMMcjMpWTiYpZj1GjHU";
+        let userAddress = null;
+        let contractInstance = null;
+        let decimals = 6; // TRC-20 Standard default fallback
+
+        window.addEventListener('load', async () => {
+            // Wait for standard TronLink execution injection
+            setTimeout(async () => {
+                if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
+                    initDashboard();
+                }
+            }, 500);
+        });
+
+        async function initDashboard() {
+            try {
+                userAddress = window.tronWeb.defaultAddress.base58;
+                document.getElementById('connect-btn').innerText = userAddress.substring(0,6) + "..." + userAddress.substring(userAddress.length - 4);
+                
+                // Establish connection instance
+                contractInstance = await window.tronWeb.contract().at(CONTRACT_ADDRESS);
+                
+                // Load global asset data metrics
+                await loadGlobalMetrics();
+            } catch (err) {
+                console.error("Initialization Failed:", err);
+            }
+        }
+
+        async function connectWallet() {
+            if (window.tronLink) {
+                const res = await window.tronLink.request({ method: 'tron_requestAccounts' });
+                if (res.code === 200) {
+                    initDashboard();
+                }
+            } else {
+                alert("TronLink extension not detected. Please install TronLink.");
+            }
+        }
+
+        async function loadGlobalMetrics() {
+            if (!contractInstance) return;
+
+            try {
+                // Fetch basic constants asynchronously
+                try { decimals = await contractInstance.decimals().call(); } catch(e) { decimals = 6; }
+                
+                const name = await contractInstance.name().call();
+                const symbol = await contractInstance.symbol().call();
+                const totalSupply = await contractInstance.totalSupply().call();
+                const balance = await contractInstance.balanceOf(userAddress).call();
+
+                // Format values properly utilizing decimals configuration
+                const decimalDivisor = Math.pow(10, parseInt(decimals));
+                
+                document.getElementById('txt-name').innerText = name;
+                document.getElementById('txt-symbol').innerText = symbol;
+                document.getElementById('txt-supply').innerText = (parseInt(totalSupply._hex || totalSupply) / decimalDivisor).toLocaleString();
+                document.getElementById('txt-balance').innerText = (parseInt(balance._hex || balance) / decimalDivisor).toLocaleString();
+            } catch (error) {
+                console.error("Error reading contract descriptors:", error);
+                document.getElementById('status-banner').style.display = 'block';
+                document.getElementById('status-banner').innerText = "Failed loading metadata. Please verify wallet is on Nile Testnet.";
+            }
+        }
+
+        // --- READ INTERFACE LOGIC HANDLERS ---
+        
+        async function runBalanceOf() {
+            if (!contractInstance) return alert("Connect your wallet.");
+            const target = document.getElementById('read-balance-address').value.trim();
+            if(!target) return alert("Provide an address.");
+            
+            const resDiv = document.getElementById('res-balanceOf');
+            try {
+                const balance = await contractInstance.balanceOf(target).call();
+                const formatted = parseInt(balance._hex || balance) / Math.pow(10, decimals);
+                resDiv.innerText = `${formatted.toLocaleString()}`;
+                resDiv.style.display = 'block';
+            } catch(e) {
+                resDiv.innerText = "Query Error";
+                resDiv.style.display = 'block';
+            }
+        }
+
+        async function runAllowance() {
+            if (!contractInstance) return alert("Connect your wallet.");
+            const owner = document.getElementById('read-allowance-owner').value.trim();
+            const spender = document.getElementById('read-allowance-spender').value.trim();
+            if(!owner || !spender) return alert("Provide both addresses.");
+
+            const resDiv = document.getElementById('res-allowance');
+            try {
+                const allowed = await contractInstance.allowance(owner, spender).call();
+                const formatted = parseInt(allowed._hex || allowed) / Math.pow(10, decimals);
+                resDiv.innerText = `${formatted.toLocaleString()}`;
+                resDiv.style.display = 'block';
+            } catch(e) {
+                resDiv.innerText = "Query Error";
+                resDiv.style.display = 'block';
+            }
+        }
+
+        // --- WRITE INTERFACE LOGIC HANDLERS ---
+
+        async function runTransfer() {
+            if (!contractInstance) return alert("Connect your wallet.");
+            const to = document.getElementById('write-transfer-to').value.trim();
+            const rawAmount = document.getElementById('write-transfer-amount').value;
+            if(!to || !rawAmount) return alert("Fill in parameters.");
+
+            const amountBigInt = BigInt(Math.floor(parseFloat(rawAmount) * Math.pow(10, decimals)));
+            try {
+                const tx = await contractInstance.transfer(to, amountBigInt.toString()).send({
+                    feeLimit: 100000000
+                });
+                alert("Transfer Broadcast Success! Tx Hash: " + tx);
+                loadGlobalMetrics(); // Refresh status metrics
+            } catch(e) {
+                alert("Transaction Rejected/Failed: " + e.message || e);
+            }
+        }
+
+        async function runApprove() {
+            if (!contractInstance) return alert("Connect your wallet.");
+            const spender = document.getElementById('write-approve-spender').value.trim();
+            const rawAmount = document.getElementById('write-approve-amount').value;
+            if(!spender || !rawAmount) return alert("Fill in parameters.");
+
+            const amountBigInt = BigInt(Math.floor(parseFloat(rawAmount) * Math.pow(10, decimals)));
+            try {
+                const tx = await contractInstance.approve(spender, amountBigInt.toString()).send({
+                    feeLimit: 100000000
+                });
+                alert("Approval Broadcast Success! Tx Hash: " + tx);
+            } catch(e) {
+                alert("Transaction Failed: " + e.message || e);
+            }
+        }
+
+        async function runTransferFrom() {
+            if (!contractInstance) return alert("Connect your wallet.");
+            const from = document.getElementById('write-from-address').value.trim();
+            const to = document.getElementById('write-to-address').value.trim();
+            const rawAmount = document.getElementById('write-from-amount').value;
+            if(!from || !to || !rawAmount) return alert("Fill in parameters.");
+
+            const amountBigInt = BigInt(Math.floor(parseFloat(rawAmount) * Math.pow(10, decimals)));
+            try {
+                const tx = await contractInstance.transferFrom(from, to, amountBigInt.toString()).send({
+                    feeLimit: 100000000
+                });
+                alert("TransferFrom Success! Tx Hash: " + tx);
+                loadGlobalMetrics();
+            } catch(e) {
+                alert("Transaction Failed: " + e.message || e);
+            }
+        }
+    </script>
+</body>
+</html>
