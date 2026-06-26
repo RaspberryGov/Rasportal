@@ -148,6 +148,34 @@
             font-size: 1.3rem;
         }
 
+        /* Flex row for aligning Claim Rewards with Earned Tokens */
+        .earned-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .btn-claim {
+            background: transparent;
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            margin-bottom: 2px;
+        }
+
+        .btn-claim:hover {
+            background: var(--accent-gold);
+            color: var(--box-bg);
+        }
+
         .input-group {
             margin-bottom: 16px;
         }
@@ -267,8 +295,13 @@
                 </div>
 
                 <div class="metric-row">
-                    <div class="metric-label">Earned Tokens</div>
-                    <div class="metric-value value-highlight" id="val-earned">0.00</div>
+                    <div class="earned-container">
+                        <div>
+                            <div class="metric-label">Earned Tokens</div>
+                            <div class="metric-value value-highlight" id="val-earned">0.00</div>
+                        </div>
+                        <button class="btn-claim" onclick="executeWithdrawRewards()">Claim Rewards</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -356,7 +389,6 @@
                     const cleanBalance = parseInt(balanceRaw._hex || balanceRaw || 0) / divisor;
                     document.getElementById('val-balance').innerText = cleanBalance.toFixed(4);
 
-                    // Structured mapping for getStakeDetails
                     try {
                         const stakeDetails = await contract.getStakeDetails(userAddress).call();
                         let stakedAmountRaw = 0;
@@ -376,7 +408,6 @@
                         document.getElementById('val-staked').innerText = "0.0000";
                     }
 
-                    // Structured mapping for pendingRewards
                     try {
                         const rewardsRaw = await contract.pendingRewards(userAddress).call();
                         const cleanEarned = parseInt(rewardsRaw._hex || rewardsRaw || 0) / divisor;
@@ -399,7 +430,8 @@
             const parsedValue = BigInt(Math.floor(parseFloat(amountInput) * Math.pow(10, decimals)));
             
             try {
-                const tx = await (contract.stake ? contract.stake(parsedValue.toString()) : contract.startStake(parsedValue.toString())).send({
+                // Synced directly to call exact contract function 'stake'
+                const tx = await contract.stake(parsedValue.toString()).send({
                     feeLimit: 150000000
                 });
                 alert("Stake transaction successfully broadcast! Hash: " + tx);
@@ -413,16 +445,29 @@
             if (!contract) return alert("Please connect wallet first.");
             
             try {
-                const method = contract.endStake || contract.unstake || contract.withdraw;
-                if (!method) throw new Error("Staking release function pattern not matched on this ABI.");
-
-                const tx = await method().send({
+                // Synced directly to call exact contract function 'endStake'
+                const tx = await contract.endStake().send({
                     feeLimit: 150000000
                 });
                 alert("End Stake transaction successfully broadcast! Hash: " + tx);
                 setTimeout(updateData, 3000);
             } catch(e) {
                 alert("Unstaking execution failed: " + (e.message || e));
+            }
+        }
+
+        async function executeWithdrawRewards() {
+            if (!contract) return alert("Please connect wallet first.");
+
+            try {
+                // Synced directly to call exact contract function 'withdrawRewards'
+                const tx = await contract.withdrawRewards().send({
+                    feeLimit: 150000000
+                });
+                alert("Claim Rewards transaction successfully broadcast! Hash: " + tx);
+                setTimeout(updateData, 3000);
+            } catch(e) {
+                alert("Claim Rewards transaction failed: " + (e.message || e));
             }
         }
     </script>
