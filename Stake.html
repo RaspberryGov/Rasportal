@@ -137,7 +137,6 @@
             word-break: break-all;
         }
 
-        /* Subtle variant styling for constant contract tags */
         .value-static {
             font-size: 0.95rem;
             color: var(--text-main);
@@ -303,7 +302,7 @@
                 if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
                     initPortal();
                 }
-            }, 400);
+            }, 500);
         });
 
         async function initPortal() {
@@ -319,8 +318,8 @@
                 document.getElementById('wallet-btn').innerText = userAddress.substring(0,6) + "..." + userAddress.substring(userAddress.length - 4);
                 
                 contract = await window.tronWeb.contract().at(CONTRACT_ADDRESS);
-                await updateData();
                 
+                await updateData();
                 setInterval(updateData, 6000);
             } catch(e) {
                 console.error("Portal initialization failed:", e);
@@ -341,10 +340,9 @@
 
             try {
                 const rawDecimals = await contract.decimals().call().catch(() => 6);
-                decimals = parseInt(rawDecimals._hex || rawDecimals);
+                decimals = parseInt(rawDecimals._hex || rawDecimals || 6);
                 const divisor = Math.pow(10, decimals);
 
-                // Constant Global Metadata Read Requests
                 const name = await contract.name().call().catch(() => 'Unknown');
                 const symbol = await contract.symbol().call().catch(() => '---');
                 const totalSupply = await contract.totalSupply().call().catch(() => 0);
@@ -353,18 +351,43 @@
                 document.getElementById('val-symbol').innerText = symbol;
                 document.getElementById('val-supply').innerText = (parseInt(totalSupply._hex || totalSupply) / divisor).toLocaleString(undefined, {minimumFractionDigits: 2});
 
-                // User Dynamic Balance Tracking Requests
                 if (userAddress) {
-                    const balance = await contract.balanceOf(userAddress).call();
-                    const staked = await (contract.stakeOf ? contract.stakeOf(userAddress) : contract.balanceOfStaked(userAddress)).call().catch(() => 0);
-                    const earned = await (contract.earned ? contract.earned(userAddress) : contract.rewardOf(userAddress)).call().catch(() => 0);
+                    const balanceRaw = await contract.balanceOf(userAddress).call();
+                    const cleanBalance = parseInt(balanceRaw._hex || balanceRaw || 0) / divisor;
+                    document.getElementById('val-balance').innerText = cleanBalance.toFixed(4);
 
-                    document.getElementById('val-balance').innerText = (parseInt(balance._hex || balance) / divisor).toFixed(4);
-                    document.getElementById('val-staked').innerText = (parseInt(staked._hex || staked) / divisor).toFixed(4);
-                    document.getElementById('val-earned').innerText = (parseInt(earned._hex || earned) / divisor).toFixed(4);
+                    // Structured mapping for getStakeDetails
+                    try {
+                        const stakeDetails = await contract.getStakeDetails(userAddress).call();
+                        let stakedAmountRaw = 0;
+                        
+                        if (Array.isArray(stakeDetails)) {
+                            stakedAmountRaw = stakeDetails[0]; 
+                        } else if (stakeDetails && stakeDetails.amount) {
+                            stakedAmountRaw = stakeDetails.amount;
+                        } else {
+                            stakedAmountRaw = stakeDetails;
+                        }
+                        
+                        const cleanStaked = parseInt(stakedAmountRaw._hex || stakedAmountRaw || 0) / divisor;
+                        document.getElementById('val-staked').innerText = cleanStaked.toFixed(4);
+                    } catch (stakeErr) {
+                        console.error("Failed fetching from getStakeDetails:", stakeErr);
+                        document.getElementById('val-staked').innerText = "0.0000";
+                    }
+
+                    // Structured mapping for pendingRewards
+                    try {
+                        const rewardsRaw = await contract.pendingRewards(userAddress).call();
+                        const cleanEarned = parseInt(rewardsRaw._hex || rewardsRaw || 0) / divisor;
+                        document.getElementById('val-earned').innerText = cleanEarned.toFixed(4);
+                    } catch (rewardErr) {
+                        console.error("Failed fetching from pendingRewards:", rewardErr);
+                        document.getElementById('val-earned').innerText = "0.0000";
+                    }
                 }
             } catch(err) {
-                console.warn("Data stream updating stalled:", err);
+                console.warn("Data refresh batch error:", err);
             }
         }
 
@@ -380,7 +403,7 @@
                     feeLimit: 150000000
                 });
                 alert("Stake transaction successfully broadcast! Hash: " + tx);
-                updateData();
+                setTimeout(updateData, 3000);
             } catch(e) {
                 alert("Staking transaction failure: " + (e.message || e));
             }
@@ -391,13 +414,13 @@
             
             try {
                 const method = contract.endStake || contract.unstake || contract.withdraw;
-                if (!method) throw new Error("Staking release function pattern not matched.");
+                if (!method) throw new Error("Staking release function pattern not matched on this ABI.");
 
                 const tx = await method().send({
                     feeLimit: 150000000
                 });
                 alert("End Stake transaction successfully broadcast! Hash: " + tx);
-                updateData();
+                setTimeout(updateData, 3000);
             } catch(e) {
                 alert("Unstaking execution failed: " + (e.message || e));
             }
