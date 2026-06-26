@@ -426,12 +426,12 @@
             const amountInput = document.getElementById('stake-amount').value;
             if (!amountInput || amountInput <= 0) return alert("Enter a valid amount.");
 
-            // Standard conversion logic matching exact token decimals
-            const parsedValue = BigInt(Math.floor(parseFloat(amountInput) * Math.pow(10, decimals)));
+            // Truncate decimals completely to push clean whole integer counts to the method
+            const wholeTokens = Math.floor(parseFloat(amountInput));
             
             try {
-                // Matched directly to the clean dynamic execution structure used by endStake()
-                const tx = await contract.stake(parsedValue.toString()).send({
+                // Modified to pass raw integer value directly without applying base decimal scaling factor
+                const tx = await contract.stake(wholeTokens.toString()).send({
                     feeLimit: 150000000
                 });
                 alert("Stake transaction successfully broadcast! Hash: " + tx);
