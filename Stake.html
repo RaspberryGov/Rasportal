@@ -105,8 +105,17 @@
             padding-bottom: 8px;
         }
 
+        .sub-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-gold);
+            margin: 15px 0 10px 0;
+            opacity: 0.8;
+        }
+
         .metric-row {
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
 
         .metric-row:last-child {
@@ -114,18 +123,30 @@
         }
 
         .metric-label {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             text-transform: uppercase;
             color: var(--text-muted);
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .metric-value {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            color: var(--accent-gold);
+            color: var(--text-main);
             word-break: break-all;
+        }
+
+        /* Subtle variant styling for constant contract tags */
+        .value-static {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-family: monospace;
+        }
+        
+        .value-highlight {
+            color: var(--accent-gold);
+            font-size: 1.3rem;
         }
 
         .input-group {
@@ -215,19 +236,40 @@
             <div>
                 <h2 class="box-title">Dashboard</h2>
                 
+                <div class="sub-section-title">Token Specification</div>
+                
+                <div class="metric-row">
+                    <div class="metric-label">Contract Registry</div>
+                    <div class="metric-value value-static" id="val-contract">TVNkzWFsP2y3hAPUJkJWWDZA2srMSbP2ep</div>
+                </div>
+
+                <div class="metric-row">
+                    <div class="metric-label">Token Name / Symbol</div>
+                    <div class="metric-value value-static"><span id="val-name">-</span> (<span id="val-symbol">-</span>)</div>
+                </div>
+
+                <div class="metric-row">
+                    <div class="metric-label">Total Token Supply</div>
+                    <div class="metric-value value-static" id="val-supply">0.00</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="sub-section-title">User Account Parameters</div>
+
                 <div class="metric-row">
                     <div class="metric-label">Token Balance</div>
-                    <div class="metric-value" id="val-balance">0.00</div>
+                    <div class="metric-value value-highlight" id="val-balance">0.00</div>
                 </div>
 
                 <div class="metric-row">
                     <div class="metric-label">Staked Tokens</div>
-                    <div class="metric-value" id="val-staked">0.00</div>
+                    <div class="metric-value value-highlight" id="val-staked">0.00</div>
                 </div>
 
                 <div class="metric-row">
                     <div class="metric-label">Earned Tokens</div>
-                    <div class="metric-value" id="val-earned">0.00</div>
+                    <div class="metric-value value-highlight" id="val-earned">0.00</div>
                 </div>
             </div>
         </section>
@@ -251,7 +293,6 @@
     </div>
 
     <script>
-        // Updated target address parameter
         const CONTRACT_ADDRESS = "TVNkzWFsP2y3hAPUJkJWWDZA2srMSbP2ep";
         let userAddress = null;
         let contract = null;
@@ -267,7 +308,6 @@
 
         async function initPortal() {
             try {
-                // Ensure TronWeb is pointing directly to Nile testnet endpoints
                 const currentFullNode = window.tronWeb.fullNode.host;
                 if (!currentFullNode.includes("nileex.io") && !currentFullNode.includes("nile")) {
                     document.getElementById('network-warning').style.display = 'block';
@@ -297,22 +337,32 @@
         }
 
         async function updateData() {
-            if (!contract || !userAddress) return;
+            if (!contract) return;
 
             try {
                 const rawDecimals = await contract.decimals().call().catch(() => 6);
                 decimals = parseInt(rawDecimals._hex || rawDecimals);
                 const divisor = Math.pow(10, decimals);
 
-                const balance = await contract.balanceOf(userAddress).call();
-                
-                // Flexible handling for standard staking methods setup variations
-                const staked = await (contract.stakeOf ? contract.stakeOf(userAddress) : contract.balanceOfStaked(userAddress)).call().catch(() => 0);
-                const earned = await (contract.earned ? contract.earned(userAddress) : contract.rewardOf(userAddress)).call().catch(() => 0);
+                // Constant Global Metadata Read Requests
+                const name = await contract.name().call().catch(() => 'Unknown');
+                const symbol = await contract.symbol().call().catch(() => '---');
+                const totalSupply = await contract.totalSupply().call().catch(() => 0);
 
-                document.getElementById('val-balance').innerText = (parseInt(balance._hex || balance) / divisor).toFixed(4);
-                document.getElementById('val-staked').innerText = (parseInt(staked._hex || staked) / divisor).toFixed(4);
-                document.getElementById('val-earned').innerText = (parseInt(earned._hex || earned) / divisor).toFixed(4);
+                document.getElementById('val-name').innerText = name;
+                document.getElementById('val-symbol').innerText = symbol;
+                document.getElementById('val-supply').innerText = (parseInt(totalSupply._hex || totalSupply) / divisor).toLocaleString(undefined, {minimumFractionDigits: 2});
+
+                // User Dynamic Balance Tracking Requests
+                if (userAddress) {
+                    const balance = await contract.balanceOf(userAddress).call();
+                    const staked = await (contract.stakeOf ? contract.stakeOf(userAddress) : contract.balanceOfStaked(userAddress)).call().catch(() => 0);
+                    const earned = await (contract.earned ? contract.earned(userAddress) : contract.rewardOf(userAddress)).call().catch(() => 0);
+
+                    document.getElementById('val-balance').innerText = (parseInt(balance._hex || balance) / divisor).toFixed(4);
+                    document.getElementById('val-staked').innerText = (parseInt(staked._hex || staked) / divisor).toFixed(4);
+                    document.getElementById('val-earned').innerText = (parseInt(earned._hex || earned) / divisor).toFixed(4);
+                }
             } catch(err) {
                 console.warn("Data stream updating stalled:", err);
             }
