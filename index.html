@@ -50,14 +50,26 @@
             gap: 0.75rem;
         }
 
-        .logo-area h1 {
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .nav-icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .logo-text h1 {
             font-size: 1.2rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .logo-area p {
+        .logo-text p {
             color: var(--dim-color);
             font-size: 0.7rem;
             margin-top: 0.15rem;
@@ -189,8 +201,11 @@
     <header>
         <div class="header-top">
             <div class="logo-area">
-                <h1>Freeberry</h1>
-                <p>Living Off the Land, Within Our Means — Powered by Tron (TRX)</p>
+                <img src="images/RASblem.png" alt="Freeberry Navigation Icon" class="nav-icon">
+                <div class="logo-text">
+                    <h1>Freeberry</h1>
+                    <p>Living Off the Land, Within Our Means — Powered by Tron (TRX)</p>
+                </div>
             </div>
             <a href="BitcoinETF.html" class="btn-launch-etf">Launch Bitcoin ETF</a>
         </div>
