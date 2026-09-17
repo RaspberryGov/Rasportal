@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freeberry Cash ($FBC) — Living Off the Land, Within Our Means</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --border-color: #ffffff;
+            --dim-color: #888888;
+            --card-bg: #000000;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Layout */
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-area h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .logo-area p {
+            color: var(--dim-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .wallet-status-box {
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-color);
+        }
+
+        /* Grid Layouts - Reduced Uniform Spacing */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Column Card Modules */
+        .module {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .module h2 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .module p {
+            color: var(--dim-color);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .module p strong {
+            color: var(--text-color);
+        }
+
+        /* Metaphor Number Blocks */
+        .metaphor-num {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px dashed var(--dim-color);
+            padding-bottom: 0.25rem;
+            display: inline-block;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--dim-color);
+        }
+
+        footer a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-top">
+            <div class="logo-area">
+                <h1>Freeberry Cash [$FBC]</h1>
+                <p>Living Off the Land, Within Our Means — Powered by Tron (TRX)</p>
+            </div>
+            <div class="wallet-status-box">
+                <div class="status-dot"></div>
+                <span>TronLink: Not Connected</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: PLEDGE & CORE PILLARS -->
+    <section id="pledge" class="grid-2">
+        <div class="module">
+            <div>
+                <h2>Rooted in Freedom</h2>
+                <p><strong>Freeberry</strong> is a collective rooted in the wisdom of First Nations freedoms and traditions, prioritizing natural resources for sustenance and skill-sharing over commercial interests. Our collective consists of like-minded individuals dedicated to the principle of living sustainably off the land, while fostering and giving back to their local communities.
+
+We reject commercial exploitation of natural resources, focusing instead on sharing ancestral and practical knowledge to ensure self-sufficiency and communal well-being.</p>
+            </div>
+        </div>
+        <div class="module">
+            <div>
+                <h2>Our Pledge</h2>
+                <p><strong>Sustenance, Community, Knowledge.</strong></p>
+                <p>♦ <strong>Knowledge Sharing:</strong> Our collective members share crucial knowledge on foraging, sustainable harvesting, crafts, and natural building.</p>
+                <p>♦ <strong>Stewards of the Land:</strong> 
+Elders focus on utilizing resources mindfully and locally, ensuring the land remains abundant for future generations.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: METAPHORS (GRID 4) -->
+    <section id="philosophy">
+        <div class="module">
+            <h2>The "Free Berry" Metaphor</h2>
+            <p>If we lean into the term "The Free Berry" as a metaphor for a free individual, it creates a vivid, organic image of autonomy. Rather than picturing freedom as something cold, stark, or mechanical, "Free Berry" evokes a natural, vibrant state of being.</p>
+        </div>
+        <div class="grid-4">
+            <div class="module">
+                <div>
+                    <div class="metaphor-num">01</div>
+                    <h2>Autonomy</h2>
+                    <p><strong>Rooted but Unowned.</strong> Grows on a wild bramble, owning its own timeline instead of being cultivated on a managed farm for corporate profit. Total self-ownership outside systemic dependencies.</p>
+                </div>
+            </div>
+            <div class="module">
+                <div>
+                    <div class="metaphor-num">02</div>
+                    <h2>Resilience</h2>
+                    <p><strong>Radical Self-Sufficiency.</strong> Flourishes on thorny bushes on rocky soil without artificial protection. Developing inner boundaries ('thorns') to protect sweetness and inner peace from exploitation.</p>
+                </div>
+            </div>
+            <div class="module">
+                <div>
+                    <div class="metaphor-num">03</div>
+                    <h2>Authenticity</h2>
+                    <p><strong>Native Vitality.</strong> Unadulterated and unpolished. Unmodified for supermarket display—asymmetrical or tart, deriving vibrant energy directly from the environment on its own terms.</p>
+                </div>
+            </div>
+            <div class="module">
+                <div>
+                    <div class="metaphor-num">04</div>
+                    <h2>Growth</h2>
+                    <p><strong>Complete Detachment.</strong> Ripes to the point of dropping effortlessly from the vine. Letting go of old attachments and comfort zones to fall into fresh soil and initiate new beginnings.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: LOCATION & FOOTER -->
+    <section id="location">
+        <div class="module">
+            <h2>Where We Are</h2>
+            <p><strong>From South Head to the Global Web.</strong> The physical heart of the Freeberry economy is situated in South Head, demonstrating tangible self-sufficiency. However, our economy is borderless; free-trade and bartering are encouraged anywhere individuals connect using $FBC.</p>
+        </div>
+    </section>
+
+    <footer>
+        <div>© 2025–2026 Freeberry First Nations. Powered by The Raspberry Governance.</div>
+        <div><a href="#pledge">Back to Top ↑</a></div>
+    </footer>
+
+</body>
+</html>
