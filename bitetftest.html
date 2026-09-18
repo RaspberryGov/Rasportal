@@ -363,6 +363,7 @@
                     </div>
                     <div class="form-group">
                         <label for="stake-amount">Stake / Unstake Amount ($ETF)</label>
+                        <!-- Fully interactive number input field restored -->
                         <input type="number" id="stake-amount" class="input-control" placeholder="0.00" min="0" step="any">
                     </div>
                     <div class="button-group">
@@ -529,7 +530,7 @@
             }
         }
 
-        // 2. Unstake Function Integration (Calls contract's unstake function)
+        // 2. Unstake Function Integration
         async function handleUnstake() {
             const amount = document.getElementById('stake-amount').value;
             if (!amount || amount <= 0) {
