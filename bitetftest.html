@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin ETF ($ETF) on TRON</title>
+    <style>
+        /* Base Reset & Responsive Typography */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.45;
+            padding: clamp(6px, 1.5vw, 12px);
+            max-width: 760px;
+            margin: 0 auto;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 12px 8px;
+            border-bottom: 2px solid #000000;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-size: clamp(1.25rem, 3.5vw, 1.8rem);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+        }
+
+        .subtitle {
+            font-size: clamp(0.78rem, 1.8vw, 0.9rem);
+            font-weight: 500;
+        }
+
+        /* Layout Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .grid-2-mobile {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        .metric-card {
+            border: 2px solid #000000;
+            border-radius: 10px;
+            padding: 8px 10px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            min-height: 75px;
+        }
+
+        .card {
+            border: 2px solid #000000;
+            border-radius: 12px;
+            padding: clamp(10px, 2vw, 16px);
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .card h2 {
+            font-size: clamp(0.9rem, 2vw, 1.05rem);
+            margin-bottom: 8px;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card p {
+            font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .metric-title {
+            font-size: clamp(0.58rem, 1.3vw, 0.68rem);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .metric-value {
+            font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+            font-weight: 800;
+            word-break: break-all;
+        }
+
+        .contract-address {
+            font-family: monospace;
+            font-size: clamp(0.58rem, 1.3vw, 0.7rem);
+            font-weight: bold;
+            background: #f4f4f4;
+            padding: 3px 5px;
+            border-radius: 4px;
+            border: 1px solid #000;
+            display: block;
+            margin-top: 2px;
+            word-break: break-all;
+            max-width: 100%;
+        }
+
+        .yield-box {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        .yield-rate {
+            font-size: clamp(1.4rem, 4vw, 1.75rem);
+            font-weight: 800;
+            display: block;
+            line-height: 1.1;
+        }
+
+        .yield-sub {
+            font-size: clamp(0.7rem, 1.5vw, 0.8rem);
+            margin-top: 3px;
+        }
+
+        .stake-container {
+            border: 2px solid #000000;
+            border-radius: 12px;
+            padding: clamp(10px, 2vw, 16px);
+            margin-bottom: 12px;
+            background-color: #ffffff;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .stake-container h2 {
+            font-size: clamp(0.9rem, 2vw, 1.05rem);
+            margin-bottom: 10px;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 7px 9px;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            font-weight: 600;
+            border: 2px solid #000000;
+            border-radius: 6px;
+            outline: none;
+            background-color: #ffffff;
+            box-sizing: border-box;
+        }
+
+        .input-control:read-only {
+            background-color: #f4f4f4;
+            color: #333333;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1 1 95px;
+            padding: 8px 10px;
+            font-size: clamp(0.7rem, 1.5vw, 0.82rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 2px solid #000000;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-black {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .btn-black:hover:not(:disabled) {
+            background-color: #333333;
+        }
+
+        .btn-outline {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        ul {
+            list-style-type: none;
+            margin-top: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 16px;
+            font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+            word-wrap: break-word;
+        }
+
+        li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .notice {
+            font-size: clamp(0.75rem, 1.6vw, 0.82rem);
+            margin-top: 10px;
+            font-style: italic;
+            border-top: 1px dashed #000000;
+            padding-top: 6px;
+            word-wrap: break-word;
+        }
+
+        .disclaimer-card {
+            border: 2px solid #000000;
+            border-radius: 12px;
+            padding: clamp(10px, 1.8vw, 14px);
+            margin-bottom: 12px;
+            background-color: #ffffff;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .disclaimer-card h2 {
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .disclaimer-card p {
+            font-size: clamp(0.68rem, 1.6vw, 0.76rem);
+            line-height: 1.35;
+            color: #222222;
+            word-wrap: break-word;
+        }
+
+        footer {
+            text-align: center;
+            padding: 12px 8px;
+            border-top: 2px solid #000000;
+            margin-top: 14px;
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+        }
+
+        @media (max-width: 360px) {
+            .grid-2-mobile {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Bitcoin ETF ($ETF)</h1>
+        <p class="subtitle">Decentralized Bitcoin Exchange Traded Fund Protocol on TRON</p>
+    </header>
+
+    <main>
+        <!-- On-Chain Contract & Live Metrics -->
+        <div class="grid-2-mobile">
+            <div class="metric-card">
+                <div>
+                    <div class="metric-title">Smart Contract (Nile)</div>
+                    <span class="contract-address" id="etf-contract">TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div>
+                    <div class="metric-title">Wallet Status</div>
+                    <div class="metric-value" id="wallet-status" style="font-size: 0.8rem;">Connecting...</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div>
+                    <div class="metric-title">Staked Balance</div>
+                    <div class="metric-value" id="staked-balance">0.00 $ETF</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div>
+                    <div class="metric-title">Token Supply</div>
+                    <div class="metric-value" id="token-supply">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer-card">
+            <h2>Important Protocol Note</h2>
+            <p>
+                The Bitcoin ETF on the TRON network is a decentralized, tokenized smart contract rather than a corporate entity or organization. The smart contract automatically distributes annual dividends to staked positions in the form of additional Bitcoin ETF shares.
+            </p>
+        </div>
+
+        <!-- Interactive Staking Portal Section -->
+        <div class="stake-container">
+            <h2>Staking Dashboard</h2>
+            <div class="grid-2" style="margin-bottom: 0;">
+                
+                <!-- Stake / Unstake Controls -->
+                <div style="min-width: 0;">
+                    <div class="form-group">
+                        <label for="stake-amount">Stake / Unstake Amount ($ETF)</label>
+                        <input type="number" id="stake-amount" class="input-control" placeholder="0.00" min="0" step="any">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-black" id="stake-btn" onclick="handleStake()" disabled>Stake</button>
+                        <button class="btn btn-outline" id="unstake-btn" onclick="handleUnstake()" disabled>Unstake</button>
+                    </div>
+                </div>
+
+                <!-- Accrued Dividends Controls -->
+                <div style="min-width: 0;">
+                    <div class="form-group">
+                        <label for="dividend-amount">Accrued Dividend Amount ($ETF)</label>
+                        <input type="text" id="dividend-amount" class="input-control" value="0.00 $ETF" readonly>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-black" id="withdraw-btn" style="flex: 1 1 100%;" onclick="handleWithdrawDividends()" disabled>Withdraw Dividends</button>
+                    </div>
+                </div>
+
+            </div>
+            <p class="notice">* Minimum 7 days staked required to accrue dividends. TRX Network fees apply to all on-chain interactions.</p>
+        </div>
+
+        <!-- Genesis & Structure Info -->
+        <div class="grid-2">
+            <div class="card">
+                <h2>Overview & Mechanics</h2>
+                <p>
+                    Contributions and redemptions dynamically adjust underlying reserves and total shares. Ownership provides direct, self-executing access to a proportional share of liquidity pool reserves alongside annualized dividend distributions paid to staked positions.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>Genesis & Liquidity</h2>
+                <ul>
+                    <li><strong>Initial Trustfund :</strong> 100,000 ₿ (in bits)</li>
+                    <li><strong>Genesis Supply:</strong> 100,000 Bitcoin $ETF shares</li>
+                    <li><strong>Initial LP Deposit:</strong> 100,000 ₿ & 100,000 $ETF Liquidity Pool</li>
+                    <li>No hidden schemes. No empty promises.</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; Bitcoin ETF ($ETF) | Decentralized Smart Contract on TRON Nile Testnet</p>
+    </footer>
+
+    <!-- TronWeb Smart Contract Integration Script -->
+    <script>
+        const CONTRACT_ADDRESS = 'TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N';
+        let tronContract = null;
+        let userAddress = null;
+
+        // Initialize TronLink connection and load data
+        window.addEventListener('load', async () => {
+            let attempts = 0;
+            const maxAttempts = 15;
+
+            const checkInterval = setInterval(async () => {
+                attempts++;
+                if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
+                    clearInterval(checkInterval);
+                    window.tronWebReady = true;
+                    userAddress = window.tronWeb.defaultAddress.base58;
+                    document.getElementById('wallet-status').innerText = userAddress.substring(0, 6) + '...' + userAddress.substring(userAddress.length - 4);
+                    
+                    try {
+                        // Instantiate the contract instance on Nile Testnet
+                        tronContract = await window.tronWeb.contract().at(CONTRACT_ADDRESS);
+                        console.log("Smart contract loaded successfully:", tronContract);
+                        
+                        // Enable buttons once connected
+                        document.getElementById('stake-btn').removeAttribute('disabled');
+                        document.getElementById('unstake-btn').removeAttribute('disabled');
+                        document.getElementById('withdraw-btn').removeAttribute('disabled');
+
+                        // Fetch dynamic user metrics & contract metrics
+                        refreshDashboardData();
+                    } catch (err) {
+                        console.error("Failed to attach contract ABI/instance:", err);
+                        document.getElementById('wallet-status').innerText = 'Contract Error';
+                    }
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    document.getElementById('wallet-status').innerText = 'TronLink Not Found';
+                    alert('Please install TronLink and log in to the Nile Testnet.');
+                }
+            }, 1000);
+        });
+
+        // Fetch balances and pending accrued interest/dividends from contract
+        async function refreshDashboardData() {
+            if (!tronContract || !userAddress) return;
+            try {
+                // Query accrued dividends / pending interest (Common naming alternatives: getPendingInterest, pendingDividends, earned, etc.)
+                if (typeof tronContract.getPendingInterest === 'function') {
+                    const interest = await tronContract.getPendingInterest(userAddress).call();
+                    document.getElementById('dividend-amount').value = (window.tronWeb.fromSun(interest.toString())) + ' $ETF';
+                } else if (typeof tronContract.pendingDividends === 'function') {
+                    const dividends = await tronContract.pendingDividends(userAddress).call();
+                    document.getElementById('dividend-amount').value = (window.tronWeb.fromSun(dividends.toString())) + ' $ETF';
+                }
+
+                // Query staked balance (Common naming alternatives: getStakedBalance, balanceOfStaked, etc.)
+                if (typeof tronContract.getStakedBalance === 'function') {
+                    const staked = await tronContract.getStakedBalance(userAddress).call();
+                    document.getElementById('staked-balance').innerText = (window.tronWeb.fromSun(staked.toString())) + ' $ETF';
+                } else if (typeof tronContract.balanceOf === 'function') {
+                    const balance = await tronContract.balanceOf(userAddress).call();
+                    document.getElementById('staked-balance').innerText = (window.tronWeb.fromSun(balance.toString())) + ' $ETF';
+                }
+
+                // Query total token supply if available
+                if (typeof tronContract.totalSupply === 'function') {
+                    const supply = await tronContract.totalSupply().call();
+                    document.getElementById('token-supply').innerText = Number(window.tronWeb.fromSun(supply.toString())).toLocaleString() + ' ETF';
+                }
+            } catch (e) {
+                console.warn("Error fetching live metrics from contract methods:", e);
+            }
+        }
+
+        // 1. Stake Function Integration
+        async function handleStake() {
+            const amount = document.getElementById('stake-amount').value;
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount to stake.');
+                return;
+            }
+
+            if (!tronContract) {
+                alert('Smart contract not connected yet.');
+                return;
+            }
+
+            try {
+                document.getElementById('stake-btn').innerText = 'Staking...';
+                const amountInSun = window.tronWeb.toSun(amount);
+
+                // Assuming a standard stake function call (adjust if your smart contract requires a specific parameter like token ID or passing value)
+                // If it accepts direct native token/TRX value: callValue: amountInSun
+                await tronContract.stake(amountInSun).send({
+                    feeLimit: 100_000_000
+                });
+
+                alert('Stake transaction submitted successfully!');
+                document.getElementById('stake-amount').value = '';
+                refreshDashboardData();
+            } catch (error) {
+                console.error('Stake error:', error);
+                alert('Staking failed. Check console for details.');
+            } finally {
+                document.getElementById('stake-btn').innerText = 'Stake';
+            }
+        }
+
+        // 2. Unstake Function Integration
+        async function handleUnstake() {
+            const amount = document.getElementById('stake-amount').value;
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount to unstake.');
+                return;
+            }
+
+            if (!tronContract) {
+                alert('Smart contract not connected yet.');
+                return;
+            }
+
+            try {
+                document.getElementById('unstake-btn').innerText = 'Unstaking...';
+                const amountInSun = window.tronWeb.toSun(amount);
+
+                // Calls smart contract unstake function
+                await tronContract.unstake(amountInSun).send({
+                    feeLimit: 100_000_000
+                });
+
+                alert('Unstake transaction submitted successfully!');
+                document.getElementById('stake-amount').value = '';
+                refreshDashboardData();
+            } catch (error) {
+                console.error('Unstake error:', error);
+                alert('Unstaking failed. Check console for details.');
+            } finally {
+                document.getElementById('unstake-btn').innerText = 'Unstake';
+            }
+        }
+
+        // 3. Withdraw Dividends / Accrued Interest Function Integration
+        async function handleWithdrawDividends() {
+            if (!tronContract) {
+                alert('Smart contract not connected yet.');
+                return;
+            }
+
+            try {
+                document.getElementById('withdraw-btn').innerText = 'Withdrawing...';
+
+                // Calls smart contract withdraw/claim dividends function (Common names: withdraw, claimDividends, getReward)
+                if (typeof tronContract.withdraw === 'function') {
+                    await tronContract.withdraw().send({ feeLimit: 100_000_000 });
+                } else if (typeof tronContract.claimDividends === 'function') {
+                    await tronContract.claimDividends().send({ feeLimit: 100_000_000 });
+                } else {
+                    // Fallback generic call attempt
+                    await tronContract.withdrawDividends().send({ feeLimit: 100_000_000 });
+                }
+
+                alert('Dividend withdrawal transaction submitted successfully!');
+                refreshDashboardData();
+            } catch (error) {
+                console.error('Withdrawal error:', error);
+                alert('Withdrawal failed. Check console for details.');
+            } finally {
+                document.getElementById('withdraw-btn').innerText = 'Withdraw Dividends';
+            }
+        }
+    </script>
+</body>
+</html>
