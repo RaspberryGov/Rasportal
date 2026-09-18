@@ -181,21 +181,16 @@
             box-sizing: border-box;
         }
 
-        .input-control:read-only {
-            background-color: #f4f4f4;
-            color: #333333;
-        }
-
-        .button-group {
+        .button-stack {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 6px;
             margin-top: 6px;
             width: 100%;
         }
 
         .btn {
-            flex: 1 1 95px;
+            width: 100%;
             padding: 8px 10px;
             font-size: clamp(0.7rem, 1.5vw, 0.82rem);
             font-weight: bold;
@@ -362,11 +357,10 @@
                         <div id="staked-balance" style="font-size: 1.1rem; font-weight: 800; padding: 4px 0;">0.00 $ETF</div>
                     </div>
                     <div class="form-group">
-                        <label for="stake-amount">Stake / Unstake Amount ($ETF)</label>
-                        <!-- Fully interactive number input field restored -->
+                        <label for="stake-amount">Enter Amount to Stake ($ETF)</label>
                         <input type="number" id="stake-amount" class="input-control" placeholder="0.00" min="0" step="any">
                     </div>
-                    <div class="button-group">
+                    <div class="button-stack">
                         <button class="btn btn-black" id="stake-btn" onclick="handleStake()" disabled>Stake</button>
                         <button class="btn btn-outline" id="unstake-btn" onclick="handleUnstake()" disabled>Unstake</button>
                     </div>
@@ -382,8 +376,8 @@
                         <label for="dividend-amount">Accrued Dividend Amount ($ETF)</label>
                         <input type="text" id="dividend-amount" class="input-control" value="0.00 $ETF" readonly>
                     </div>
-                    <div class="button-group">
-                        <button class="btn btn-black" id="withdraw-btn" style="flex: 1 1 100%;" onclick="handleWithdrawDividends()" disabled>Withdraw Dividends</button>
+                    <div class="button-stack">
+                        <button class="btn btn-black" id="withdraw-btn" onclick="handleWithdrawDividends()" disabled>Withdraw Dividends</button>
                     </div>
                 </div>
 
@@ -530,14 +524,8 @@
             }
         }
 
-        // 2. Unstake Function Integration
+        // 2. Unstake Function Integration (Unstakes full balance without field input)
         async function handleUnstake() {
-            const amount = document.getElementById('stake-amount').value;
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount to unstake.');
-                return;
-            }
-
             if (!tronContract) {
                 alert('Smart contract not connected yet.');
                 return;
@@ -545,14 +533,12 @@
 
             try {
                 document.getElementById('unstake-btn').innerText = 'Unstaking...';
-                const amountInSun = window.tronWeb.toSun(amount);
 
-                await tronContract.unstake(amountInSun).send({
+                await tronContract.unstake().send({
                     feeLimit: 100_000_000
                 });
 
                 alert('Unstake transaction submitted successfully!');
-                document.getElementById('stake-amount').value = '';
                 refreshDashboardData();
             } catch (error) {
                 console.error('Unstake error:', error);
