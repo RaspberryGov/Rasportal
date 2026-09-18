@@ -485,21 +485,25 @@
                     document.getElementById('dividend-amount').value = (window.tronWeb.fromSun(dividends.toString())) + ' $ETF';
                 }
 
-                // 2. Query strictly the STAKED balance (avoiding wallet balance function fallbacks like balanceOf)
-                let stakedFound = false;
-                const stakedFunctionNames = ['getStakedBalance', 'stakedBalanceOf', 'stakedOf', 'stakingBalance', 'getUserStaked'];
-                
-                for (let funcName of stakedFunctionNames) {
-                    if (typeof tronContract[funcName] === 'function') {
-                        const staked = await tronContract[funcName](userAddress).call();
-                        document.getElementById('staked-balance').innerText = (window.tronWeb.fromSun(staked.toString())) + ' $ETF';
-                        stakedFound = true;
-                        break;
+                // 2. Query getStakeDetails to parse the correct staked amount
+                if (typeof tronContract.getStakeDetails === 'function') {
+                    const details = await tronContract.getStakeDetails(userAddress).call();
+                    console.log("Stake details response:", details);
+                    
+                    // Solidity structs/tuples returned via TronWeb can be arrays or objects.
+                    // Usually the first index or a property like 'amount'/'stakedBalance' holds the staked token amount.
+                    let stakedValue = 0;
+                    if (Array.isArray(details)) {
+                        stakedValue = details[0]; // Adjust index if amount is stored at another index (e.g., details[0] or details.amount)
+                    } else if (details && typeof details === 'object') {
+                        stakedValue = details.amount || details.stakedBalance || Object.values(details)[0];
                     }
-                }
 
-                if (!stakedFound) {
-                    document.getElementById('staked-balance').innerText = 'Function Missing';
+                    if (stakedValue !== undefined && stakedValue !== null) {
+                        document.getElementById('staked-balance').innerText = (window.tronWeb.fromSun(stakedValue.toString())) + ' $ETF';
+                    }
+                } else {
+                    document.getElementById('staked-balance').innerText = 'getStakedDetails Missing';
                 }
 
                 // 3. Query total token supply if available
