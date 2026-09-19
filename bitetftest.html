@@ -414,15 +414,13 @@
     <script>
         const CONTRACT_ADDRESS = 'TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N';
         const TRUST_ADDRESS = 'TNn5VMRcpdnBSZ634vdXnG2J9Aiu5Q8fbi';
-        const BTC_CONTRACT = 'TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9';
         const WBTC_CONTRACT = 'TYhWwKpw43ENFWBTGpzLHn3882f2au7SMi';
 
         let tronContract = null;
         let userAddress = null;
 
-        // Initialize connection and load data on window load
+        // Initialize connection and load data on window load pointing strictly to TronGrid Mainnet
         window.addEventListener('load', async () => {
-            // Guarantee TronWeb is pointed securely to TRON Mainnet via TronGrid API
             if (!window.tronWeb) {
                 window.tronWeb = new TronWeb({
                     fullHost: 'https://api.trongrid.io'
@@ -435,7 +433,7 @@
             const checkInterval = setInterval(async () => {
                 attempts++;
                 
-                // Pull active user wallet address if TronLink/Extension is injected
+                // Fetch active wallet address if TronLink is injected on Mainnet
                 if (window.tronWeb && window.tronWeb.defaultAddress && window.tronWeb.defaultAddress.base58) {
                     userAddress = window.tronWeb.defaultAddress.base58;
                 }
@@ -445,7 +443,7 @@
                     window.tronWebReady = true;
                     
                     try {
-                        // Instantiate the contract instance on Mainnet
+                        // Instantiate contract instance on Mainnet
                         tronContract = await window.tronWeb.contract().at(CONTRACT_ADDRESS);
                         console.log("Smart contract loaded successfully on Mainnet:", tronContract);
                         
@@ -459,24 +457,22 @@
                         refreshDashboardData();
                     } catch (err) {
                         console.error("Failed to attach contract ABI/instance:", err);
-                        // Still attempt to fetch token balances via TronGrid API even if main contract fails
-                        refreshTrustBalances();
+                        refreshTrustBalance();
                     }
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkInterval);
                     console.warn("TronWeb initialization timeout. Attempting direct fallback query...");
-                    refreshTrustBalances();
+                    refreshTrustBalance();
                 }
             }, 1000);
         });
 
-        // Direct fetch function using TronGrid Mainnet REST API for account TRC20 tokens
-        async function refreshTrustBalances() {
+        // Direct fetch function using TronGrid Mainnet REST API specifically for WBTC balance
+        async function refreshTrustBalance() {
             try {
                 const response = await fetch(`https://api.trongrid.io/v1/accounts/${TRUST_ADDRESS}/trc20`);
                 const data = await response.json();
                 
-                let btcBalance = 0;
                 let wbtcBalance = 0;
 
                 if (data && data.data) {
@@ -484,28 +480,25 @@
                         const contractAddr = Object.keys(item)[0];
                         const rawBalance = item[contractAddr];
                         
-                        // Standard BTC/WBTC tokens typically use 8 decimals on TRON (or parse accordingly)
+                        // WBTC on TRON typically uses 8 decimals
                         const divisor = 1e8; 
 
-                        if (contractAddr === BTC_CONTRACT) {
-                            btcBalance = Number(rawBalance) / divisor;
-                        } else if (contractAddr === WBTC_CONTRACT) {
+                        if (contractAddr === WBTC_CONTRACT) {
                             wbtcBalance = Number(rawBalance) / divisor;
                         }
                     });
                 }
 
-                const totalTrustBtc = btcBalance + wbtcBalance;
-                document.getElementById('trust-btc-balance').innerText = totalTrustBtc.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 6}) + ' BTC';
+                document.getElementById('trust-btc-balance').innerText = wbtcBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 8}) + ' WBTC';
             } catch (error) {
-                console.error("Error fetching trust balances from TronGrid API:", error);
-                document.getElementById('trust-btc-balance').innerText = '0.00 BTC';
+                console.error("Error fetching trust balance from TronGrid API:", error);
+                document.getElementById('trust-btc-balance').innerText = '0.00 WBTC';
             }
         }
 
         // Fetch balances and pending accrued interest/dividends from contract
         async function refreshDashboardData() {
-            await refreshTrustBalances();
+            await refreshTrustBalance();
 
             if (!tronContract || !userAddress) return;
             try {
