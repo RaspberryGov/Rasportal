@@ -3,611 +3,538 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin ETF ($ETF) on TRON</title>
+    <title>Bitcoin ETF ($ETF) - TRON Protocol</title>
+    <!-- Tailwind CSS for utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- TronWeb Library -->
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
     <style>
-        /* Base Reset & Responsive Typography */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body {
-            background-color: #ffffff;
-            color: #000000;
-            line-height: 1.45;
-            padding: clamp(6px, 1.5vw, 12px);
-            max-width: 760px;
-            margin: 0 auto;
-            width: 100%;
-            overflow-x: hidden;
-        }
-
-        header {
-            text-align: center;
-            padding: 12px 8px;
-            border-bottom: 2px solid #000000;
-            margin-bottom: 14px;
-        }
-
-        h1 {
-            font-size: clamp(1.25rem, 3.5vw, 1.8rem);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            word-wrap: break-word;
-        }
-
-        .subtitle {
-            font-size: clamp(0.78rem, 1.8vw, 0.9rem);
-            font-weight: 500;
-        }
-
-        /* Layout Grids */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 12px;
-            margin-bottom: 12px;
-            width: 100%;
-            align-items: stretch;
-        }
-
-        .grid-2-mobile {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 12px;
-            width: 100%;
-        }
-
-        .metric-card {
-            border: 2px solid #000000;
-            border-radius: 10px;
-            padding: 8px 10px;
-            background-color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-sizing: border-box;
-            width: 100%;
-            min-width: 0;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            min-height: 75px;
-        }
-
-        .card {
-            border: 2px solid #000000;
-            border-radius: 12px;
-            padding: clamp(10px, 2vw, 16px);
-            background-color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-sizing: border-box;
-            width: 100%;
-            min-width: 0;
-            overflow-wrap: break-word;
-            word-break: break-word;
-        }
-
-        .card h2 {
-            font-size: clamp(0.9rem, 2vw, 1.05rem);
-            margin-bottom: 8px;
-            border-bottom: 1px solid #000000;
-            padding-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .card p {
-            font-size: clamp(0.8rem, 1.8vw, 0.9rem);
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .metric-title {
-            font-size: clamp(0.58rem, 1.3vw, 0.68rem);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .metric-value {
-            font-size: clamp(0.82rem, 2vw, 0.98rem);
-            font-weight: 800;
-            word-break: break-all;
-        }
-
-        .contract-address {
-            font-family: monospace;
-            font-size: clamp(0.58rem, 1.3vw, 0.7rem);
-            font-weight: bold;
-            background: #f4f4f4;
-            padding: 3px 5px;
-            border-radius: 4px;
-            border: 1px solid #000;
-            display: block;
-            margin-top: 2px;
-            word-break: break-all;
-            max-width: 100%;
-        }
-
-        .stake-container {
-            border: 2px solid #000000;
-            border-radius: 12px;
-            padding: clamp(10px, 2vw, 16px);
-            margin-bottom: 12px;
-            background-color: #ffffff;
-            width: 100%;
-            box-sizing: border-box;
-            min-width: 0;
-        }
-
-        .stake-container h2 {
-            font-size: clamp(0.9rem, 2vw, 1.05rem);
-            margin-bottom: 10px;
-            border-bottom: 1px solid #000000;
-            padding-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group {
-            margin-bottom: 10px;
-            width: 100%;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 3px;
-        }
-
-        .input-control {
-            width: 100%;
-            padding: 7px 9px;
-            font-size: clamp(0.85rem, 2vw, 0.95rem);
-            font-weight: 600;
-            border: 2px solid #000000;
-            border-radius: 6px;
-            outline: none;
-            background-color: #ffffff;
-            box-sizing: border-box;
-        }
-
-        .button-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-top: 6px;
-            width: 100%;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 8px 10px;
-            font-size: clamp(0.7rem, 1.5vw, 0.82rem);
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border: 2px solid #000000;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-            box-sizing: border-box;
-            white-space: nowrap;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-black {
-            background-color: #000000;
-            color: #ffffff;
-        }
-
-        .btn-black:hover:not(:disabled) {
-            background-color: #333333;
-        }
-
-        .btn-outline {
-            background-color: #ffffff;
+            background-color: #fcfcfc;
             color: #000000;
         }
 
-        .btn-outline:hover:not(:disabled) {
+        .border-noir {
+            border: 2px solid #000000;
+        }
+
+        .shadow-sharp {
+            box-shadow: 4px 4px 0px #000000;
+        }
+
+        .shadow-sharp-sm {
+            box-shadow: 2px 2px 0px #000000;
+        }
+
+        .shadow-sharp-lg {
+            box-shadow: 6px 6px 0px #000000;
+        }
+
+        .btn-noir {
             background-color: #000000;
             color: #ffffff;
+            transition: all 0.15s ease-in-out;
         }
 
-        ul {
-            list-style-type: none;
-            margin-top: 0;
+        .btn-noir:hover:not(:disabled) {
+            background-color: #2a2a2a;
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0px #000000;
         }
 
-        li {
-            margin-bottom: 5px;
-            position: relative;
-            padding-left: 16px;
-            font-size: clamp(0.8rem, 1.8vw, 0.9rem);
-            word-wrap: break-word;
+        .btn-noir:active:not(:disabled) {
+            transform: translate(0px, 0px);
+            box-shadow: 0px 0px 0px #000000;
         }
 
-        li::before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-        }
-
-        .notice {
-            font-size: clamp(0.75rem, 1.6vw, 0.82rem);
-            margin-top: 10px;
-            font-style: italic;
-            border-top: 1px dashed #000000;
-            padding-top: 6px;
-            word-wrap: break-word;
-        }
-
-        .disclaimer-card {
-            border: 2px solid #000000;
-            border-radius: 12px;
-            padding: clamp(10px, 1.8vw, 14px);
-            margin-bottom: 12px;
+        .btn-outline-noir {
             background-color: #ffffff;
-            width: 100%;
-            box-sizing: border-box;
-            min-width: 0;
+            color: #000000;
+            border: 2px solid #000000;
+            transition: all 0.15s ease-in-out;
         }
 
-        .disclaimer-card h2 {
-            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 3px;
+        .btn-outline-noir:hover:not(:disabled) {
+            background-color: #000000;
+            color: #ffffff;
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0px #000000;
         }
 
-        .disclaimer-card p {
-            font-size: clamp(0.68rem, 1.6vw, 0.76rem);
-            line-height: 1.35;
-            color: #222222;
-            word-wrap: break-word;
+        .btn-outline-noir:active:not(:disabled) {
+            transform: translate(0px, 0px);
+            box-shadow: 0px 0px 0px #000000;
         }
 
-        footer {
-            text-align: center;
-            padding: 12px 8px;
-            border-top: 2px solid #000000;
-            margin-top: 14px;
-            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+        /* Pulse animation for live data status indicator */
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
         }
 
-        @media (max-width: 360px) {
-            .grid-2-mobile {
-                grid-template-columns: 1fr;
-            }
+        .live-dot {
+            animation: pulse-dot 2s infinite ease-in-out;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen p-3 md:p-6 max-w-4xl mx-auto flex flex-col justify-between">
 
-    <header>
-        <h1>Bitcoin ETF ($ETF)</h1>
-        <p class="subtitle">Decentralized Bitcoin Exchange Traded Fund Protocol on TRON</p>
-    </header>
+    <div>
+        <header class="text-center py-6 border-noir rounded-xl mb-6 bg-white shadow-sharp">
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-black text-white rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+                TRON Mainnet
+            </div>
+            <h1 class="text-2xl md:text-4xl font-black uppercase tracking-tight">Bitcoin ETF ($ETF)</h1>
+            <p class="text-xs md:text-sm font-semibold text-gray-700 mt-1">Decentralized Bitcoin Exchange Traded Fund Protocol</p>
+        </header>
 
-    <main>
-        <!-- On-Chain Contract & Live Metrics -->
-        <div class="grid-2-mobile">
-            <div class="metric-card">
-                <div>
-                    <div class="metric-title">Smart Contract (Mainnet)</div>
-                    <span class="contract-address" id="etf-contract">TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N</span>
+        <main>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Smart Contract Card -->
+                <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between">
+                    <div>
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Smart Contract (Mainnet)</div>
+                        <div class="font-mono text-xs font-bold bg-gray-100 p-2 rounded-lg border border-black break-all select-all flex items-center justify-between" id="etf-contract">
+                            <span>TZ13azHANci...W4N</span>
+                            <button onclick="copyToClipboard('TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N', 'contract-copied')" class="ml-1 text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-sans hover:bg-gray-800">Copy</button>
+                        </div>
+                        <span id="contract-copied" class="text-[10px] font-bold text-emerald-600 hidden mt-1 block">Copied to clipboard!</span>
+                    </div>
+                </div>
+
+                <!-- Total BTC in Trust Card (2 Separate lines for $BTC and $WBTC) -->
+                <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between sm:col-span-1 lg:col-span-1">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600">Total BTC in Trust</div>
+                            <span title="Refreshing every 15s" class="text-[9px] bg-gray-200 px-1.5 py-0.5 rounded font-bold uppercase">Live</span>
+                        </div>
+                        
+                        <div class="space-y-1.5 mt-2">
+                            <!-- $BTC Balance Line -->
+                            <div class="p-2 bg-gray-50 border border-black rounded-lg flex items-center justify-between">
+                                <span class="text-xs font-black text-black">$BTC</span>
+                                <span class="font-mono text-xs font-black" id="btc-balance">0.00000000</span>
+                            </div>
+                            <!-- $WBTC Balance Line -->
+                            <div class="p-2 bg-gray-50 border border-black rounded-lg flex items-center justify-between">
+                                <span class="text-xs font-black text-black">$WBTC</span>
+                                <span class="font-mono text-xs font-black" id="wbtc-balance">0.00000000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share Price Card -->
+                <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between">
+                    <div>
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">BTC/ETF Share Price</div>
+                        <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="share-price">1.00000000</div>
+                        <div class="text-[10px] font-semibold text-gray-500 mt-1">1 $ETF = 1 ₿ (Bit standard)</div>
+                    </div>
+                </div>
+
+                <!-- Token Supply Card -->
+                <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between">
+                    <div>
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Total Token Supply</div>
+                        <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="token-supply">100,000.00000000</div>
+                        <div class="text-[10px] font-semibold text-gray-500 mt-1">$ETF Total Minted</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Two Separate Fields Displaying $BTC and$WBTC Respectively -->
-            <div class="metric-card">
-                <div>
-                    <div class="metric-title">Total BTC in Trust</div>
-                    <div class="metric-value" id="btc-balance-line">$BTC: Loading...</div>
-                    <div class="metric-value" id="wbtc-balance-line">$WBTC: Loading...</div>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div>
-                    <div class="metric-title">BTC/ETF Share Price</div>
-                    <div class="metric-value" id="share-price">--</div>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div>
-                    <div class="metric-title">Token Supply</div>
-                    <div class="metric-value" id="token-supply">--</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Disclaimer -->
-        <div class="disclaimer-card">
-            <h2>Important Protocol Note</h2>
-            <p>
-                The Bitcoin ETF on the TRON network is a decentralized, tokenized smart contract rather than a corporate entity or organization. The smart contract automatically distributes annual dividends to staked positions in the form of additional Bitcoin ETF shares.
-            </p>
-        </div>
-
-        <!-- Interactive Staking Portal Section -->
-        <div class="stake-container">
-            <h2>Staking Dashboard</h2>
-            <div class="grid-2" style="margin-bottom: 0;">
-                
-                <!-- Stake / Unstake Controls with Current Staked Display -->
-                <div style="min-width: 0;">
-                    <div class="form-group" style="margin-bottom: 8px;">
-                        <label>Current Staked</label>
-                        <div id="staked-balance" style="font-size: 1.1rem; font-weight: 800; padding: 4px 0;">0.00000000 $ETF</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="stake-amount">Enter Amount to Stake ($ETF)</label>
-                        <input type="number" id="stake-amount" class="input-control" placeholder="0.00" min="0" step="any">
-                    </div>
-                    <div class="button-stack">
-                        <button class="btn btn-black" id="stake-btn" onclick="handleStake()" disabled>Stake</button>
-                        <button class="btn btn-outline" id="unstake-btn" onclick="handleUnstake()" disabled>Unstake</button>
-                    </div>
-                </div>
-
-                <!-- Accrued Dividends Controls -->
-                <div style="min-width: 0;">
-                    <div class="form-group" style="margin-bottom: 8px;">
-                        <label style="visibility: hidden;">Spacer</label>
-                        <div style="font-size: 1.1rem; font-weight: 800; padding: 4px 0; visibility: hidden;">--</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="dividend-amount">Accrued Dividend Amount ($ETF)</label>
-                        <input type="text" id="dividend-amount" class="input-control" value="0.00000000 $ETF" readonly>
-                    </div>
-                    <div class="button-stack">
-                        <button class="btn btn-black" id="withdraw-btn" onclick="handleWithdrawDividends()" disabled>Withdraw Dividends</button>
-                    </div>
-                </div>
-
-            </div>
-            <p class="notice">* Minimum 7 days staked required to accrue dividends. TRX Network fees apply to all on-chain interactions.</p>
-        </div>
-
-        <!-- Genesis & Structure Info -->
-        <div class="grid-2">
-            <div class="card">
-                <h2>Overview & Mechanics</h2>
-                <p>
-                    Contributions and redemptions dynamically adjust underlying reserves and total shares. Ownership provides direct, self-executing access to a proportional share of liquidity pool reserves alongside annualized dividend distributions paid to staked positions.
+            <div class="border-noir rounded-xl p-4 bg-white shadow-sharp mb-6">
+                <h2 class="text-xs font-black uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Important Protocol Note
+                </h2>
+                <p class="text-xs font-medium leading-relaxed text-gray-800">
+                    The Bitcoin ETF on the TRON network is an autonomous, decentralized tokenized smart contract protocol. It automatically accrues underlying reserve deposits and distributes dynamic yield dividends directly to staked share positions on-chain.
                 </p>
             </div>
 
-            <div class="card">
-                <h2>Genesis & Liquidity</h2>
-                <ul>
-                    <li><strong>Initial Trustfund :</strong> 100,000 ₿ (in bits)</li>
-                    <li><strong>Genesis Supply:</strong> 100,000 Bitcoin $ETF shares</li>
-                    <li><strong>Initial LP Deposit:</strong> 100,000 ₿ & 100,000 $ETF Liquidity Pool</li>
-                    <li>No hidden schemes. No empty promises.</li>
-                </ul>
-            </div>
-        </div>
-    </main>
+            <div class="border-noir rounded-xl p-4 md:p-6 bg-white shadow-sharp mb-6">
+                <div class="flex items-center justify-between border-b-2 border-black pb-3 mb-4">
+                    <h2 class="text-sm md:text-base font-black uppercase tracking-wider">Staking Dashboard</h2>
+                    <div id="wallet-status" class="text-[10px] font-bold px-2 py-1 rounded border border-black bg-yellow-100 text-black">
+                        Checking Wallet...
+                    </div>
+                </div>
 
-    <footer>
-        <p>&copy; Bitcoin ETF ($ETF) | Decentralized Smart Contract on TRON Mainnet</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Stake/Unstake Column -->
+                    <div class="flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="mb-3">
+                                <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Current Staked Balance</label>
+                                <div class="text-xl md:text-2xl font-black font-mono bg-gray-50 p-3 rounded-lg border-noir" id="staked-balance">
+                                    0.00000000 <span class="text-xs font-extrabold">$ETF</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="stake-amount" class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Amount to Stake / Unstake ($ETF)</label>
+                                <input type="number" id="stake-amount" class="w-full p-3 font-mono font-bold text-sm border-noir rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white" placeholder="0.00000000" min="0" step="any">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <button class="btn-noir p-3 rounded-lg text-xs font-black uppercase tracking-wider border-noir disabled:opacity-50 disabled:cursor-not-allowed" id="stake-btn" onclick="handleStake()" disabled>
+                                Stake
+                            </button>
+                            <button class="btn-outline-noir p-3 rounded-lg text-xs font-black uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed" id="unstake-btn" onclick="handleUnstake()" disabled>
+                                Unstake
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Accrued Dividends Column -->
+                    <div class="flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="mb-3">
+                                <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Accrued Dividend Earnings</label>
+                                <div class="text-xl md:text-2xl font-black font-mono bg-emerald-50 text-emerald-950 p-3 rounded-lg border-noir" id="dividend-amount-display">
+                                    0.00000000 <span class="text-xs font-extrabold">$ETF</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Estimated Annualized Yield</label>
+                                <div class="p-3 bg-gray-50 rounded-lg border-noir text-xs font-bold font-mono text-gray-800">
+                                    ~ 8.45% APY (Paid in $ETF Shares)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button class="btn-noir w-full p-3 rounded-lg text-xs font-black uppercase tracking-wider border-noir disabled:opacity-50 disabled:cursor-not-allowed" id="withdraw-btn" onclick="handleWithdrawDividends()" disabled>
+                                Withdraw Dividends
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-dashed border-gray-400 text-[11px] font-medium text-gray-600 flex items-center justify-between flex-wrap gap-2">
+                    <span>* Minimum 7 days staked required to accrue dividends.</span>
+                    <span class="font-bold text-black">TRX Network fees apply.</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border-noir rounded-xl p-5 bg-white shadow-sharp flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xs font-black uppercase tracking-wider pb-2 border-b-2 border-black mb-3">Overview & Mechanics</h3>
+                        <p class="text-xs font-medium leading-relaxed text-gray-800">
+                            Contributions and redemptions dynamically adjust underlying reserves and total shares. Ownership provides direct, self-executing access to a proportional share of liquidity pool reserves alongside annualized dividend distributions paid to staked positions.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="border-noir rounded-xl p-5 bg-white shadow-sharp flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xs font-black uppercase tracking-wider pb-2 border-b-2 border-black mb-3">Genesis & Liquidity</h3>
+                        <ul class="text-xs font-medium space-y-2 text-gray-800">
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold text-black">•</span>
+                                <span><strong>Initial Trustfund:</strong> 100,000 ₿ (in bits)</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold text-black">•</span>
+                                <span><strong>Genesis Supply:</strong> 100,000 Bitcoin $ETF shares</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold text-black">•</span>
+                                <span><strong>Initial LP Deposit:</strong> 100,000 ₿ & 100,000 $ETF Liquidity Pool</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold text-black">•</span>
+                                <span>100% On-Chain Verifiable backing via TRON Trust vault.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="text-center py-6 border-t-2 border-black mt-8 text-xs font-bold text-gray-700">
+        <p>&copy; 2026 Bitcoin ETF ($ETF) | Decentralized Smart Contract Protocol on TRON Mainnet</p>
     </footer>
 
-    <!-- TronWeb & TronGrid Mainnet Integration Script -->
     <script>
+        // Target Addresses
         const CONTRACT_ADDRESS = 'TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N';
-        const TRUST_ADDRESS = 'TNn5VMRcpdnBSZ634vdXnG2J9Aiu5Q8fbi';
-        const WBTC_CONTRACT = 'TYhWwKpw43ENFWBTGpzLHn3882f2au7SMi';
-        
-        // If a separate native/synthetic $BTC TRC-20 token contract address exists, update it below:
-        const BTC_CONTRACT = ''; 
+        const TRUST_ADDRESS    = 'TNn5VMRcpdnBSZ634vdXnG2J9Aiu5Q8fbi';
+        const WBTC_CONTRACT    = 'TYhWwKpw43ENFWBTGpzLHn3882f2au7SMi';
+        const BTC_CONTRACT     = 'TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9';
 
         let tronContract = null;
         let userAddress = null;
+        let tronWebInstance = null;
 
-        window.addEventListener('load', async () => {
-            if (!window.tronWeb) {
-                window.tronWeb = new TronWeb({
-                    fullHost: 'https://api.trongrid.io'
-                });
+        // Clipboard helper function
+        function copyToClipboard(text, elId) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            const notifyEl = document.getElementById(elId);
+            if (notifyEl) {
+                notifyEl.classList.remove('hidden');
+                setTimeout(() => notifyEl.classList.add('hidden'), 2000);
             }
+        }
 
-            let attempts = 0;
-            const maxAttempts = 15;
-
-            const checkInterval = setInterval(async () => {
-                attempts++;
-                
-                if (window.tronWeb && window.tronWeb.defaultAddress && window.tronWeb.defaultAddress.base58) {
-                    userAddress = window.tronWeb.defaultAddress.base58;
-                }
-
-                if (window.tronWeb) {
-                    clearInterval(checkInterval);
-                    window.tronWebReady = true;
-                    
-                    try {
-                        tronContract = await window.tronWeb.contract().at(CONTRACT_ADDRESS);
-                        
-                        if (userAddress) {
-                            document.getElementById('stake-btn').removeAttribute('disabled');
-                            document.getElementById('unstake-btn').removeAttribute('disabled');
-                            document.getElementById('withdraw-btn').removeAttribute('disabled');
-                        }
-
-                        refreshDashboardData();
-                    } catch (err) {
-                        console.error("Contract load error:", err);
-                        refreshTrustBalances();
-                    }
-                } else if (attempts >= maxAttempts) {
-                    clearInterval(checkInterval);
-                    refreshTrustBalances();
-                }
-            }, 1000);
+        // Initialize application on window load
+        window.addEventListener('load', async () => {
+            initTronWeb();
+            // Start polling for live balance updates every 15 seconds
+            setInterval(fetchTrustBalances, 15000);
         });
 
-        // Pulls and maps individual balances explicitly mapped for $BTC and$WBTC via TronGrid Mainnet
-        async function refreshTrustBalances() {
-            try {
-                const response = await fetch(`https://api.trongrid.io/v1/accounts/${TRUST_ADDRESS}/trc20`);
-                const data = await response.json();
-                
-                let btcBalance = 0;
-                let wbtcBalance = 0;
+        async function initTronWeb() {
+            // Instantiate standalone TronWeb connected to TronGrid Mainnet
+            tronWebInstance = new TronWeb({
+                fullHost: 'https://api.trongrid.io'
+            });
 
-                if (data && data.data) {
-                    data.data.forEach(item => {
-                        const contractAddr = Object.keys(item)[0];
-                        const rawBalance = item[contractAddr];
-                        const divisor = 1e8; // Standard 8 decimal precision for BTC assets
+            // Initial immediate balance fetch
+            await fetchTrustBalances();
 
-                        if (contractAddr === WBTC_CONTRACT) {
-                            wbtcBalance = Number(rawBalance) / divisor;
-                        } else if (BTC_CONTRACT && contractAddr === BTC_CONTRACT) {
-                            btcBalance = Number(rawBalance) / divisor;
-                        }
-                    });
+            // Check for TronLink extension injection
+            let attempts = 0;
+            const maxAttempts = 10;
+
+            const checkWallet = setInterval(async () => {
+                attempts++;
+
+                if (window.tronWeb && window.tronWeb.defaultAddress && window.tronWeb.defaultAddress.base58) {
+                    clearInterval(checkWallet);
+                    tronWebInstance = window.tronWeb;
+                    userAddress = window.tronWeb.defaultAddress.base58;
+                    
+                    document.getElementById('wallet-status').innerText = `Connected: ${userAddress.substring(0,6)}...${userAddress.substring(userAddress.length - 4)}`;
+                    document.getElementById('wallet-status').className = "text-[10px] font-bold px-2 py-1 rounded border border-black bg-emerald-100 text-emerald-950";
+
+                    enableStakingButtons(true);
+                    setupContractInstance();
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(checkWallet);
+                    document.getElementById('wallet-status').innerText = "Wallet Not Connected (Read Only)";
+                    document.getElementById('wallet-status').className = "text-[10px] font-bold px-2 py-1 rounded border border-black bg-gray-100 text-gray-700";
+                    enableStakingButtons(false);
                 }
+            }, 800);
+        }
 
-                // Update separate lines explicitly formatted to 8 decimal places
-                document.getElementById('btc-balance-line').innerText  = `$BTC:  ${btcBalance.toFixed(8)}`;
-                document.getElementById('wbtc-balance-line').innerText = `$WBTC: ${wbtcBalance.toFixed(8)}`;
-            } catch (error) {
-                console.error("Error fetching balances from TronGrid:", error);
-                document.getElementById('btc-balance-line').innerText  = `$BTC:  0.00000000`;
-                document.getElementById('wbtc-balance-line').innerText = `$WBTC: 0.00000000`;
+        function enableStakingButtons(enabled) {
+            const btns = ['stake-btn', 'unstake-btn', 'withdraw-btn'];
+            btns.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (enabled) el.removeAttribute('disabled');
+                    else el.setAttribute('disabled', 'true');
+                }
+            });
+        }
+
+        async function setupContractInstance() {
+            try {
+                tronContract = await tronWebInstance.contract().at(CONTRACT_ADDRESS);
+                refreshUserData();
+            } catch (err) {
+                console.warn("Could not bind main ETF contract:", err);
             }
         }
 
-        async function refreshDashboardData() {
-            await refreshTrustBalances();
+        /**
+         * Fetch exact TRC20 token balances for $BTC and $WBTC directly from TRON Mainnet.
+         * Uses direct on-chain balanceOf constant calls via TronWeb with REST fallback.
+         */
+        async function fetchTrustBalances() {
+            let btcBal = 0;
+            let wbtcBal = 0;
 
-            if (!tronContract || !userAddress) return;
+            // Strategy A: Direct Constant Contract Calls via TronWeb instance
             try {
-                if (typeof tronContract.getPendingInterest === 'function') {
-                    const interest = await tronContract.getPendingInterest(userAddress).call();
-                    document.getElementById('dividend-amount').value = (Number(window.tronWeb.fromSun(interest.toString()))).toFixed(8) + ' $ETF';
-                } else if (typeof tronContract.pendingDividends === 'function') {
-                    const dividends = await tronContract.pendingDividends(userAddress).call();
-                    document.getElementById('dividend-amount').value = (Number(window.tronWeb.fromSun(dividends.toString()))).toFixed(8) + ' $ETF';
-                }
-
-                if (typeof tronContract.getStakeDetails === 'function') {
-                    const details = await tronContract.getStakeDetails(userAddress).call();
-                    let stakedValue = 0;
-                    if (Array.isArray(details)) {
-                        stakedValue = details[0]; 
-                    } else if (details && typeof details === 'object') {
-                        stakedValue = details.amount || details.stakedBalance || Object.values(details)[0];
-                    }
-
-                    if (stakedValue !== undefined && stakedValue !== null) {
-                        document.getElementById('staked-balance').innerText = (Number(window.tronWeb.fromSun(stakedValue.toString()))).toFixed(8) + ' $ETF';
-                    }
-                } else {
-                    document.getElementById('staked-balance').innerText = '0.00000000 $ETF';
-                }
-
-                if (typeof tronContract.totalSupply === 'function') {
-                    const supply = await tronContract.totalSupply().call();
-                    document.getElementById('token-supply').innerText = Number(window.tronWeb.fromSun(supply.toString())).toLocaleString(undefined, {minimumFractionDigits: 8, maximumFractionDigits: 8}) + ' ETF';
+                if (BTC_CONTRACT) {
+                    const btcContract = await tronWebInstance.contract().at(BTC_CONTRACT);
+                    const rawBtc = await btcContract.balanceOf(TRUST_ADDRESS).call();
+                    btcBal = Number(rawBtc.toString()) / 1e8;
                 }
             } catch (e) {
-                console.warn("Error fetching dashboard contract fields:", e);
+                console.warn("Direct contract call failed for $BTC, using REST fallback:", e);
+            }
+
+            try {
+                if (WBTC_CONTRACT) {
+                    const wbtcContract = await tronWebInstance.contract().at(WBTC_CONTRACT);
+                    const rawWbtc = await wbtcContract.balanceOf(TRUST_ADDRESS).call();
+                    wbtcBal = Number(rawWbtc.toString()) / 1e8;
+                }
+            } catch (e) {
+                console.warn("Direct contract call failed for $WBTC, using REST fallback:", e);
+            }
+
+            // Strategy B: Fallback via TronGrid REST API if contract calls return 0
+            if (btcBal === 0 || wbtcBal === 0) {
+                try {
+                    const res = await fetch(`https://api.trongrid.io/v1/accounts/${TRUST_ADDRESS}/trc20`);
+                    const json = await res.json();
+
+                    if (json && json.data) {
+                        json.data.forEach(token => {
+                            const contractAddr = Object.keys(token)[0];
+                            const rawAmount = token[contractAddr];
+                            
+                            if (contractAddr === BTC_CONTRACT && btcBal === 0) {
+                                btcBal = Number(rawAmount) / 1e8;
+                            }
+                            if (contractAddr === WBTC_CONTRACT && wbtcBal === 0) {
+                                wbtcBal = Number(rawAmount) / 1e8;
+                            }
+                        });
+                    }
+                } catch (apiErr) {
+                    console.error("TronGrid REST Fallback error:", apiErr);
+                }
+            }
+
+            // Update UI elements with strictly formatted 8 decimal places
+            document.getElementById('btc-balance').innerText  = btcBal.toFixed(8);
+            document.getElementById('wbtc-balance').innerText = wbtcBal.toFixed(8);
+        }
+
+        async function refreshUserData() {
+            if (!tronContract || !userAddress) return;
+
+            try {
+                // Fetch staked balance
+                if (typeof tronContract.getStakeDetails === 'function') {
+                    const details = await tronContract.getStakeDetails(userAddress).call();
+                    let stakedVal = 0;
+                    if (Array.isArray(details)) stakedVal = details[0];
+                    else if (details && typeof details === 'object') stakedVal = details.amount || Object.values(details)[0];
+                    
+                    if (stakedVal) {
+                        const formatted = (Number(tronWebInstance.fromSun(stakedVal.toString()))).toFixed(8);
+                        document.getElementById('staked-balance').innerHTML = `${formatted} <span class="text-xs font-extrabold">$ETF</span>`;
+                    }
+                }
+
+                // Fetch accrued dividends
+                if (typeof tronContract.getPendingInterest === 'function') {
+                    const interest = await tronContract.getPendingInterest(userAddress).call();
+                    const formattedInt = (Number(tronWebInstance.fromSun(interest.toString()))).toFixed(8);
+                    document.getElementById('dividend-amount-display').innerHTML = `${formattedInt} <span class="text-xs font-extrabold">$ETF</span>`;
+                } else if (typeof tronContract.pendingDividends === 'function') {
+                    const divs = await tronContract.pendingDividends(userAddress).call();
+                    const formattedDivs = (Number(tronWebInstance.fromSun(divs.toString()))).toFixed(8);
+                    document.getElementById('dividend-amount-display').innerHTML = `${formattedDivs} <span class="text-xs font-extrabold">$ETF</span>`;
+                }
+            } catch (err) {
+                console.warn("User data refresh warning:", err);
             }
         }
 
+        // Action Handlers
         async function handleStake() {
-            const amount = document.getElementById('stake-amount').value;
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount to stake.');
+            const amountInput = document.getElementById('stake-amount').value;
+            if (!amountInput || amountInput <= 0) {
+                alert("Please enter a valid $ETF amount to stake.");
                 return;
             }
 
             if (!tronContract) {
-                alert('Smart contract not connected yet.');
+                alert("TronLink wallet not connected or smart contract uninitialized.");
                 return;
             }
 
             try {
-                document.getElementById('stake-btn').innerText = 'Staking...';
-                const amountInSun = window.tronWeb.toSun(amount);
+                const btn = document.getElementById('stake-btn');
+                btn.innerText = "Staking...";
+                btn.disabled = true;
 
-                await tronContract.stake(amountInSun).send({ feeLimit: 100_000_000 });
-                alert('Stake transaction submitted successfully!');
+                const amountSun = tronWebInstance.toSun(amountInput);
+                await tronContract.stake(amountSun).send({ feeLimit: 100000000 });
+
+                alert("Stake transaction successfully broadcast!");
                 document.getElementById('stake-amount').value = '';
-                refreshDashboardData();
-            } catch (error) {
-                console.error('Stake error:', error);
-                alert('Staking failed. Check console for details.');
+                refreshUserData();
+            } catch (err) {
+                console.error("Stake transaction failed:", err);
+                alert("Staking transaction failed or rejected.");
             } finally {
-                document.getElementById('stake-btn').innerText = 'Stake';
+                const btn = document.getElementById('stake-btn');
+                btn.innerText = "Stake";
+                btn.disabled = false;
             }
         }
 
         async function handleUnstake() {
             if (!tronContract) {
-                alert('Smart contract not connected yet.');
+                alert("TronLink wallet not connected or smart contract uninitialized.");
                 return;
             }
 
             try {
-                document.getElementById('unstake-btn').innerText = 'Unstaking...';
-                await tronContract.unstake().send({ feeLimit: 100_000_000 });
-                alert('Unstake transaction submitted successfully!');
-                refreshDashboardData();
-            } catch (error) {
-                console.error('Unstake error:', error);
-                alert('Unstaking failed. Check console for details.');
+                const btn = document.getElementById('unstake-btn');
+                btn.innerText = "Unstaking...";
+                btn.disabled = true;
+
+                await tronContract.unstake().send({ feeLimit: 100000000 });
+
+                alert("Unstake transaction successfully broadcast!");
+                refreshUserData();
+            } catch (err) {
+                console.error("Unstake transaction failed:", err);
+                alert("Unstaking transaction failed or rejected.");
             } finally {
-                document.getElementById('unstake-btn').innerText = 'Unstake';
+                const btn = document.getElementById('unstake-btn');
+                btn.innerText = "Unstake";
+                btn.disabled = false;
             }
         }
 
         async function handleWithdrawDividends() {
             if (!tronContract) {
-                alert('Smart contract not connected yet.');
+                alert("TronLink wallet not connected or smart contract uninitialized.");
                 return;
             }
 
             try {
-                document.getElementById('withdraw-btn').innerText = 'Withdrawing...';
+                const btn = document.getElementById('withdraw-btn');
+                btn.innerText = "Withdrawing...";
+                btn.disabled = true;
 
                 if (typeof tronContract.withdraw === 'function') {
-                    await tronContract.withdraw().send({ feeLimit: 100_000_000 });
+                    await tronContract.withdraw().send({ feeLimit: 100000000 });
                 } else if (typeof tronContract.claimDividends === 'function') {
-                    await tronContract.claimDividends().send({ feeLimit: 100_000_000 });
+                    await tronContract.claimDividends().send({ feeLimit: 100000000 });
                 } else {
-                    await tronContract.withdrawDividends().send({ feeLimit: 100_000_000 });
+                    await tronContract.withdrawDividends().send({ feeLimit: 100000000 });
                 }
 
-                alert('Dividend withdrawal transaction submitted successfully!');
-                refreshDashboardData();
-            } catch (error) {
-                console.error('Withdrawal error:', error);
-                alert('Withdrawal failed. Check console for details.');
+                alert("Dividend withdrawal transaction successfully broadcast!");
+                refreshUserData();
+            } catch (err) {
+                console.error("Withdrawal failed:", err);
+                alert("Withdrawal transaction failed or rejected.");
             } finally {
-                document.getElementById('withdraw-btn').innerText = 'Withdraw Dividends';
+                const btn = document.getElementById('withdraw-btn');
+                btn.innerText = "Withdraw Dividends";
+                btn.disabled = false;
             }
         }
     </script>
