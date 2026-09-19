@@ -310,15 +310,15 @@
         <div class="grid-2-mobile">
             <div class="metric-card">
                 <div>
-                    <div class="metric-title">Smart Contract (Nile)</div>
+                    <div class="metric-title">Smart Contract (Mainnet)</div>
                     <span class="contract-address" id="etf-contract">TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N</span>
                 </div>
             </div>
 
             <div class="metric-card">
                 <div>
-                    <div class="metric-title">Total BTC in LP</div>
-                    <div class="metric-value" id="pool-btc-balance">--</div>
+                    <div class="metric-title">Total BTC in Trust</div>
+                    <div class="metric-value" id="trust-btc-balance">--</div>
                 </div>
             </div>
 
@@ -407,29 +407,38 @@
     </main>
 
     <footer>
-        <p>&copy; Bitcoin ETF ($ETF) | Decentralized Smart Contract on TRON Nile Testnet</p>
+        <p>&copy; Bitcoin ETF ($ETF) | Decentralized Smart Contract on TRON Mainnet</p>
     </footer>
 
     <!-- TronWeb Smart Contract Integration Script -->
     <script>
         const CONTRACT_ADDRESS = 'TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N';
+        const TRUST_ADDRESS = 'TNn5VMRcpdnBSZ634vdXnG2J9Aiu5Q8fbi';
+        const BTC_CONTRACT = 'TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9';
+        const WBTC_CONTRACT = 'TYhWwKpw43ENFWBTGpzLHn3882f2au7SMi';
+
         let tronContract = null;
         let userAddress = null;
 
-        // Initialize TronLink connection and load data
+        // Initialize TronWeb/TronLink connection and load data
         window.addEventListener('load', async () => {
             let attempts = 0;
             const maxAttempts = 15;
 
             const checkInterval = setInterval(async () => {
                 attempts++;
-                if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
+                // Fallback to Mainnet TronWeb provider if TronLink isn't injected immediately
+                if (!window.tronWeb && window.SunWeb) {
+                    window.tronWeb = window.SunWeb.tronWeb;
+                }
+
+                if (window.tronWeb && window.tronWeb.defaultAddress && window.tronWeb.defaultAddress.base58) {
                     clearInterval(checkInterval);
                     window.tronWebReady = true;
                     userAddress = window.tronWeb.defaultAddress.base58;
                     
                     try {
-                        // Instantiate the contract instance on Nile Testnet
+                        // Instantiate the contract instance on Mainnet
                         tronContract = await window.tronWeb.contract().at(CONTRACT_ADDRESS);
                         console.log("Smart contract loaded successfully:", tronContract);
                         
@@ -445,45 +454,83 @@
                     }
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkInterval);
-                    alert('Please install TronLink and log in to the Nile Testnet.');
+                    // Fallback read-only initialization using TronGrid Mainnet API if TronLink is unavailable
+                    if (window.TronWeb) {
+                        window.tronWeb = new window.TronWeb({
+                            fullHost: 'https://api.trongrid.io'
+                        });
+                        try {
+                            tronContract = await window.tronWeb.contract().at(CONTRACT_ADDRESS);
+                            refreshDashboardData();
+                        } catch (e) {
+                            console.warn("Read-only fallback initialization failed:", e);
+                        }
+                    }
                 }
             }, 1000);
         });
 
+        // Helper function to query TRC20 token balance using TronWeb / TronGrid
+        async function getTRC20Balance(tokenContractAddress, walletAddress) {
+            try {
+                if (!window.tronWeb) return 0;
+                const contract = await window.tronWeb.contract().at(tokenContractAddress);
+                const balance = await contract.balanceOf(walletAddress).call();
+                return balance;
+            } catch (err) {
+                console.error(`Error fetching balance for token ${tokenContractAddress}:`, err);
+                return 0;
+            }
+        }
+
         // Fetch balances and pending accrued interest/dividends from contract
         async function refreshDashboardData() {
-            if (!tronContract || !userAddress) return;
+            if (!window.tronWeb) return;
             try {
-                // 1. Query accrued dividends / pending interest
-                if (typeof tronContract.getPendingInterest === 'function') {
-                    const interest = await tronContract.getPendingInterest(userAddress).call();
-                    document.getElementById('dividend-amount').value = (window.tronWeb.fromSun(interest.toString())) + ' $ETF';
-                } else if (typeof tronContract.pendingDividends === 'function') {
-                    const dividends = await tronContract.pendingDividends(userAddress).call();
-                    document.getElementById('dividend-amount').value = (window.tronWeb.fromSun(dividends.toString())) + ' $ETF';
-                }
+                // 1. Fetch $BTC and$WBTC balances held in the trust address on TronGrid Mainnet
+                const btcBalanceRaw = await getTRC20Balance(BTC_CONTRACT, TRUST_ADDRESS);
+                const wbtcBalanceRaw = await getTRC20Balance(WBTC_CONTRACT, TRUST_ADDRESS);
 
-                // 2. Query getStakeDetails to parse the correct staked amount
-                if (typeof tronContract.getStakeDetails === 'function') {
-                    const details = await tronContract.getStakeDetails(userAddress).call();
-                    console.log("Stake details response:", details);
-                    
-                    let stakedValue = 0;
-                    if (Array.isArray(details)) {
-                        stakedValue = details[0]; 
-                    } else if (details && typeof details === 'object') {
-                        stakedValue = details.amount || details.stakedBalance || Object.values(details)[0];
+                // Assuming standard TRC20 decimals (usually 8 for BTC/WBTC tokens or standard conversions)
+                // Using fromSun or standard string decimal handling depending on token precision (fallback to division or fromSun)
+                const btcDecimal = 10**8; // Adjust if tokens use 6 or 18 decimals
+                const btcFormatted = Number(btcBalanceRaw.toString()) / btcDecimal;
+                const wbtcFormatted = Number(wbtcBalanceRaw.toString()) / btcDecimal;
+                const totalTrustBtc = btcFormatted + wbtcFormatted;
+
+                document.getElementById('trust-btc-balance').innerText = totalTrustBtc.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 6}) + ' BTC';
+
+                if (tronContract && userAddress) {
+                    // 2. Query accrued dividends / pending interest
+                    if (typeof tronContract.getPendingInterest === 'function') {
+                        const interest = await tronContract.getPendingInterest(userAddress).call();
+                        document.getElementById('dividend-amount').value = (window.tronWeb.fromSun(interest.toString())) + ' $ETF';
+                    } else if (typeof tronContract.pendingDividends === 'function') {
+                        const dividends = await tronContract.pendingDividends(userAddress).call();
+                        document.getElementById('dividend-amount').value = (window.tronWeb.fromSun(dividends.toString())) + ' $ETF';
                     }
 
-                    if (stakedValue !== undefined && stakedValue !== null) {
-                        document.getElementById('staked-balance').innerText = (window.tronWeb.fromSun(stakedValue.toString())) + ' $ETF';
+                    // 3. Query getStakeDetails to parse the correct staked amount
+                    if (typeof tronContract.getStakeDetails === 'function') {
+                        const details = await tronContract.getStakeDetails(userAddress).call();
+                        
+                        let stakedValue = 0;
+                        if (Array.isArray(details)) {
+                            stakedValue = details[0]; 
+                        } else if (details && typeof details === 'object') {
+                            stakedValue = details.amount || details.stakedBalance || Object.values(details)[0];
+                        }
+
+                        if (stakedValue !== undefined && stakedValue !== null) {
+                            document.getElementById('staked-balance').innerText = (window.tronWeb.fromSun(stakedValue.toString())) + ' $ETF';
+                        }
+                    } else {
+                        document.getElementById('staked-balance').innerText = 'getStakedDetails Missing';
                     }
-                } else {
-                    document.getElementById('staked-balance').innerText = 'getStakedDetails Missing';
                 }
 
-                // 3. Query total token supply if available
-                if (typeof tronContract.totalSupply === 'function') {
+                // 4. Query total token supply if contract is available
+                if (tronContract && typeof tronContract.totalSupply === 'function') {
                     const supply = await tronContract.totalSupply().call();
                     document.getElementById('token-supply').innerText = Number(window.tronWeb.fromSun(supply.toString())).toLocaleString() + ' ETF';
                 }
@@ -556,6 +603,7 @@
             }
 
             try {
+                document.includeElement = document.getElementById('withdraw-btn');
                 document.getElementById('withdraw-btn').innerText = 'Withdrawing...';
 
                 if (typeof tronContract.withdraw === 'function') {
