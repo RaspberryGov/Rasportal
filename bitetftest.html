@@ -109,7 +109,7 @@
                     </div>
                 </div>
 
-                <!-- Total BTC in Trust Card (2 Separate lines for $BTC and $WBTC) -->
+                <!-- Total BTC in Trust Card (2 Separate lines for $BTC and$WBTC) -->
                 <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between sm:col-span-1 lg:col-span-1">
                     <div>
                         <div class="flex items-center justify-between mb-1">
@@ -136,7 +136,7 @@
                 <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between">
                     <div>
                         <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">BTC/ETF Share Price</div>
-                        <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="share-price">1.00000000</div>
+                        <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="share-price">0.00000001 ₿</div>
                         <div class="text-[10px] font-semibold text-gray-500 mt-1">1 $ETF = 1 ₿ (Bit standard)</div>
                     </div>
                 </div>
@@ -145,8 +145,8 @@
                 <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between">
                     <div>
                         <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Total Token Supply</div>
-                        <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="token-supply">100,000.00000000</div>
-                        <div class="text-[10px] font-semibold text-gray-500 mt-1">$ETF Total Minted</div>
+                        <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="token-supply">100,000.00</div>
+                        <div class="text-[10px] font-semibold text-gray-500 mt-1">Total $ETF minted</div>
                     </div>
                 </div>
             </div>
@@ -359,7 +359,7 @@
         }
 
         /**
-         * Fetch exact TRC20 token balances for $BTC and $WBTC directly from TRON Mainnet.
+         * Fetch exact TRC20 token balances for $BTC and$WBTC directly from TRON Mainnet.
          * Uses direct on-chain balanceOf constant calls via TronWeb with REST fallback.
          */
         async function fetchTrustBalances() {
