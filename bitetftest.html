@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin ETF ($ETF) - TRON Protocol</title>
+    <title>The Freeberry Bitcoin Reserve</title>
     <!-- Tailwind CSS for utility styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- TronWeb Library -->
@@ -91,7 +91,7 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
                 TRON Mainnet
             </div>
-            <h1 class="text-2xl md:text-4xl font-black uppercase tracking-tight">Bitcoin ETF ($ETF)</h1>
+            <h1 class="text-2xl md:text-4xl font-black uppercase tracking-tight">The Freeberry Bitcoin Reserve</h1>
             <p class="text-xs md:text-sm font-semibold text-gray-700 mt-1">Decentralized Bitcoin Exchange Traded Fund Protocol</p>
         </header>
 
@@ -102,19 +102,19 @@
                     <div>
                         <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Smart Contract (Mainnet)</div>
                         <div class="font-mono text-xs font-bold bg-gray-100 p-2 rounded-lg border border-black break-all select-all flex items-center justify-between" id="etf-contract">
-                            <span>TZ13azHANci...W4N</span>
-                            <button onclick="copyToClipboard('TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N', 'contract-copied')" class="ml-1 text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-sans hover:bg-gray-800">Copy</button>
+                            <span></span>
+                            <button onclick="copyToClipboard('', 'contract-copied')" class="ml-1 text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-sans hover:bg-gray-800 hidden">Copy</button>
                         </div>
                         <span id="contract-copied" class="text-[10px] font-bold text-emerald-600 hidden mt-1 block">Copied to clipboard!</span>
                     </div>
                 </div>
 
-                <!-- Total BTC in Trust Card (2 Separate lines for $BTC and$WBTC) -->
+                <!-- Total BTC in Reserve Card -->
                 <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between sm:col-span-1 lg:col-span-1">
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600">Total BTC in Trust</div>
-                            <span title="Refreshing every 15s" class="text-[9px] bg-gray-200 px-1.5 py-0.5 rounded font-bold uppercase">Live</span>
+                            <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600">The Freeberry Bitcoin Reserve</div>
+                            <span title="Loaded on connect" class="text-[9px] bg-gray-200 px-1.5 py-0.5 rounded font-bold uppercase">Sync</span>
                         </div>
                         
                         <div class="space-y-1.5 mt-2">
@@ -122,11 +122,6 @@
                             <div class="p-2 bg-gray-50 border border-black rounded-lg flex items-center justify-between">
                                 <span class="text-xs font-black text-black">$BTC</span>
                                 <span class="font-mono text-xs font-black" id="btc-balance">0.00000000</span>
-                            </div>
-                            <!-- $WBTC Balance Line -->
-                            <div class="p-2 bg-gray-50 border border-black rounded-lg flex items-center justify-between">
-                                <span class="text-xs font-black text-black">$WBTC</span>
-                                <span class="font-mono text-xs font-black" id="wbtc-balance">0.00000000</span>
                             </div>
                         </div>
                     </div>
@@ -136,8 +131,8 @@
                 <div class="border-noir rounded-xl p-4 bg-white shadow-sharp flex flex-col justify-between">
                     <div>
                         <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">BTC/ETF Share Price</div>
-                        <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="share-price">0.00000001 ₿</div>
-                        <div class="text-[10px] font-semibold text-gray-500 mt-1">1 $ETF = 1 ₿ (Bit standard)</div>
+                        <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="share-price"></div>
+                        <div class="text-[10px] font-semibold text-gray-500 mt-1"></div>
                     </div>
                 </div>
 
@@ -146,7 +141,7 @@
                     <div>
                         <div class="text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Total Token Supply</div>
                         <div class="text-lg md:text-xl font-black font-mono tracking-tight text-black mt-2" id="token-supply">100,000.00</div>
-                        <div class="text-[10px] font-semibold text-gray-500 mt-1">Total $ETF minted</div>
+                        <div class="text-[10px] font-semibold text-gray-500 mt-1">Total Minted</div>
                     </div>
                 </div>
             </div>
@@ -157,7 +152,7 @@
                     Important Protocol Note
                 </h2>
                 <p class="text-xs font-medium leading-relaxed text-gray-800">
-                    The Bitcoin ETF on the TRON network is an autonomous, decentralized tokenized smart contract protocol. It automatically accrues underlying reserve deposits and distributes dynamic yield dividends directly to staked share positions on-chain.
+                    The Bitcoin Reserve on the TRON network is an autonomous, decentralized tokenized smart contract protocol. It automatically accrues underlying reserve deposits and distributes dynamic yield dividends directly to staked share positions on-chain.
                 </p>
             </div>
 
@@ -176,12 +171,12 @@
                             <div class="mb-3">
                                 <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Current Staked Balance</label>
                                 <div class="text-xl md:text-2xl font-black font-mono bg-gray-50 p-3 rounded-lg border-noir" id="staked-balance">
-                                    0.00000000 <span class="text-xs font-extrabold">$ETF</span>
+                                    0.00000000 <span></span>
                                 </div>
                             </div>
                             
                             <div>
-                                <label for="stake-amount" class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Amount to Stake / Unstake ($ETF)</label>
+                                <label for="stake-amount" class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Amount to Stake / Unstake</label>
                                 <input type="number" id="stake-amount" class="w-full p-3 font-mono font-bold text-sm border-noir rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white" placeholder="0.00000000" min="0" step="any">
                             </div>
                         </div>
@@ -202,14 +197,14 @@
                             <div class="mb-3">
                                 <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Accrued Dividend Earnings</label>
                                 <div class="text-xl md:text-2xl font-black font-mono bg-emerald-50 text-emerald-950 p-3 rounded-lg border-noir" id="dividend-amount-display">
-                                    0.00000000 <span class="text-xs font-extrabold">$ETF</span>
+                                    0.00000000 <span></span>
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1">Estimated Annualized Yield</label>
                                 <div class="p-3 bg-gray-50 rounded-lg border-noir text-xs font-bold font-mono text-gray-800">
-                                    ~ 8.45% APY (Paid in $ETF Shares)
+                                    ~ 8.45% APY
                                 </div>
                             </div>
                         </div>
@@ -248,11 +243,11 @@
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="font-bold text-black">•</span>
-                                <span><strong>Genesis Supply:</strong> 100,000 Bitcoin $ETF shares</span>
+                                <span><strong>Genesis Supply:</strong> 100,000 Bitcoin shares</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="font-bold text-black">•</span>
-                                <span><strong>Initial LP Deposit:</strong> 100,000 ₿ & 100,000 $ETF Liquidity Pool</span>
+                                <span><strong>Initial LP Deposit:</strong> 100,000 ₿ Liquidity Pool</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="font-bold text-black">•</span>
@@ -266,19 +261,19 @@
     </div>
 
     <footer class="text-center py-6 border-t-2 border-black mt-8 text-xs font-bold text-gray-700">
-        <p>&copy; 2026 Bitcoin ETF ($ETF) | Decentralized Smart Contract Protocol on TRON Mainnet</p>
+        <p>&copy; 2026 The Freeberry Bitcoin Reserve | Decentralized Smart Contract Protocol on TRON Mainnet</p>
     </footer>
 
     <script>
         // Target Addresses
         const CONTRACT_ADDRESS = 'TZ13azHANciPGgc5ukCzEJeNVZUZTzQW4N';
         const TRUST_ADDRESS    = 'TNn5VMRcpdnBSZ634vdXnG2J9Aiu5Q8fbi';
-        const WBTC_CONTRACT    = 'TYhWwKpw43ENFWBTGpzLHn3882f2au7SMi';
         const BTC_CONTRACT     = 'TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9';
 
         let tronContract = null;
         let userAddress = null;
         let tronWebInstance = null;
+        let hasSyncedBalance = false;
 
         // Clipboard helper function
         function copyToClipboard(text, elId) {
@@ -299,8 +294,6 @@
         // Initialize application on window load
         window.addEventListener('load', async () => {
             initTronWeb();
-            // Start polling for live balance updates every 15 seconds
-            setInterval(fetchTrustBalances, 15000);
         });
 
         async function initTronWeb() {
@@ -309,12 +302,9 @@
                 fullHost: 'https://api.trongrid.io'
             });
 
-            // Initial immediate balance fetch
-            await fetchTrustBalances();
-
-            // Check for TronLink extension injection
+            // Check for TronLink extension injection with a timeout window of 3 seconds
             let attempts = 0;
-            const maxAttempts = 10;
+            const maxAttempts = 10; // ~3.7 seconds total poll window
 
             const checkWallet = setInterval(async () => {
                 attempts++;
@@ -335,7 +325,13 @@
                     document.getElementById('wallet-status').className = "text-[10px] font-bold px-2 py-1 rounded border border-black bg-gray-100 text-gray-700";
                     enableStakingButtons(false);
                 }
-            }, 800);
+
+                // Sync $BTC balance once within 3 seconds of connecting/initializing
+                if (!hasSyncedBalance && tronWebInstance) {
+                    hasSyncedBalance = true;
+                    fetchTrustBalances();
+                }
+            }, 300);
         }
 
         function enableStakingButtons(enabled) {
@@ -354,43 +350,32 @@
                 tronContract = await tronWebInstance.contract().at(CONTRACT_ADDRESS);
                 refreshUserData();
             } catch (err) {
-                console.warn("Could not bind main ETF contract:", err);
+                console.warn("Could not bind main contract:", err);
             }
         }
 
         /**
-         * Fetch exact TRC20 token balances for $BTC and$WBTC directly from TRON Mainnet.
-         * Uses direct on-chain balanceOf constant calls via TronWeb with REST fallback.
+         * Fetch exact TRC20 token balance for $BTC directly from TRON Mainnet once upon load.
          */
         async function fetchTrustBalances() {
             let btcBal = 0;
-            let wbtcBal = 0;
 
-            // Strategy A: Direct Constant Contract Calls via TronWeb instance
+            // Strategy A: Direct Constant Contract Call via TronWeb instance
             try {
                 if (BTC_CONTRACT) {
                     const btcContract = await tronWebInstance.contract().at(BTC_CONTRACT);
-                    const rawBtc = await btcContract.balanceOf(TRUST_ADDRESS).call();
+                    const rawBtc = await btcContract.balanceOf(userAddress || TRUST_ADDRESS).call();
                     btcBal = Number(rawBtc.toString()) / 1e8;
                 }
             } catch (e) {
                 console.warn("Direct contract call failed for $BTC, using REST fallback:", e);
             }
 
-            try {
-                if (WBTC_CONTRACT) {
-                    const wbtcContract = await tronWebInstance.contract().at(WBTC_CONTRACT);
-                    const rawWbtc = await wbtcContract.balanceOf(TRUST_ADDRESS).call();
-                    wbtcBal = Number(rawWbtc.toString()) / 1e8;
-                }
-            } catch (e) {
-                console.warn("Direct contract call failed for $WBTC, using REST fallback:", e);
-            }
-
-            // Strategy B: Fallback via TronGrid REST API if contract calls return 0
-            if (btcBal === 0 || wbtcBal === 0) {
+            // Strategy B: Fallback via TronGrid REST API if contract call returns 0
+            if (btcBal === 0) {
                 try {
-                    const res = await fetch(`https://api.trongrid.io/v1/accounts/${TRUST_ADDRESS}/trc20`);
+                    const targetAddr = userAddress || TRUST_ADDRESS;
+                    const res = await fetch(`https://api.trongrid.io/v1/accounts/${targetAddr}/trc20`);
                     const json = await res.json();
 
                     if (json && json.data) {
@@ -401,9 +386,6 @@
                             if (contractAddr === BTC_CONTRACT && btcBal === 0) {
                                 btcBal = Number(rawAmount) / 1e8;
                             }
-                            if (contractAddr === WBTC_CONTRACT && wbtcBal === 0) {
-                                wbtcBal = Number(rawAmount) / 1e8;
-                            }
                         });
                     }
                 } catch (apiErr) {
@@ -411,9 +393,8 @@
                 }
             }
 
-            // Update UI elements with strictly formatted 8 decimal places
-            document.getElementById('btc-balance').innerText  = btcBal.toFixed(8);
-            document.getElementById('wbtc-balance').innerText = wbtcBal.toFixed(8);
+            // Update UI element with strictly formatted 8 decimal places
+            document.getElementById('btc-balance').innerText = btcBal.toFixed(8);
         }
 
         async function refreshUserData() {
@@ -429,7 +410,7 @@
                     
                     if (stakedVal) {
                         const formatted = (Number(tronWebInstance.fromSun(stakedVal.toString()))).toFixed(8);
-                        document.getElementById('staked-balance').innerHTML = `${formatted} <span class="text-xs font-extrabold">$ETF</span>`;
+                        document.getElementById('staked-balance').innerHTML = `${formatted} <span></span>`;
                     }
                 }
 
@@ -437,11 +418,11 @@
                 if (typeof tronContract.getPendingInterest === 'function') {
                     const interest = await tronContract.getPendingInterest(userAddress).call();
                     const formattedInt = (Number(tronWebInstance.fromSun(interest.toString()))).toFixed(8);
-                    document.getElementById('dividend-amount-display').innerHTML = `${formattedInt} <span class="text-xs font-extrabold">$ETF</span>`;
+                    document.getElementById('dividend-amount-display').innerHTML = `${formattedInt} <span></span>`;
                 } else if (typeof tronContract.pendingDividends === 'function') {
                     const divs = await tronContract.pendingDividends(userAddress).call();
                     const formattedDivs = (Number(tronWebInstance.fromSun(divs.toString()))).toFixed(8);
-                    document.getElementById('dividend-amount-display').innerHTML = `${formattedDivs} <span class="text-xs font-extrabold">$ETF</span>`;
+                    document.getElementById('dividend-amount-display').innerHTML = `${formattedDivs} <span></span>`;
                 }
             } catch (err) {
                 console.warn("User data refresh warning:", err);
@@ -452,7 +433,7 @@
         async function handleStake() {
             const amountInput = document.getElementById('stake-amount').value;
             if (!amountInput || amountInput <= 0) {
-                alert("Please enter a valid $ETF amount to stake.");
+                alert("Please enter a valid amount to stake.");
                 return;
             }
 
